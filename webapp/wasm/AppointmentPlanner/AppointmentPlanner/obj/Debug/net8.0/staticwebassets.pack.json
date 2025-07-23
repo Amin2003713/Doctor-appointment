@@ -1,0 +1,237 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\SFResource\\blazor.polyfill.min.js",
+      "PackagePath": "staticwebassets\\SFResource\\blazor.polyfill.min.js"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\SFResource\\bootstrap.min.css",
+      "PackagePath": "staticwebassets\\SFResource\\bootstrap.min.css"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\app.css",
+      "PackagePath": "staticwebassets\\css\\app.css"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\about.css",
+      "PackagePath": "staticwebassets\\css\\appoinment\\about.css"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\assets\\.gitkeep",
+      "PackagePath": "staticwebassets\\css\\appoinment\\assets\\.gitkeep"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\assets\\Icons\\Doctors.svg",
+      "PackagePath": "staticwebassets\\css\\appoinment\\assets\\Icons\\Doctors.svg"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\assets\\Icons\\ThisWeek_Widget.svg",
+      "PackagePath": "staticwebassets\\css\\appoinment\\assets\\Icons\\ThisWeek_Widget.svg"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\assets\\Icons\\Today_Widget.svg",
+      "PackagePath": "staticwebassets\\css\\appoinment\\assets\\Icons\\Today_Widget.svg"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\assets\\favicon.ico",
+      "PackagePath": "staticwebassets\\css\\appoinment\\assets\\favicon.ico"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\assets\\fonts\\icomoon.eot",
+      "PackagePath": "staticwebassets\\css\\appoinment\\assets\\fonts\\icomoon.eot"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\assets\\fonts\\icomoon.svg",
+      "PackagePath": "staticwebassets\\css\\appoinment\\assets\\fonts\\icomoon.svg"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\assets\\fonts\\icomoon.ttf",
+      "PackagePath": "staticwebassets\\css\\appoinment\\assets\\fonts\\icomoon.ttf"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\assets\\fonts\\icomoon.woff",
+      "PackagePath": "staticwebassets\\css\\appoinment\\assets\\fonts\\icomoon.woff"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\assets\\fonts\\icons.eot",
+      "PackagePath": "staticwebassets\\css\\appoinment\\assets\\fonts\\icons.eot"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\assets\\fonts\\icons.svg",
+      "PackagePath": "staticwebassets\\css\\appoinment\\assets\\fonts\\icons.svg"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\assets\\fonts\\icons.ttf",
+      "PackagePath": "staticwebassets\\css\\appoinment\\assets\\fonts\\icons.ttf"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\assets\\fonts\\icons.woff",
+      "PackagePath": "staticwebassets\\css\\appoinment\\assets\\fonts\\icons.woff"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\assets\\images\\Admin.png",
+      "PackagePath": "staticwebassets\\css\\appoinment\\assets\\images\\Admin.png"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\assets\\images\\AlexaRichardson.png",
+      "PackagePath": "staticwebassets\\css\\appoinment\\assets\\images\\AlexaRichardson.png"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\assets\\images\\AmeliaEdwards.png",
+      "PackagePath": "staticwebassets\\css\\appoinment\\assets\\images\\AmeliaEdwards.png"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\assets\\images\\MollieCobb.png",
+      "PackagePath": "staticwebassets\\css\\appoinment\\assets\\images\\MollieCobb.png"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\assets\\images\\NemboLukni.png",
+      "PackagePath": "staticwebassets\\css\\appoinment\\assets\\images\\NemboLukni.png"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\assets\\images\\NoutGolstein.png",
+      "PackagePath": "staticwebassets\\css\\appoinment\\assets\\images\\NoutGolstein.png"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\assets\\images\\PaulWalker.png",
+      "PackagePath": "staticwebassets\\css\\appoinment\\assets\\images\\PaulWalker.png"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\assets\\images\\YaraBarros.png",
+      "PackagePath": "staticwebassets\\css\\appoinment\\assets\\images\\YaraBarros.png"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\assets\\images\\default.png",
+      "PackagePath": "staticwebassets\\css\\appoinment\\assets\\images\\default.png"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\assets\\styles\\bootstrap.css",
+      "PackagePath": "staticwebassets\\css\\appoinment\\assets\\styles\\bootstrap.css"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\assets\\styles\\bootstrap.scss",
+      "PackagePath": "staticwebassets\\css\\appoinment\\assets\\styles\\bootstrap.scss"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\calendar.css",
+      "PackagePath": "staticwebassets\\css\\appoinment\\calendar.css"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\common.css",
+      "PackagePath": "staticwebassets\\css\\appoinment\\common.css"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\dashboard.css",
+      "PackagePath": "staticwebassets\\css\\appoinment\\dashboard.css"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\doctor.css",
+      "PackagePath": "staticwebassets\\css\\appoinment\\doctor.css"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\doctordetails.css",
+      "PackagePath": "staticwebassets\\css\\appoinment\\doctordetails.css"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\doctoreditdialog.css",
+      "PackagePath": "staticwebassets\\css\\appoinment\\doctoreditdialog.css"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\main.css",
+      "PackagePath": "staticwebassets\\css\\appoinment\\main.css"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\mark.svg",
+      "PackagePath": "staticwebassets\\css\\appoinment\\mark.svg"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\patients.css",
+      "PackagePath": "staticwebassets\\css\\appoinment\\patients.css"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\appoinment\\preference.css",
+      "PackagePath": "staticwebassets\\css\\appoinment\\preference.css"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\bootstrap\\bootstrap.min.css",
+      "PackagePath": "staticwebassets\\css\\bootstrap\\bootstrap.min.css"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\bootstrap\\bootstrap.min.css.map",
+      "PackagePath": "staticwebassets\\css\\bootstrap\\bootstrap.min.css.map"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\open-iconic\\FONT-LICENSE",
+      "PackagePath": "staticwebassets\\css\\open-iconic"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\open-iconic\\ICON-LICENSE",
+      "PackagePath": "staticwebassets\\css\\open-iconic"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\open-iconic\\README.md",
+      "PackagePath": "staticwebassets\\css\\open-iconic\\README.md"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\open-iconic\\font\\css\\open-iconic-bootstrap.min.css",
+      "PackagePath": "staticwebassets\\css\\open-iconic\\font\\css\\open-iconic-bootstrap.min.css"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\open-iconic\\font\\fonts\\open-iconic.eot",
+      "PackagePath": "staticwebassets\\css\\open-iconic\\font\\fonts\\open-iconic.eot"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\open-iconic\\font\\fonts\\open-iconic.otf",
+      "PackagePath": "staticwebassets\\css\\open-iconic\\font\\fonts\\open-iconic.otf"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\open-iconic\\font\\fonts\\open-iconic.svg",
+      "PackagePath": "staticwebassets\\css\\open-iconic\\font\\fonts\\open-iconic.svg"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\open-iconic\\font\\fonts\\open-iconic.ttf",
+      "PackagePath": "staticwebassets\\css\\open-iconic\\font\\fonts\\open-iconic.ttf"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\open-iconic\\font\\fonts\\open-iconic.woff",
+      "PackagePath": "staticwebassets\\css\\open-iconic\\font\\fonts\\open-iconic.woff"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\css\\site.css",
+      "PackagePath": "staticwebassets\\css\\site.css"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\favicon.ico",
+      "PackagePath": "staticwebassets\\favicon.ico"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\index.html",
+      "PackagePath": "staticwebassets\\index.html"
+    },
+    {
+      "Id": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\wwwroot\\sample-data\\weather.json",
+      "PackagePath": "staticwebassets\\sample-data\\weather.json"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.AppointmentPlanner.Microsoft.AspNetCore.StaticWebAssetEndpoints.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssetEndpoints.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.AppointmentPlanner.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.AppointmentPlanner.props",
+      "PackagePath": "build\\AppointmentPlanner.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.AppointmentPlanner.props",
+      "PackagePath": "buildMultiTargeting\\AppointmentPlanner.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.AppointmentPlanner.props",
+      "PackagePath": "buildTransitive\\AppointmentPlanner.props"
+    }
+  ],
+  "ElementsToRemove": []
+}
