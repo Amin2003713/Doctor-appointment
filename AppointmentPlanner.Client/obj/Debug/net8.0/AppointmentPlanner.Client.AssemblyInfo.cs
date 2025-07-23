@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AppointmentPlanner.Client")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+02875ed9654736f82ad759837c6c4993db78df9d")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+684e8f05a2295e3ba691c4efb94f5592c4ec55b9")]
 [assembly: System.Reflection.AssemblyProductAttribute("AppointmentPlanner.Client")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AppointmentPlanner.Client")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

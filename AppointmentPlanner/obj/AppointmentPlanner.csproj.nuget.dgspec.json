@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\AppointmentPlanner.csproj": {}
+    "C:\\Users\\amin1\\Desktop\\Doctor-appointment\\AppointmentPlanner\\AppointmentPlanner.csproj": {}
   },
   "projects": {
-    "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner.Client\\AppointmentPlanner.Client.csproj": {
+    "C:\\Users\\amin1\\Desktop\\Doctor-appointment\\AppointmentPlanner.Client\\AppointmentPlanner.Client.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner.Client\\AppointmentPlanner.Client.csproj",
+        "projectUniqueName": "C:\\Users\\amin1\\Desktop\\Doctor-appointment\\AppointmentPlanner.Client\\AppointmentPlanner.Client.csproj",
         "projectName": "AppointmentPlanner.Client",
-        "projectPath": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner.Client\\AppointmentPlanner.Client.csproj",
+        "projectPath": "C:\\Users\\amin1\\Desktop\\Doctor-appointment\\AppointmentPlanner.Client\\AppointmentPlanner.Client.csproj",
         "packagesPath": "C:\\Users\\amin1\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner.Client\\obj\\",
+        "outputPath": "C:\\Users\\amin1\\Desktop\\Doctor-appointment\\AppointmentPlanner.Client\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -127,14 +127,14 @@
         }
       }
     },
-    "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\AppointmentPlanner.csproj": {
+    "C:\\Users\\amin1\\Desktop\\Doctor-appointment\\AppointmentPlanner\\AppointmentPlanner.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\AppointmentPlanner.csproj",
+        "projectUniqueName": "C:\\Users\\amin1\\Desktop\\Doctor-appointment\\AppointmentPlanner\\AppointmentPlanner.csproj",
         "projectName": "AppointmentPlanner",
-        "projectPath": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\AppointmentPlanner.csproj",
+        "projectPath": "C:\\Users\\amin1\\Desktop\\Doctor-appointment\\AppointmentPlanner\\AppointmentPlanner.csproj",
         "packagesPath": "C:\\Users\\amin1\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner\\obj\\",
+        "outputPath": "C:\\Users\\amin1\\Desktop\\Doctor-appointment\\AppointmentPlanner\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -156,8 +156,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner.Client\\AppointmentPlanner.Client.csproj": {
-                "projectPath": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner.Client\\AppointmentPlanner.Client.csproj"
+              "C:\\Users\\amin1\\Desktop\\Doctor-appointment\\AppointmentPlanner.Client\\AppointmentPlanner.Client.csproj": {
+                "projectPath": "C:\\Users\\amin1\\Desktop\\Doctor-appointment\\AppointmentPlanner.Client\\AppointmentPlanner.Client.csproj"
               }
             }
           }

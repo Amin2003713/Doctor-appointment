@@ -1,57 +1,207 @@
 {
   "version": 2,
-  "dgSpecHash": "a1c53PacdKI=",
-  "success": true,
-  "projectFilePath": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner.Client\\AppointmentPlanner.Client.csproj",
+  "dgSpecHash": "p+5BGXzPDzQ=",
+  "success": false,
+  "projectFilePath": "C:\\Users\\amin1\\Desktop\\Doctor-appointment\\AppointmentPlanner.Client\\AppointmentPlanner.Client.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\amin1\\.nuget\\packages\\microsoft.aspnetcore.authorization\\8.0.15\\microsoft.aspnetcore.authorization.8.0.15.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\microsoft.aspnetcore.components\\8.0.15\\microsoft.aspnetcore.components.8.0.15.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\microsoft.aspnetcore.components.analyzers\\8.0.15\\microsoft.aspnetcore.components.analyzers.8.0.15.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\microsoft.aspnetcore.components.forms\\8.0.15\\microsoft.aspnetcore.components.forms.8.0.15.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\microsoft.aspnetcore.components.web\\8.0.15\\microsoft.aspnetcore.components.web.8.0.15.nupkg.sha512",
+    "C:\\Users\\amin1\\.nuget\\packages\\microsoft.aspnetcore.authorization\\8.0.0\\microsoft.aspnetcore.authorization.8.0.0.nupkg.sha512",
+    "C:\\Users\\amin1\\.nuget\\packages\\microsoft.aspnetcore.components\\8.0.0\\microsoft.aspnetcore.components.8.0.0.nupkg.sha512",
+    "C:\\Users\\amin1\\.nuget\\packages\\microsoft.aspnetcore.components.analyzers\\8.0.0\\microsoft.aspnetcore.components.analyzers.8.0.0.nupkg.sha512",
+    "C:\\Users\\amin1\\.nuget\\packages\\microsoft.aspnetcore.components.forms\\8.0.0\\microsoft.aspnetcore.components.forms.8.0.0.nupkg.sha512",
+    "C:\\Users\\amin1\\.nuget\\packages\\microsoft.aspnetcore.components.web\\8.0.0\\microsoft.aspnetcore.components.web.8.0.0.nupkg.sha512",
     "C:\\Users\\amin1\\.nuget\\packages\\microsoft.aspnetcore.components.webassembly\\8.0.0\\microsoft.aspnetcore.components.webassembly.8.0.0.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\microsoft.aspnetcore.metadata\\8.0.15\\microsoft.aspnetcore.metadata.8.0.15.nupkg.sha512",
+    "C:\\Users\\amin1\\.nuget\\packages\\microsoft.aspnetcore.metadata\\8.0.0\\microsoft.aspnetcore.metadata.8.0.0.nupkg.sha512",
     "C:\\Users\\amin1\\.nuget\\packages\\microsoft.extensions.configuration\\8.0.0\\microsoft.extensions.configuration.8.0.0.nupkg.sha512",
     "C:\\Users\\amin1\\.nuget\\packages\\microsoft.extensions.configuration.abstractions\\8.0.0\\microsoft.extensions.configuration.abstractions.8.0.0.nupkg.sha512",
     "C:\\Users\\amin1\\.nuget\\packages\\microsoft.extensions.configuration.binder\\8.0.0\\microsoft.extensions.configuration.binder.8.0.0.nupkg.sha512",
     "C:\\Users\\amin1\\.nuget\\packages\\microsoft.extensions.configuration.fileextensions\\8.0.0\\microsoft.extensions.configuration.fileextensions.8.0.0.nupkg.sha512",
     "C:\\Users\\amin1\\.nuget\\packages\\microsoft.extensions.configuration.json\\8.0.0\\microsoft.extensions.configuration.json.8.0.0.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\8.0.1\\microsoft.extensions.dependencyinjection.8.0.1.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.2\\microsoft.extensions.dependencyinjection.abstractions.8.0.2.nupkg.sha512",
+    "C:\\Users\\amin1\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\8.0.0\\microsoft.extensions.dependencyinjection.8.0.0.nupkg.sha512",
+    "C:\\Users\\amin1\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.0\\microsoft.extensions.dependencyinjection.abstractions.8.0.0.nupkg.sha512",
     "C:\\Users\\amin1\\.nuget\\packages\\microsoft.extensions.fileproviders.abstractions\\8.0.0\\microsoft.extensions.fileproviders.abstractions.8.0.0.nupkg.sha512",
     "C:\\Users\\amin1\\.nuget\\packages\\microsoft.extensions.fileproviders.physical\\8.0.0\\microsoft.extensions.fileproviders.physical.8.0.0.nupkg.sha512",
     "C:\\Users\\amin1\\.nuget\\packages\\microsoft.extensions.filesystemglobbing\\8.0.0\\microsoft.extensions.filesystemglobbing.8.0.0.nupkg.sha512",
     "C:\\Users\\amin1\\.nuget\\packages\\microsoft.extensions.logging\\8.0.0\\microsoft.extensions.logging.8.0.0.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.3\\microsoft.extensions.logging.abstractions.8.0.3.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\microsoft.extensions.options\\8.0.2\\microsoft.extensions.options.8.0.2.nupkg.sha512",
+    "C:\\Users\\amin1\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\8.0.0\\microsoft.extensions.logging.abstractions.8.0.0.nupkg.sha512",
+    "C:\\Users\\amin1\\.nuget\\packages\\microsoft.extensions.options\\8.0.0\\microsoft.extensions.options.8.0.0.nupkg.sha512",
     "C:\\Users\\amin1\\.nuget\\packages\\microsoft.extensions.primitives\\8.0.0\\microsoft.extensions.primitives.8.0.0.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\microsoft.jsinterop\\8.0.15\\microsoft.jsinterop.8.0.15.nupkg.sha512",
+    "C:\\Users\\amin1\\.nuget\\packages\\microsoft.jsinterop\\8.0.0\\microsoft.jsinterop.8.0.0.nupkg.sha512",
     "C:\\Users\\amin1\\.nuget\\packages\\microsoft.jsinterop.webassembly\\8.0.0\\microsoft.jsinterop.webassembly.8.0.0.nupkg.sha512",
     "C:\\Users\\amin1\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.12\\microsoft.net.illink.tasks.8.0.12.nupkg.sha512",
     "C:\\Users\\amin1\\.nuget\\packages\\microsoft.net.sdk.webassembly.pack\\9.0.1\\microsoft.net.sdk.webassembly.pack.9.0.1.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\syncfusion.blazor.buttons\\30.1.41\\syncfusion.blazor.buttons.30.1.41.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\syncfusion.blazor.calendars\\30.1.41\\syncfusion.blazor.calendars.30.1.41.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\syncfusion.blazor.charts\\30.1.41\\syncfusion.blazor.charts.30.1.41.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\syncfusion.blazor.core\\30.1.41\\syncfusion.blazor.core.30.1.41.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\syncfusion.blazor.data\\30.1.41\\syncfusion.blazor.data.30.1.41.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\syncfusion.blazor.datavizcommon\\30.1.41\\syncfusion.blazor.datavizcommon.30.1.41.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\syncfusion.blazor.dropdowns\\30.1.41\\syncfusion.blazor.dropdowns.30.1.41.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\syncfusion.blazor.grid\\30.1.41\\syncfusion.blazor.grid.30.1.41.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\syncfusion.blazor.inputs\\30.1.41\\syncfusion.blazor.inputs.30.1.41.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\syncfusion.blazor.lists\\30.1.41\\syncfusion.blazor.lists.30.1.41.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\syncfusion.blazor.navigations\\30.1.41\\syncfusion.blazor.navigations.30.1.41.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\syncfusion.blazor.notifications\\30.1.41\\syncfusion.blazor.notifications.30.1.41.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\syncfusion.blazor.popups\\30.1.41\\syncfusion.blazor.popups.30.1.41.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\syncfusion.blazor.schedule\\30.1.41\\syncfusion.blazor.schedule.30.1.41.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\syncfusion.blazor.spinner\\30.1.41\\syncfusion.blazor.spinner.30.1.41.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\syncfusion.blazor.splitbuttons\\30.1.41\\syncfusion.blazor.splitbuttons.30.1.41.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\syncfusion.blazor.themes\\30.1.41\\syncfusion.blazor.themes.30.1.41.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\syncfusion.excelexport.net.core\\30.1.41\\syncfusion.excelexport.net.core.30.1.41.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\syncfusion.licensing\\30.1.41\\syncfusion.licensing.30.1.41.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\syncfusion.pdfexport.net.core\\30.1.41\\syncfusion.pdfexport.net.core.30.1.41.nupkg.sha512",
     "C:\\Users\\amin1\\.nuget\\packages\\system.io.pipelines\\8.0.0\\system.io.pipelines.8.0.0.nupkg.sha512",
-    "C:\\Users\\amin1\\.nuget\\packages\\system.text.json\\8.0.5\\system.text.json.8.0.5.nupkg.sha512",
+    "C:\\Users\\amin1\\.nuget\\packages\\system.text.encodings.web\\8.0.0\\system.text.encodings.web.8.0.0.nupkg.sha512",
+    "C:\\Users\\amin1\\.nuget\\packages\\system.text.json\\8.0.0\\system.text.json.8.0.0.nupkg.sha512",
     "C:\\Users\\amin1\\.nuget\\packages\\microsoft.netcore.app.runtime.mono.browser-wasm\\8.0.13\\microsoft.netcore.app.runtime.mono.browser-wasm.8.0.13.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "NU1801",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Unable to get repository signature information for source https://api.nuget.org/v3-index/repository-signatures/5.0.0/index.json.",
+      "libraryId": "Syncfusion.Blazor.Buttons"
+    },
+    {
+      "code": "NU1801",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Unable to get repository signature information for source https://api.nuget.org/v3-index/repository-signatures/5.0.0/index.json.",
+      "libraryId": "Syncfusion.Blazor.Charts"
+    },
+    {
+      "code": "NU1801",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Unable to get repository signature information for source https://api.nuget.org/v3-index/repository-signatures/5.0.0/index.json.",
+      "libraryId": "Syncfusion.Blazor.Grid"
+    },
+    {
+      "code": "NU1801",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Unable to get repository signature information for source https://api.nuget.org/v3-index/repository-signatures/5.0.0/index.json.",
+      "libraryId": "Syncfusion.Blazor.Navigations"
+    },
+    {
+      "code": "NU1801",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Unable to get repository signature information for source https://api.nuget.org/v3-index/repository-signatures/5.0.0/index.json.",
+      "libraryId": "Syncfusion.Blazor.Notifications"
+    },
+    {
+      "code": "NU1801",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Unable to get repository signature information for source https://api.nuget.org/v3-index/repository-signatures/5.0.0/index.json.",
+      "libraryId": "Syncfusion.Blazor.Schedule"
+    },
+    {
+      "code": "NU1801",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Unable to get repository signature information for source https://api.nuget.org/v3-index/repository-signatures/5.0.0/index.json.",
+      "libraryId": "Syncfusion.Blazor.Themes"
+    },
+    {
+      "code": "NU1801",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Unable to get repository signature information for source https://api.nuget.org/v3-index/repository-signatures/5.0.0/index.json.",
+      "libraryId": "Syncfusion.Blazor.Buttons"
+    },
+    {
+      "code": "NU1801",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Unable to get repository signature information for source https://api.nuget.org/v3-index/repository-signatures/5.0.0/index.json.",
+      "libraryId": "Syncfusion.Blazor.Charts"
+    },
+    {
+      "code": "NU1801",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Unable to get repository signature information for source https://api.nuget.org/v3-index/repository-signatures/5.0.0/index.json.",
+      "libraryId": "Syncfusion.Blazor.Grid"
+    },
+    {
+      "code": "NU1801",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Unable to get repository signature information for source https://api.nuget.org/v3-index/repository-signatures/5.0.0/index.json.",
+      "libraryId": "Syncfusion.Blazor.Navigations"
+    },
+    {
+      "code": "NU1801",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Unable to get repository signature information for source https://api.nuget.org/v3-index/repository-signatures/5.0.0/index.json.",
+      "libraryId": "Syncfusion.Blazor.Notifications"
+    },
+    {
+      "code": "NU1801",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Unable to get repository signature information for source https://api.nuget.org/v3-index/repository-signatures/5.0.0/index.json.",
+      "libraryId": "Syncfusion.Blazor.Schedule"
+    },
+    {
+      "code": "NU1801",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Unable to get repository signature information for source https://api.nuget.org/v3-index/repository-signatures/5.0.0/index.json.",
+      "libraryId": "Syncfusion.Blazor.Themes"
+    },
+    {
+      "code": "NU1101",
+      "level": "Error",
+      "message": "Unable to find package Syncfusion.Blazor.Buttons. No packages exist with this id in source(s): C:\\Program Files\\dotnet\\library-packs, Microsoft Visual Studio Offline Packages, nuget.org",
+      "libraryId": "Syncfusion.Blazor.Buttons",
+      "targetGraphs": [
+        "net8.0",
+        "net8.0/browser-wasm"
+      ]
+    },
+    {
+      "code": "NU1101",
+      "level": "Error",
+      "message": "Unable to find package Syncfusion.Blazor.Charts. No packages exist with this id in source(s): C:\\Program Files\\dotnet\\library-packs, Microsoft Visual Studio Offline Packages, nuget.org",
+      "libraryId": "Syncfusion.Blazor.Charts",
+      "targetGraphs": [
+        "net8.0",
+        "net8.0/browser-wasm"
+      ]
+    },
+    {
+      "code": "NU1101",
+      "level": "Error",
+      "message": "Unable to find package Syncfusion.Blazor.Grid. No packages exist with this id in source(s): C:\\Program Files\\dotnet\\library-packs, Microsoft Visual Studio Offline Packages, nuget.org",
+      "libraryId": "Syncfusion.Blazor.Grid",
+      "targetGraphs": [
+        "net8.0",
+        "net8.0/browser-wasm"
+      ]
+    },
+    {
+      "code": "NU1101",
+      "level": "Error",
+      "message": "Unable to find package Syncfusion.Blazor.Navigations. No packages exist with this id in source(s): C:\\Program Files\\dotnet\\library-packs, Microsoft Visual Studio Offline Packages, nuget.org",
+      "libraryId": "Syncfusion.Blazor.Navigations",
+      "targetGraphs": [
+        "net8.0",
+        "net8.0/browser-wasm"
+      ]
+    },
+    {
+      "code": "NU1101",
+      "level": "Error",
+      "message": "Unable to find package Syncfusion.Blazor.Notifications. No packages exist with this id in source(s): C:\\Program Files\\dotnet\\library-packs, Microsoft Visual Studio Offline Packages, nuget.org",
+      "libraryId": "Syncfusion.Blazor.Notifications",
+      "targetGraphs": [
+        "net8.0",
+        "net8.0/browser-wasm"
+      ]
+    },
+    {
+      "code": "NU1101",
+      "level": "Error",
+      "message": "Unable to find package Syncfusion.Blazor.Schedule. No packages exist with this id in source(s): C:\\Program Files\\dotnet\\library-packs, Microsoft Visual Studio Offline Packages, nuget.org",
+      "libraryId": "Syncfusion.Blazor.Schedule",
+      "targetGraphs": [
+        "net8.0",
+        "net8.0/browser-wasm"
+      ]
+    },
+    {
+      "code": "NU1101",
+      "level": "Error",
+      "message": "Unable to find package Syncfusion.Blazor.Themes. No packages exist with this id in source(s): C:\\Program Files\\dotnet\\library-packs, Microsoft Visual Studio Offline Packages, nuget.org",
+      "libraryId": "Syncfusion.Blazor.Themes",
+      "targetGraphs": [
+        "net8.0",
+        "net8.0/browser-wasm"
+      ]
+    }
+  ]
 }

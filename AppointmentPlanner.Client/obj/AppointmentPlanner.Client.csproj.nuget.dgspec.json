@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner.Client\\AppointmentPlanner.Client.csproj": {}
+    "C:\\Users\\amin1\\Desktop\\Doctor-appointment\\AppointmentPlanner.Client\\AppointmentPlanner.Client.csproj": {}
   },
   "projects": {
-    "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner.Client\\AppointmentPlanner.Client.csproj": {
+    "C:\\Users\\amin1\\Desktop\\Doctor-appointment\\AppointmentPlanner.Client\\AppointmentPlanner.Client.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner.Client\\AppointmentPlanner.Client.csproj",
+        "projectUniqueName": "C:\\Users\\amin1\\Desktop\\Doctor-appointment\\AppointmentPlanner.Client\\AppointmentPlanner.Client.csproj",
         "projectName": "AppointmentPlanner.Client",
-        "projectPath": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner.Client\\AppointmentPlanner.Client.csproj",
+        "projectPath": "C:\\Users\\amin1\\Desktop\\Doctor-appointment\\AppointmentPlanner.Client\\AppointmentPlanner.Client.csproj",
         "packagesPath": "C:\\Users\\amin1\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\amin1\\Desktop\\blazor-showcase-appointment-planner\\webapp\\wasm\\AppointmentPlanner\\AppointmentPlanner.Client\\obj\\",
+        "outputPath": "C:\\Users\\amin1\\Desktop\\Doctor-appointment\\AppointmentPlanner.Client\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
