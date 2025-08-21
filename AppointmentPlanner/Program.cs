@@ -3,6 +3,7 @@ using AppointmentPlanner.Client;
 using AppointmentPlanner.Client.Pages;
 using AppointmentPlanner.Components;
 using AppointmentPlanner.Data.Context;
+using AppointmentPlanner.Services.JWT;
 using AppointmentPlanner.Shared.Models;
 using AppointmentPlanner.Shared.Models.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -18,6 +19,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
+builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<AuthenticationStateProvider, ApiAuthStateProvider>();
+builder.Services.AddScoped<AuthorizedHttpClientHandler>();
 builder.Services.AddMudServices(config =>
 {
     config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomRight;
@@ -34,7 +38,7 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
     opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Identity
-builder.Services.AddIdentity<User, IdentityRole>(opt =>
+builder.Services.AddIdentity<User, IdentityRole<long>>(opt =>
     {
         opt.Password.RequireNonAlphanumeric = false;
         opt.Password.RequireUppercase = false;
