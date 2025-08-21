@@ -1,247 +1,320 @@
 ﻿@page "/"
 @page "/dashboard"
+@using System.Globalization
+@using AppointmentPlanner.Shared.Models
 
-@using AppointmentPlanner.Data;
-@using AppointmentPlanner.Models;
-@using System;
+@inherits ComponentBase
 
-@if(isDataLoaded){
-<div id="dashboard" class="planner-dashboard">
-    <div class="row content view-detail-display" style="margin: 0px;">
-        <div class="col-lg-8 col-md-8 col-sm-8">
-            <div class="row">
-                <div class="col-lg-6 col-md-6 col-sm-6 text-display">
-                    <div class="e-card card day-events-container">
-                        <div class="e-card-content">
-                            <span class="card-text label-text">Total Appointments - Today</span>
-                            <div class="count-container">
-                                <span class="icon-day"><img src="css/appoinment/assets/Icons/Today_Widget.svg" alt="Today" /></span>
-                                <span class="day-event-count">@dayEventCount</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-6 text-display">
-                    <div class="e-card card week-events-container">
-                        <div class="e-card-content">
-                            <span class="card-text label-text">Total Appointments - This Week</span>
-                            <div class="count-container">
-                                <span class="icon-week"><img src="css/appoinment/assets/Icons/ThisWeek_Widget.svg" alt="ThisWeek" /></span>
-                                <span class="week-event-count">@weekEventCount</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-12 col-md-12 col-sm-12 dashboard-control">
-                    <div class="e-card grid-container">
-                        <div class="e-card-header">
-                            <div class="e-card-header-caption">
-                                <div class="e-card-header-title">
-                                    <span class="label-text"> Today's Appointments</span><span class="link-text">
-                                        <NavLink class="nav-link" href="schedule">Book Appointments</NavLink>
-                                    </span>
+@if (isDataLoaded)
+{
+    <MudContainer MaxWidth="MaxWidth.False" Class="mt-4 px-4" dir="rtl">
+        <MudGrid>
+
+            <!-- ستون چپ (۸ ستون) -->
+            <MudItem xs="12" md="8">
+                <MudGrid>
+
+                    <!-- کارت آمار امروز -->
+                    <MudItem xs="12" sm="6">
+                        <MudCard Elevation="2" Class="pa-4">
+                            <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                                <MudImage src="css/appoinment/assets/Icons/Today_Widget.svg" alt="امروز"
+                                          style="width:42px;height:42px"/>
+                                <div>
+                                    <MudText Typo="Typo.subtitle2" Class="text-secondary">کل نوبت‌ها - امروز</MudText>
+                                    <MudText Typo="Typo.h4" Class="mt-1">@dayEventCount</MudText>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="e-card-content">
-                            <SfGrid id="Grid" DataSource="@appointments" Height="160px">
-                                <GridColumns>
-                                    <GridColumn Field="Time" HeaderText="Time" TextAlign="@TextAlign.Left" Width="80"></GridColumn>
-                                    <GridColumn Field="Name" HeaderText="Name" Width="120"></GridColumn>
-                                    <GridColumn HeaderText="Doctor Name" TextAlign="@TextAlign.Left" Width="150">
-                                        <Template>
-                                            <NavLink ActiveClass="doctors" Match="NavLinkMatch.Prefix" href="@($"doctors/doctorsdetails/{(context as Appointment).DoctorId}")">@((context as Appointment).DoctorName)</NavLink>
-                                        </Template>
-                                    </GridColumn>
-                                    <GridColumn Field="Symptoms" HeaderText="Symptoms" TextAlign="@TextAlign.Left" Width="150"></GridColumn>
-                                </GridColumns>
-                            </SfGrid>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-12 col-md-12 col-sm-12 dashboard-control">
-                    <div class="e-card chart-container">
-                        <div class="e-card-content">
-                            <SfChart Height="340px" Width="100%" Title="Consultation">
-                                <ChartArea><ChartAreaBorder Width="0"></ChartAreaBorder></ChartArea>
-                                <ChartTitleStyle TextAlignment="@Alignment.Near"></ChartTitleStyle>
-                                <ChartPrimaryXAxis Title="Date" ValueType="Syncfusion.Blazor.Charts.ValueType.DateTime" Interval="1" IntervalType="@IntervalType.Days" LabelFormat="MM/dd" Minimum="@firstDayOfWeek" Maximum="@max" EdgeLabelPlacement="@EdgeLabelPlacement.Shift">
-                                    <ChartAxisMajorGridLines Width="0"></ChartAxisMajorGridLines>
-                                    <ChartAxisMinorGridLines Width="0"></ChartAxisMinorGridLines>
-                                    <ChartAxisMajorTickLines Width="0"></ChartAxisMajorTickLines>
-                                </ChartPrimaryXAxis>
-                                <ChartPrimaryYAxis Title="Patient" Minimum="0" Maximum="6" Interval="2"></ChartPrimaryYAxis>
-                                <ChartLegendSettings Visible="true" Position="@LegendPosition.Top" Padding="20"></ChartLegendSettings>
-                                <ChartSeriesCollection>
-                                    <ChartSeries DataSource="@chartData" Type="Syncfusion.Blazor.Charts.ChartSeriesType.Spline" Width="2" XName="Date" YName="EventCount"
-                                                 Name="Diabetology" LegendShape="Syncfusion.Blazor.Charts.LegendShape.Circle" Fill="#60F238">
-                                    </ChartSeries>
-                                    <ChartSeries DataSource="@chartData1" Type="Syncfusion.Blazor.Charts.ChartSeriesType.Spline" Width="2" XName="Date" YName="EventCount"
-                                                 Name="Orthopaedics" LegendShape="Syncfusion.Blazor.Charts.LegendShape.Circle" Fill="#388CF5">
-                                    </ChartSeries>
-                                    <ChartSeries DataSource="@chartData2" Type="Syncfusion.Blazor.Charts.ChartSeriesType.Spline" Width="2" XName="Date" YName="EventCount"
-                                                 Name="Cardiology" LegendShape="Syncfusion.Blazor.Charts.LegendShape.Circle" Fill="#F29438">
-                                    </ChartSeries>
-                                </ChartSeriesCollection>
-                            </SfChart>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-4 col-md-4 col-sm-4 list-display" style="padding-right: 0px;">
-            <div class="recent-activity">
-                <SfListView Height="100%" Width="100%" TValue="Activity" ShowHeader="true" DataSource="@activities" CssClass="activity-template" HeaderTitle="Recent Activities">
-                    <ListViewTemplates TValue="Activity">
-                        <Template>
-                            <div class="activity-container @((context as Activity).Type)">
-                                <div class="activity-message"><span class="type-name">@((context as Activity).Name)</span> - <span>@((context as Activity).Message)</span></div>
-                                <span class="activity-time">@(Service.TimeSince((context as Activity).ActivityTime))</span>
-                            </div>
-                        </Template>
-                    </ListViewTemplates>
-                    <ListViewFieldSettings TValue="Activity" Text="Name" Id="Name"></ListViewFieldSettings>
-                </SfListView>
-            </div>
-            <div class="doctor-availability">
-                <SfListView Height="100%" Width="100%" TValue="Doctor" ShowHeader="true" DataSource="@availableDoctors" CssClass="e-list-template">
-                    <ListViewTemplates TValue="Doctor">
-                        <HeaderTemplate>
-                            <div class="availability-title">
-                                <span class="header-text">Doctor's Availability</span><span class="all-text">
-                                    <NavLink ActiveClass="doctors" Match="NavLinkMatch.Prefix" href="doctors">View All</NavLink>
-                                </span>
-                            </div>
-                        </HeaderTemplate>
-                        <Template>
-                            <div class="availabilty-container">
-                                <div class="image-container">
-                                    <span class="doctor-image">
-                                        <img src="css/appoinment/assets/images/@((context as Doctor).Text).png" alt="doctor avatar" /><span class="availability @((context as Doctor).Availability)"></span>
-                                    </span>
+                            </MudStack>
+                        </MudCard>
+                    </MudItem>
+
+                    <!-- کارت آمار هفته -->
+                    <MudItem xs="12" sm="6">
+                        <MudCard Elevation="2" Class="pa-4">
+                            <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                                <MudImage src="css/appoinment/assets/Icons/ThisWeek_Widget.svg" alt="این هفته"
+                                          style="width:42px;height:42px"/>
+                                <div>
+                                    <MudText Typo="Typo.subtitle2" Class="text-secondary">کل نوبت‌ها - این هفته
+                                    </MudText>
+                                    <MudText Typo="Typo.h4" Class="mt-1">@weekEventCount</MudText>
                                 </div>
-                                <div class="detail-container">
-                                    <span class="doctor-name">Dr.@((context as Doctor).Name)</span>
-                                    <span class="doctor-speciality">@getSpecializationText((context as Doctor).Specialization)</span>
-                                </div>
-                            </div>
-                        </Template>
-                    </ListViewTemplates>
-                    <ListViewFieldSettings TValue="Doctor" Text="Text" Id="Text"></ListViewFieldSettings>
-                </SfListView>
-            </div>
-        </div>
-    </div>
-</div>
+                            </MudStack>
+                        </MudCard>
+                    </MudItem>
+
+                    <!-- جدول نوبت‌های امروز -->
+                    <MudItem xs="12">
+                        <MudCard Elevation="2">
+                            <MudCardHeader>
+                                <MudText Typo="Typo.h6">نوبت‌های امروز</MudText>
+                                <MudSpacer/>
+                                <MudLink Href="schedule">رزرو نوبت</MudLink>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudTable Items="@appointments" Dense="true" Hover="true" Elevation="0">
+                                    <HeaderContent>
+                                        <MudTh>زمان</MudTh>
+                                        <MudTh>نام</MudTh>
+                                        <MudTh>نام پزشک</MudTh>
+                                        <MudTh>علائم</MudTh>
+                                    </HeaderContent>
+                                    <RowTemplate>
+                                        <MudTd DataLabel="زمان">@context.Time</MudTd>
+                                        <MudTd DataLabel="نام">@context.Name</MudTd>
+                                        <MudTd DataLabel="نام پزشک">
+                                            <MudLink
+                                                Href="@($"doctors/doctorsdetails/{context.DoctorId}")">@context.DoctorName</MudLink>
+                                        </MudTd>
+                                        <MudTd DataLabel="علائم">@context.Symptoms</MudTd>
+                                    </RowTemplate>
+                                </MudTable>
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+
+                    <!-- چارت هفتگی -->
+                    <MudItem xs="12">
+                        <MudCard Elevation="2">
+                            <MudCardHeader>
+                                <MudText Typo="Typo.h6">مشاوره</MudText>
+                            </MudCardHeader>
+                            <MudCardContent>
+                                <MudChart ChartType="ChartType.Line"
+                                          InputLabels="@chartLabels"
+                                          InputData="@chartDatasets.SelectMany(a => a.Data).ToArray()"
+                                          Style="height:340px;"/>
+                                <MudStack Row Spacing="2" Class="mt-2">
+                                    <MudChip T="string" Color="Color.Success" Variant="Variant.Filled">دیابتولوژی
+                                    </MudChip>
+                                    <MudChip T="string" Color="Color.Primary" Variant="Variant.Filled">ارتوپدی</MudChip>
+                                    <MudChip T="string" Color="Color.Warning" Variant="Variant.Filled">قلب و عروق
+                                    </MudChip>
+                                </MudStack>
+                                <MudText Typo="Typo.caption" Class="mt-2">
+                                    تاریخ‌ها از @firstDayOfWeek.ToString("MM/dd", faIr) تا @max.ToString("MM/dd", faIr)
+                                </MudText>
+                            </MudCardContent>
+                        </MudCard>
+                    </MudItem>
+
+                </MudGrid>
+            </MudItem>
+
+            <!-- ستون راست (۴ ستون) -->
+            <MudItem xs="12" md="4">
+
+                <!-- فعالیت‌های اخیر -->
+                <MudCard Elevation="2">
+                    <MudCardHeader>
+                        <MudText Typo="Typo.h6">فعالیت‌های اخیر</MudText>
+                    </MudCardHeader>
+                    <MudDivider/>
+                    <MudList T="List<Activity>" Dense="true" Class="py-0">
+                        @foreach (var act in activities)
+                        {
+                            <MudListItem T="Activity" Class="py-2">
+                                <MudItem>
+                                    <MudText Typo="Typo.body2">
+                                        <b>@act.Name</b> - @act.Message
+                                    </MudText>
+                                    <MudText Typo="Typo.caption" Class="text-secondary">
+                                        @Service.TimeSince(act.ActivityTime)
+                                    </MudText>
+                                </MudItem>
+                            </MudListItem>
+
+                            <MudDivider/>
+                        }
+                    </MudList>
+                </MudCard>
+
+                <!-- وضعیت حضور پزشک -->
+                <MudCard Elevation="2" Class="mt-4">
+                    <MudCardHeader>
+                        <MudText Typo="Typo.h6">وضعیت حضور پزشک</MudText>
+                        <MudSpacer/>
+                        MudItem
+                        <MudLink Href="doctors">مشاهده همه</MudLink>
+                    </MudCardHeader>
+                    <MudDivider/>
+                    <MudList T="List<Doctor>" Dense="true" Class="py-0">
+                        @foreach (var doc in availableDoctors)
+                        {
+                            <MudListItem T="Doctor" Class="py-2">
+                                <MudAvatar Size="Size.Medium"
+                                           Class="ml-2">
+                                    <MudImage Src=@($"css/appoinment/assets/images/{doc.Text}.png")></MudImage>
+                                </MudAvatar>
+                                <MudItem>
+                                    <MudText Typo="Typo.body2">دکتر @doc.Name</MudText>
+                                    <MudText Typo="Typo.caption"
+                                             Class="text-secondary">@getSpecializationText(doc.Specialization)</MudText>
+                                </MudItem>
+                                <MudBadge Dot="true" Color="@GetAvailabilityColor(doc.Availability)"/>
+                            </MudListItem>
+
+                            <MudDivider/>
+                        }
+                    </MudList>
+                </MudCard>
+
+            </MudItem>
+        </MudGrid>
+    </MudContainer>
 }
-else{
-    <div class="planner-dashboard-skeleton">
-        <div class="appointments-skeleton">
-            <SfSkeleton Shape="Syncfusion.Blazor.Notifications.SkeletonType.Rectangle" Height="780px" Width="90%"></SfSkeleton><br/>
-        </div>
-        <div class="activities-skeleton">
-            @for(int i=0; i < 10; i++)
-            {
-                <SfSkeleton Shape="Syncfusion.Blazor.Notifications.SkeletonType.Rectangle" Height="3%" Width="80%"></SfSkeleton>
-                <br />
-                <SfSkeleton Shape="Syncfusion.Blazor.Notifications.SkeletonType.Rectangle" Height="3%" Width="60%"></SfSkeleton>
-                <br /><br />
-            }
-        </div>
-    </div>
+else
+{
+    <!-- اسکلت لودینگ -->
+    <MudContainer MaxWidth="MaxWidth.False" Class="mt-4 px-4" dir="rtl">
+        <MudGrid>
+
+            <MudItem xs="12" md="8">
+                <MudGrid>
+                    <MudItem xs="12" sm="6">
+                        <MudSkeleton Height="120px" Width="100%" Class="mb-4"/>
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudSkeleton Height="120px" Width="100%" Class="mb-4"/>
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudSkeleton Height="240px" Width="100%" Class="mb-4"/>
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudSkeleton Height="360px" Width="100%"/>
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+
+            <MudItem xs="12" md="4">
+                <MudSkeleton Height="300px" Width="100%" Class="mb-4"/>
+                <MudSkeleton Height="300px" Width="100%"/>
+            </MudItem>
+
+        </MudGrid>
+    </MudContainer>
 }
 
 @code {
+    [Inject] protected AppointmentService Service { get; set; }
 
-    [Inject]
-    protected AppointmentService Service { get; set; }
     private string dayEventCount { get; set; }
     private string weekEventCount { get; set; }
-    private List<Appointment> appointments { get; set; } = new List<Appointment>();
-
+    private List<Appointment> appointments { get; set; } = new();
 
     private List<Activity> activities { get; set; }
     public List<Doctor> availableDoctors { get; set; }
 
     private List<Patient> patients { get; set; }
 
-    private DateTime startDate { get; set; } = new DateTime(2020, 2, 5, 0, 0, 0, 0);
-
+    private DateTime startDate { get; set; } = new(2020, 2, 5, 0, 0, 0, 0);
     private DateTime endDate { get; set; }
-
     private DateTime firstDayOfWeek { get; set; }
     private DateTime max { get; set; }
 
     private List<ChartData> chartData { get; set; }
     private List<ChartData> chartData1 { get; set; }
     private List<ChartData> chartData2 { get; set; }
-    private bool isDataLoaded;
 
+    // داده‌های MudChart
+    private string[]          chartLabels   = Array.Empty<string>();
+    private List<ChartSeries> chartDatasets = new();
+
+    private          bool        isDataLoaded;
+    private readonly CultureInfo faIr = new("fa-IR");
 
     protected override void OnInitialized()
     {
         availableDoctors = Service.Doctors;
-
-
         activities = Service.Activities;
         patients = Service.Patients;
+
         firstDayOfWeek = Service.GetWeekFirstDate(Service.StartDate);
         max = Service.GetWeekFirstDate(Service.StartDate).AddDays(6);
-        endDate = Service.StartDate.AddDays(1);       
-    }
-
-    private List<Appointment> GetAppoinment(List<Hospital> currentDayEvents)
-    {
-        List<Appointment> apts = new List<Appointment>();
-        foreach(var eventData in currentDayEvents)
-        {
-            var filteredPatients = patients.Where(item => item.Id.Equals(eventData.PatientId)).FirstOrDefault();
-            var filteredDoctors = availableDoctors.Where(item => item.Id.Equals(eventData.DoctorId)).FirstOrDefault();
-            if (filteredPatients != null && filteredDoctors != null)
-            {
-                apts.Add(new Appointment(Service.GetFormatDate(eventData.StartTime, "hh:mm tt"), filteredPatients.Name, filteredDoctors.Name, eventData.Symptoms, filteredDoctors.Id));
-            }
-        }
-        return apts;
-    }
-
-    private DateTime AddDate(DateTime date, int value)
-    {
-        return date.AddDays(value);
-    }
-
-    private string getSpecializationText(string text)
-    {
-        return Service.Specializations.Where(item => item.Id.Equals(text)).FirstOrDefault().Text.ToUpper();
-    }
-
-    private async void LoadData()
-    {
-        List<Hospital> currentDayEvents = Service.GetFilteredData(startDate, endDate);
-        this.appointments = this.GetAppoinment(currentDayEvents);
-        List<Hospital> currentViewEvents = Service.GetFilteredData(firstDayOfWeek, this.AddDate(startDate, 6));
-        this.dayEventCount = currentDayEvents.Count().ToString();
-        this.weekEventCount = currentViewEvents.Count().ToString();
-        List<Hospital> diabetologyData = currentViewEvents.Where(item => item.DepartmentId == 5).ToList();
-        List<Hospital> orthopaedicsData = currentViewEvents.Where(item => item.DepartmentId == 4).ToList();
-        List<Hospital> cardiologyData = currentViewEvents.Where(item => item.DepartmentId == 6).ToList();
-        chartData = Service.GetAllChartPoints(diabetologyData, firstDayOfWeek);
-        chartData1 = Service.GetAllChartPoints(orthopaedicsData, firstDayOfWeek);
-        chartData2 = Service.GetAllChartPoints(cardiologyData, firstDayOfWeek);
-        await Task.Delay(500);
-        isDataLoaded = true;
-        StateHasChanged();
+        endDate = Service.StartDate.AddDays(1);
     }
 
     protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
         {
-            LoadData();
+            _ = LoadData();
         }
     }
+
+    private async Task LoadData()
+    {
+        var currentDayEvents = Service.GetFilteredData(startDate, endDate);
+        appointments = GetAppoinment(currentDayEvents);
+
+        var currentViewEvents = Service.GetFilteredData(firstDayOfWeek, AddDate(startDate, 6));
+
+        dayEventCount = currentDayEvents.Count().ToString(faIr);
+        weekEventCount = currentViewEvents.Count().ToString(faIr);
+
+        var diabetologyData  = currentViewEvents.Where(item => item.DepartmentId == 5).ToList();
+        var orthopaedicsData = currentViewEvents.Where(item => item.DepartmentId == 4).ToList();
+        var cardiologyData   = currentViewEvents.Where(item => item.DepartmentId == 6).ToList();
+
+        chartData = Service.GetAllChartPoints(diabetologyData,   firstDayOfWeek);
+        chartData1 = Service.GetAllChartPoints(orthopaedicsData, firstDayOfWeek);
+        chartData2 = Service.GetAllChartPoints(cardiologyData,   firstDayOfWeek);
+
+        // ساخت Labels و Series برای MudChart
+        chartLabels = chartData.Select(x => x.Date.ToString("MM/dd", faIr)).ToArray();
+
+        chartDatasets = new()
+        {
+            new ChartSeries
+            {
+                Name = "دیابتولوژی",
+                Data = chartData.Select(x => (double)x.EventCount).ToArray()
+            },
+            new ChartSeries
+            {
+                Name = "ارتوپدی",
+                Data = chartData1.Select(x => (double)x.EventCount).ToArray()
+            },
+            new ChartSeries
+            {
+                Name = "قلب و عروق",
+                Data = chartData2.Select(x => (double)x.EventCount).ToArray()
+            }
+        };
+
+        await Task.Delay(500);
+        isDataLoaded = true;
+        StateHasChanged();
+    }
+
+    private List<Appointment> GetAppoinment(List<Hospital> currentDayEvents)
+    {
+        var apts = new List<Appointment>();
+
+        foreach (var e in currentDayEvents)
+        {
+            var p = patients.FirstOrDefault(item => item.Id.Equals(e.PatientId));
+            var d = availableDoctors.FirstOrDefault(item => item.Id.Equals(e.DoctorId));
+            if (p is not null && d is not null)
+                apts.Add(new Appointment(Service.GetFormatDate(e.StartTime, "hh:mm tt"), p.Name, d.Name, e.Symptoms, d.Id));
+        }
+
+        return apts;
+    }
+
+    private DateTime AddDate(DateTime date, int value)
+        => date.AddDays(value);
+
+    private string getSpecializationText(string text)
+        => Service.Specializations.FirstOrDefault(item => item.Id.Equals(text))?.Text?.ToUpper() ?? text;
+
+    private Color GetAvailabilityColor(string availability)
+        => availability?.ToLowerInvariant() switch
+           {
+               "available" or "present" or "in" => Color.Success,
+               "busy" or "occupied"             => Color.Warning,
+               "away" or "absent" or "out"      => Color.Error,
+               _                                => Color.Default
+           };
+
 }

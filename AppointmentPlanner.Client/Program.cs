@@ -1,12 +1,23 @@
-using AppointmentPlanner.Data;
-using AppointmentPlanner.Models;
-using Syncfusion.Blazor;
-using Syncfusion.Blazor.Popups;
+using AppointmentPlanner.Shared.Models;
+using AppointmentPlanner.Client.Pages;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using MudBlazor;
+using MudBlazor.Services;
+
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
-builder.Services.AddSyncfusionBlazor();
-builder.Services.AddScoped<SfDialogService>();
+
+builder.Services.AddMudServices(config =>
+{
+    config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomRight;
+    config.SnackbarConfiguration.PreventDuplicates = false;
+    config.SnackbarConfiguration.NewestOnTop = false;
+    config.SnackbarConfiguration.ShowCloseIcon = true;
+    config.SnackbarConfiguration.VisibleStateDuration = 5000;
+    config.SnackbarConfiguration.HideTransitionDuration = 500;
+    config.SnackbarConfiguration.ShowTransitionDuration = 500;
+    config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
+});
 builder.Services.AddSingleton<AppointmentService, AppointmentService>();
 builder.Services.AddSingleton<Appointment, Appointment>();
 await builder.Build().RunAsync();

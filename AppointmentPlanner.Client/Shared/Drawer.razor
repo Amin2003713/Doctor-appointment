@@ -1,0 +1,61 @@
+﻿<MudDrawer @bind-Open="DrawerOpen" Elevation="2" Variant="DrawerVariant.Responsive" Anchor="Anchor.Start"
+           Class="pa-2">
+    <MudDrawerHeader>
+        <MudStack Row
+                  Justify="Justify.SpaceBetween"
+                  AlignItems="AlignItems.Center"
+                  Wrap="Wrap.WrapReverse">
+            <MudIcon Color="Color.Error" Size="Size.Large" Icon="@Icons.Material.Rounded.LocalHospital"/>
+            <MudText Typo="Typo.h6">سامانه نوبت دهی</MudText>
+        </MudStack>
+    </MudDrawerHeader>
+    <MudStack Row="false">
+
+        <MudDivider DividerType="DividerType.Middle"/>
+        <MudSpacer/>
+
+        <MudNavMenu Bordered Rounded Margin="Margin.Normal">
+            <MudNavLink Href="#"
+                        Icon="@Icons.Material.Filled.Dashboard"
+                        IconColor="Color.Primary"
+                        Match="NavLinkMatch.All">
+                داشبورد
+            </MudNavLink>
+
+            <MudNavLink Href="schedule"
+                        Icon="@Icons.Material.Filled.Event"
+                        IconColor="Color.Info">
+                برنامه‌ریزی
+            </MudNavLink>
+
+            <MudNavLink Href="doctors"
+                        Icon="@Icons.Material.Filled.MedicalServices"
+                        IconColor="Color.Success">
+                پزشکان
+            </MudNavLink>
+
+            <MudNavLink Href="patients"
+                        Icon="@Icons.Material.Filled.People"
+                        IconColor="Color.Secondary">
+                بیماران
+            </MudNavLink>
+
+            <MudNavLink Href="preference"
+                        Icon="@Icons.Material.Filled.Settings"
+                        IconColor="Color.Warning">
+                تنظیمات
+            </MudNavLink>
+
+            <MudNavLink Href="about"
+                        Icon="@Icons.Material.Filled.Info"
+                        IconColor="Color.Error">
+                درباره
+            </MudNavLink>
+        </MudNavMenu>
+    </MudStack>
+</MudDrawer>
+
+@code {
+    [Parameter] public bool DrawerOpen { get; set; }
+
+}

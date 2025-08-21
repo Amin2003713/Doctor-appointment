@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Globalization;
-using AppointmentPlanner.Models;
+﻿using System.Globalization;
+using AppointmentPlanner.Shared.Models;
+using Calendar = AppointmentPlanner.Shared.Models.Calendar;
 
-namespace AppointmentPlanner.Data
+namespace AppointmentPlanner.Client.Pages
 {
     public class AppointmentService
     {
@@ -12,7 +10,7 @@ namespace AppointmentPlanner.Data
         {
             this.Activities = new Activity().GetActivityData();
             this.StartDate = new DateTime(2020, 2, 5, 0, 0, 0, 0);
-            this.ActiveDoctors = new Doctor().GetDoctorsData().FirstOrDefault();
+            // this.ActiveDoctors = new Doctor().GetDoctorsData().FirstOrDefault();
             this.ActivePatients = new Patient().GetPatientsData().FirstOrDefault();
             this.StartHours = new TextValueData().GetStartHours();
             this.EndHours = new TextValueData().GetEndHours();
@@ -23,13 +21,13 @@ namespace AppointmentPlanner.Data
             this.TimeSlot = new TextValueNumericData().GetTimeSlot();
             this.Hospitals = new Hospital().GetHospitalData();
             this.Patients = new Patient().GetPatientsData();
-            this.Doctors = new Doctor().GetDoctorsData();
+            // this.Doctors = new Doctor().GetDoctorsData();
             this.WaitingLists = new WaitingList().GetWaitingList();
             this.Specializations = new Specialization().GetSpecializationData();
             this.DutyTimings = new TextIdData().DutyTimingsData();
             this.Experience = new TextIdData().ExperienceData();
             this.NavigationMenu = new NavigationMenu().GetNavigationMenuItems();
-            this.CalendarSettings = new CalendarSetting { BookingColor = "Doctors", Calendar = new AppointmentPlanner.Models.Calendar { Start = "08:00", End = "21:00" }, CurrentView = "Week", Interval = 60, FirstDayOfWeek = 0 };
+            this.CalendarSettings = new CalendarSetting { BookingColor = "Doctors", Calendar = new Calendar { Start = "08:00", End = "21:00" }, CurrentView = "Week", Interval = 60, FirstDayOfWeek = 0 };
         }
         public DateTime StartDate { get; set; }
         public Doctor ActiveDoctors { get; set; }
