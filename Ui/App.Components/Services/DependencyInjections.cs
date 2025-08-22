@@ -31,8 +31,6 @@ public static class DependencyInjections
 
         services.AddLocalization(a => a.ResourcesPath = "Resources");
 
-        CultureInfo.DefaultThreadCurrentUICulture = new CultureInfo("fa-IR");
-
 
         services.AddHandlersServices();
 

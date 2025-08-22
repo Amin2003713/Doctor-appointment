@@ -8,7 +8,7 @@
     <MudItem xs="12" sm="6" md="6" Class="d-flex flex-column justify-center align-center">
         <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center" Row="false" Spacing="10">
             <MudImage
-                Src="@CompanyLogo"
+                Src=""
                 Alt="@LoginLocalizer["Company logo"]"
                 Width="150"
                 Height="150"
@@ -91,9 +91,7 @@
 
 @code {
     private LoginRequest Request { get; set; } = new LoginRequest();
-    private bool ChangeCompanyToggle { get; set; } = false;
     private bool ApiCalling { get; set; } = false;
-    private string CompanyLogo { get; set; } = AssetManager.LoadAssets("logo.png");
     private InputType _passwordInput = InputType.Password;
 
 

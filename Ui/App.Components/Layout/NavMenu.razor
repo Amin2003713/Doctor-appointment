@@ -1,5 +1,4 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
-@implements IDisposable
 
 <MudNavMenu>
     <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Filled.Home">Home</MudNavLink>
@@ -12,7 +11,6 @@
                         Icon="@Icons.Filled.Person">@context.User.Identity?.Name</MudNavLink>
             <form action="Account/Logout" method="post">
                 <AntiforgeryToken/>
-                <input type="hidden" name="ReturnUrl" value="@_currentUrl"/>
                 <button type="submit" class="mud-nav-link mud-ripple">
                     <MudIcon Icon="@Icons.Filled.Logout" Color="Color.Info" Class="mr-3"></MudIcon>
                     Logout
@@ -31,23 +29,6 @@
 
 
 @code {
-    private string? _currentUrl;
 
-    protected override void OnInitialized()
-    {
-        _currentUrl                       =  NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
-        NavigationManager.LocationChanged += OnLocationChanged;
-    }
-
-    private void OnLocationChanged(object? sender , LocationChangedEventArgs e)
-    {
-        _currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
-        StateHasChanged();
-    }
-
-    public void Dispose()
-    {
-        NavigationManager.LocationChanged -= OnLocationChanged;
-    }
 
 }

@@ -1,6 +1,6 @@
 using App.Common.General;
 using App.Common.Utilities.LifeTime;
-using App.Components.Services.AssetManager;
+using App.Components.Features.Authorizions.Login;
 using App.Domain.Users;
 
 using App.Persistence.Services.Refit;
@@ -16,7 +16,7 @@ public static class ConfigureDependencyInjectionExtensions
                                        typeof(ApplicationConstants).Assembly ,
                                        typeof(UserInfo).Assembly ,
                                        typeof(ApiFactory).Assembly ,
-                                       typeof(AssetManager).Assembly ,
+                                       typeof(Login).Assembly ,
                                        typeof(Program).Assembly
                                    ).
                                    AddClasses(classes => classes.AssignableTo<IScopedDependency>()).
