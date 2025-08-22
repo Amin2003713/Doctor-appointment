@@ -17,6 +17,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents().AddInteractiveWebAssemblyComponents();
 
+builder.Services.AddServerSideBlazor();
+
 builder.Services.AddMudServices(config =>
                                 {
                                     config.SnackbarConfiguration.PositionClass          = Defaults.Classes.Position.BottomRight;
@@ -33,7 +35,7 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
                                                 opt.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Identity
-builder.Services.AddIdentity<User , IdentityRole>(opt =>
+builder.Services.AddIdentity<User , IdentityRole<long>>(opt =>
                                                   {
                                                       opt.Password.RequireNonAlphanumeric = false;
                                                       opt.Password.RequireUppercase       = false;
