@@ -11,7 +11,7 @@
     <Project Path="Infrastructure\App.Persistence\App.Persistence.csproj" Type="Classic C#" />
   </Folder>
   <Folder Name="/Ui/">
-    <Project Path="Ui\App.Components\App.Components.csproj" Type="Classic C#" />
-    <Project Path="Ui\UI\UI.csproj" Type="Classic C#" />
+    <Project Path="Ui\UI.Components\UI.Components.csproj" Type="Classic C#" />
+    <Project Path="Ui\UI.Web\UI.Web.csproj" Type="Classic C#" />
   </Folder>
 </Solution>

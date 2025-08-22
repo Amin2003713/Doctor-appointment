@@ -1,0 +1,38 @@
+﻿@using System.Net.Http
+@using System.Net.Http.Json
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.JSInterop
+@using Microsoft.Extensions.Localization
+@using System.Globalization
+@using Mapster
+
+
+@using MediatR
+@using MudBlazor
+@using Bromix.MudBlazor.MaterialDesignIcons
+@using MaterialIcons = MudBlazor.FontIcons.MaterialIcons
+
+
+
+
+@using App.Common.Utilities.Theme
+@using App.Persistence.Services.AuthState
+@using UI.Components.Services
+@using UI.Components.Layout
+@using UI.Components.Common.BaseLayouts
+@using UI.Components.Common.BaseComponents.Forms
+@using UI.Components.Common.BaseComponents.ValidateionProps
+@using Icons = MudBlazor.FontIcons.MaterialIcons
+@using App.Applications.ClientPreferences.Queries.Read
+@using App.Common.General.Dialogs
+@using App.Domain.ClientPreferences
+@using UI.Components.Common.BaseComponents.Progresses
+
+@inject NavigationManager NavigationManager
+@inject ClientStateProvider StateProvider
+@inject IMediator Mediator
+@inject IDialogService DialogService
+@inject IThemeService ThemeService
