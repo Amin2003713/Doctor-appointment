@@ -1,0 +1,17 @@
+﻿@using AppointmentPlanner.Client.Services.Auth
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthService Auth
+@attribute [Authorize]
+
+<AuthorizeView>
+    <Authorized>
+        <MudButton Color="Color.Error" Variant="Variant.Outlined" OnClick="@(() => Auth.LogoutAsync())">
+            خروج
+        </MudButton>
+    </Authorized>
+    <NotAuthorized>
+        <MudNavLink Href="/login" Icon="@Icons.Material.Filled.Login">ورود</MudNavLink>
+        <MudNavLink Href="/register" Icon="@Icons.Material.Filled.PersonAdd">ثبت‌نام</MudNavLink>
+    </NotAuthorized>
+</AuthorizeView>
