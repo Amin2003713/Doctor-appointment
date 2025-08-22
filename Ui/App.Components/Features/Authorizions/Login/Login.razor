@@ -1,0 +1,133 @@
+﻿@page "/Login"
+
+@inject IStringLocalizer<Login> LoginLocalizer
+
+
+<MudGrid Justify="Justify.Center" Spacing="8">
+    <!-- Left side: logo or other content -->
+    <MudItem xs="12" sm="6" md="6" Class="d-flex flex-column justify-center align-center">
+        <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center" Row="false" Spacing="10">
+            <MudImage
+                Src="@CompanyLogo"
+                Alt="@LoginLocalizer["Company logo"]"
+                Width="150"
+                Height="150"
+                ObjectFit="ObjectFit.Contain"
+                ObjectPosition="ObjectPosition.Center"/>
+
+            <MudText Align="Align.Center" Typo="Typo.h3">
+                به سامانه نوبت دهی خوش آمدید
+            </MudText>
+        </MudStack>
+    </MudItem>
+
+
+    <!-- Right side: the login form -->
+    <MudItem xs="12" sm="6" md="6">
+        <AppForm TModel="LoginRequest" Model="Request" OnValidSubmit="LoginAsync">
+            <FormProps>
+                <!-- Username field -->
+                <MudTextField
+                    For="@(() => Request.Username)"
+                    @bind-Value="Request.Username"
+                    InputType="InputType.Text"
+                    Variant="Variant.Outlined"
+                    Margin="Margin.Normal"
+                    HelperText="@LoginLocalizer["UserName Tips"]"
+                    HelperTextOnFocus/>
+
+                <!-- Password field -->
+                <MudTextField
+                    For="@(() => Request.Password)"
+                    @bind-Value="Request.Password"
+                    InputType="@_passwordInput"
+                    Adornment="Adornment.End"
+                    AdornmentIcon="@(_passwordInput == InputType.Password
+                                       ? MaterialIcons.Rounded.Visibility
+                                       : MaterialIcons.Rounded.VisibilityOff)"
+                    OnAdornmentClick="ShowPassword"
+                    Variant="Variant.Outlined"
+                    Margin="Margin.Normal"
+                    HelperTextOnFocus/>
+
+                <MudStack Justify="Justify.FlexEnd" Row="true" AlignItems="AlignItems.End" Class="my-2" Spacing="6">
+                    <MudLink
+                        OnClick="GoToForgotPassword"
+                        Color="Color.Info"
+                        Disabled="@(Request.Username == null || string.IsNullOrEmpty(Request.Username))"
+                        Underline="Underline.None"
+                        Typo="Typo.caption">
+                        @LoginLocalizer["Forget Password"]
+                    </MudLink>
+                </MudStack>
+            </FormProps>
+
+            <SubmitButton>
+                <MudItem xs="12">
+                    <MudStack Row="false" Spacing="8">
+                        <MudButton
+                            Color="Color.Primary"
+                            Variant="Variant.Filled"
+                            ButtonType="ButtonType.Submit"
+                            FullWidth="true">
+                            @if (ApiCalling)
+                            {
+                                <CircularProgress Size="Size.Small" Color="Color.Info"/>
+                            }
+                            else
+                            {
+                                @LoginLocalizer["Login"]
+                            }
+                        </MudButton>
+
+                    </MudStack>
+                </MudItem>
+            </SubmitButton>
+        </AppForm>
+
+    </MudItem>
+</MudGrid>
+
+
+@code {
+    private LoginRequest Request { get; set; } = new LoginRequest();
+    private bool ChangeCompanyToggle { get; set; } = false;
+    private bool ApiCalling { get; set; } = false;
+    private string CompanyLogo { get; set; } = AssetManager.LoadAssets("logo.png");
+    private InputType _passwordInput = InputType.Password;
+
+
+    private void ShowPassword()
+    {
+        _passwordInput = _passwordInput == InputType.Password
+            ? InputType.Text
+            : InputType.Password;
+    }
+
+    private async Task LoginAsync(LoginRequest request)
+    {
+        ApiCalling = true;
+
+        try
+        {
+            await Mediator.Send(Request);
+            ApiCalling = false;
+        }
+        catch
+        {
+            ApiCalling = false;
+        }
+        finally
+        {
+            ApiCalling = false;
+            StateHasChanged();
+        }
+    }
+
+
+    private void GoToForgotPassword()
+        // => NavigationManager.NavigateTo($"/forgot-password?Username={Request.Username}");
+        => NavigationManager.NavigateTo($"/verify-account");
+
+
+}

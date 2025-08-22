@@ -1,0 +1,94 @@
+@using FluentValidation
+@using Severity = MudBlazor.Severity
+@typeparam TModel
+@inject IValidator<TModel> Validator
+
+<EditForm Model="Model" OnValidSubmit="HandleValidSubmit"
+          Enhance="@Enhance" FormName="@FormName" AdditionalAttributes="@AdditionalAttributes">
+    <FluentValidationValidator/>
+
+    <CascadingValue Value="this">
+        @FormProps
+    </CascadingValue>
+
+    @if (SubmitButton is not null)
+    {
+        @SubmitButton
+    }
+</EditForm>
+
+@if (ValidationErrors.Any())
+{
+    <MudAlert Severity="Severity.Error">
+        <ul>
+            @foreach (var error in ValidationErrors)
+            {
+                <li>@error</li>
+            }
+        </ul>
+    </MudAlert>
+}
+
+@code {
+
+    /// <summary>
+    ///     The form model to be validated.
+    /// </summary>
+    [Parameter] public TModel Model { get; set; } = default!;
+
+    /// <summary>
+    ///     Event triggered when the form is successfully submitted.
+    /// </summary>
+    [Parameter] public EventCallback<TModel> OnValidSubmit { get; set; }
+
+    /// <summary>
+    ///     The form content including input fields.
+    /// </summary>
+    [Parameter] public RenderFragment FormProps { get; set; } = default!;
+
+    /// <summary>
+    ///     User-defined submit button that replaces the default one.
+    /// </summary>
+    [Parameter] public RenderFragment? SubmitButton { get; set; }
+
+    /// <summary>
+    ///     Enables form enhancement for additional functionalities.
+    /// </summary>
+    [Parameter] public bool Enhance { get; set; } = true;
+
+    /// <summary>
+    ///     Specifies a custom form name.
+    /// </summary>
+    [Parameter] public string? FormName { get; set; }
+
+    /// <summary>
+    ///     Captures any additional attributes that are not explicitly defined.
+    /// </summary>
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IReadOnlyDictionary<string , object>? AdditionalAttributes { get; set; }
+
+    private List<string> ValidationErrors { get; set; } = new List<string>();
+
+
+    /// <summary>
+    ///     Handles valid form submission by performing validation.
+    /// </summary>
+    private async Task HandleValidSubmit()
+    {
+        ValidationErrors.Clear();
+
+        if (Validator is not null)
+        {
+            var result = await Validator.ValidateAsync(Model);
+
+            if (!result.IsValid)
+            {
+                ValidationErrors = result.Errors.Select(e => e.ErrorMessage).ToList();
+                return;
+            }
+        }
+
+        await OnValidSubmit.InvokeAsync(Model);
+    }
+
+}

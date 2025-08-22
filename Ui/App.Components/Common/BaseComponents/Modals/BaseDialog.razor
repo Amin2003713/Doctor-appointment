@@ -1,0 +1,48 @@
+@typeparam TResult
+
+<MudDialog>
+    <DialogContent>
+        @BodyContent
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="@ConfirmButtonColor" Variant="@ConfirmButtonVariant" OnClick="Confirm">
+            @ConfirmButtonText
+        </MudButton>
+        <MudButton Color="@CancelButtonColor" Variant="@CancelButtonVariant" OnClick="Cancel">
+            @CancelButtonText
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public RenderFragment? BodyContent { get; set; }
+    [Parameter] public TResult Result { get; set; }
+
+    // Button Texts
+    [Parameter] public string ConfirmButtonText { get; set; } = "Confirm";
+    [Parameter] public string CancelButtonText { get; set; } = "Cancel";
+
+    // Button Styles
+    [Parameter] public Color ConfirmButtonColor { get; set; } = Color.Primary;
+    [Parameter] public Color CancelButtonColor { get; set; } = Color.Secondary;
+    [Parameter] public Variant ConfirmButtonVariant { get; set; } = Variant.Filled;
+    [Parameter] public Variant CancelButtonVariant { get; set; } = Variant.Outlined;
+
+    protected void Confirm()
+    {
+        MudDialog.Close(DialogResult.Ok(GetResult()));
+    }
+
+    protected void Cancel()
+    {
+        MudDialog.Close(DialogResult.Cancel());
+    }
+
+    protected virtual TResult GetResult()
+    {
+        return default!;
+    }
+
+}

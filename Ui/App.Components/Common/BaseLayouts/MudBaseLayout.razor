@@ -1,0 +1,58 @@
+@inject IStringLocalizer<MudBaseLayout> Localizer
+@inherits LayoutComponentBase
+
+
+<MudRTLProvider RightToLeft="Settings?.IsRTL ?? false">
+
+    <MudThemeProvider @ref="@_mudThemeProvider"
+                      Theme="@ThemeService.CurrentTheme" ObserveSystemThemeChange
+                      IsDarkMode="@ThemeService.IsDarkMode"/>
+
+
+    <MudBreakpointProvider/>
+    <MudPopoverProvider/>
+    <MudDialogProvider/>
+    <MudSnackbarProvider/>
+
+    <MudLayout class="page">
+        <MudContainer MaxWidth="MaxWidth.Medium" Class="pa-4">
+            @Body
+        </MudContainer>
+    </MudLayout>
+</MudRTLProvider>
+
+@code {
+    private MudThemeProvider _mudThemeProvider = null!;
+    public Settings? Settings { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Settings = await Mediator.Send(new LoadSettingsQuery());
+        // Subscribe to theme changes.
+        ThemeService.ThemeChanged += HandleThemeChanged!;
+
+        // Subscribe to domain-missing event.
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            // Watch for system preference changes and sync theme.
+            await _mudThemeProvider.WatchSystemPreference(ThemeService.OnSystemPreferenceChanged);
+            var systemPreference = await _mudThemeProvider.GetSystemPreference();
+            ThemeService.ToggleDarkLightMode(systemPreference , false);
+        }
+    }
+
+    private void HandleThemeChanged(object sender , EventArgs e)
+    {
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        ThemeService.ThemeChanged -= HandleThemeChanged!;
+    }
+
+}
