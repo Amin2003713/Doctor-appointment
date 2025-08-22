@@ -1,9 +1,9 @@
 ﻿@page "/register"
-
+@rendermode InteractiveWebAssembly
 <MudPaper Class="pa-6 mx-auto mt-12" Style="max-width:420px" Elevation="8" dir="rtl">
     <MudText Typo="Typo.h5" Class="mb-4">ثبت‌نام</MudText>
 
-    <EditForm EditContext="_editContext" OnValidSubmit="DoRegister">
+    <EditForm FormName="register" EditContext="_editContext" OnValidSubmit="DoRegister">
         <DataAnnotationsValidator/>
 
         <MudTextField @bind-Value="_model.FullName"
@@ -41,6 +41,7 @@
                    Variant="Variant.Filled"
                    Class="mt-4"
                    FullWidth="true"
+                   ButtonType="ButtonType.Submit"
                    StartIcon="@Icons.Material.Filled.PersonAdd">
             @(_busy ? "در حال ثبت‌نام..." : "ثبت‌نام")
         </MudButton>
@@ -53,13 +54,14 @@
 </MudPaper>
 
 @code {
-    private readonly RegisterVm              _model = new();
-    private          EditContext             _editContext;
-    private          bool                    _busy;
-    private          bool                    _showPassword;
-    private          string                  _message;
-    private          Severity                _severity = Severity.Error;
-    private          CancellationTokenSource _cts;
+
+    private RegisterVm              _model = new();
+    private EditContext             _editContext;
+    private bool                    _busy;
+    private bool                    _showPassword;
+    private string                  _message;
+    private Severity                _severity = Severity.Error;
+    private CancellationTokenSource _cts;
 
     protected override void OnInitialized()
     {
@@ -109,7 +111,7 @@
         _cts?.Dispose();
     }
 
-    private sealed class RegisterVm
+    private class RegisterVm
     {
         [Required(ErrorMessage = "نام کامل الزامی است.")] [MinLength(3 , ErrorMessage = "حداقل ۳ کاراکتر.")]
         public string FullName { get; set; } = string.Empty;

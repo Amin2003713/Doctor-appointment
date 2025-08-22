@@ -1,8 +1,7 @@
 ﻿@using AppointmentPlanner.Client.Services.Auth
 @using Microsoft.AspNetCore.Components.Authorization
-@inject IAuthService Auth
+@* @inject IAuthService Auth *@
 @inject NavigationManager Nav
-@rendermode InteractiveWebAssembly
 
 <MudAppBar Elevation="4" Color="Color.Default" Class="px-2" dir="rtl">
     <MudIconButton Icon="@Icons.Material.Filled.Menu"
@@ -14,9 +13,6 @@
 
     <MudSpacer/>
 
-    <!-- Optional: notifications placeholder -->
-    <MudIconButton Icon="@Icons.Material.Filled.Notifications" Color="Color.Inherit" Class="mx-1"/>
-
     <AuthorizeView>
         <Authorized>
             <MudMenu AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter">
@@ -25,6 +21,7 @@
                                StartIcon="@Icons.Material.Filled.AccountCircle">
                         @DisplayName
                     </MudButton>
+
                 </ActivatorContent>
                 <ChildContent>
                     <MudMenuItem OnClick="@(() => Nav.NavigateTo("/profile"))" Icon="@Icons.Material.Filled.Person">
@@ -45,6 +42,7 @@
 
 @code {
     [Parameter] public EventCallback ToggleDrawer { get; set; }
+    [Parameter] public EventCallback logout { get; set; }
     [Parameter] public string Title { get; set; } = "مدیریت نوبت‌ها";
 
     [CascadingParameter] private Task<AuthenticationState>? AuthStateTask { get; set; }
@@ -80,7 +78,7 @@
 
         try
         {
-            await Auth.LogoutAsync();
+            await logout.InvokeAsync();
             // Navigate after logout (optional)
             Nav.NavigateTo("/login" , forceLoad: true);
         }

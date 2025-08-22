@@ -8,7 +8,6 @@ using MudBlazor.Services;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
-builder.Services.AddScoped<IAuthService , AuthService>();
 
 builder.Services.AddClientJwtAuth(new Uri(builder.HostEnvironment.BaseAddress));
 

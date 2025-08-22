@@ -1,18 +1,23 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
-
+@using AppointmentPlanner.Client.Pages.Auth
 
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(Program).Assembly">
         <Found Context="routeData">
-            <RouteView RouteData="@routeData" DefaultLayout="@typeof(Shared.MainLayout)"/>
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Shared.MainLayout)">
+                <NotAuthorized>
+                    @* Redirect unauthenticated users to login *@
+                    <RedirectToLogin/>
+                </NotAuthorized>
+            </AuthorizeRouteView>
             <FocusOnNavigate RouteData="@routeData" Selector="h1"/>
         </Found>
+
         <NotFound>
             <PageTitle>Not found</PageTitle>
             <LayoutView Layout="@typeof(MainLayout)">
-                <p role="alert">Sorry, there's nothing at this address.</p>
+                <p role="alert">متأسفانه صفحه‌ای در این آدرس یافت نشد.</p>
             </LayoutView>
         </NotFound>
     </Router>
-
 </CascadingAuthenticationState>

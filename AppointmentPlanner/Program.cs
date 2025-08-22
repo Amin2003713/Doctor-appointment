@@ -1,8 +1,10 @@
 using System.Text;
 using AppointmentPlanner.Client;
 using AppointmentPlanner.Client.Pages;
+using AppointmentPlanner.Client.Services.Auth;
 using AppointmentPlanner.Components;
 using AppointmentPlanner.Data.Context;
+using AppointmentPlanner.Services.JWT;
 using AppointmentPlanner.Shared.Models;
 using AppointmentPlanner.Shared.Models.Users;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -17,7 +19,8 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorComponents().AddInteractiveWebAssemblyComponents();
 
-builder.Services.AddServerSideBlazor();
+builder.Services.AddScoped<IAuthService , PrerenderAuthStub>();
+
 
 builder.Services.AddMudServices(config =>
                                 {
@@ -36,11 +39,11 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 
 // Identity
 builder.Services.AddIdentity<User , IdentityRole<long>>(opt =>
-                                                  {
-                                                      opt.Password.RequireNonAlphanumeric = false;
-                                                      opt.Password.RequireUppercase       = false;
-                                                      opt.SignIn.RequireConfirmedAccount  = false;
-                                                  }).
+                                                        {
+                                                            opt.Password.RequireNonAlphanumeric = false;
+                                                            opt.Password.RequireUppercase       = false;
+                                                            opt.SignIn.RequireConfirmedAccount  = false;
+                                                        }).
         AddEntityFrameworkStores<AppDbContext>().
         AddDefaultTokenProviders();
 
@@ -58,8 +61,7 @@ builder.Services.AddAuthentication(o =>
                          o.TokenValidationParameters = new TokenValidationParameters
                          {
                              ValidateIssuer           = true , ValidIssuer      = jwt["Issuer"] , ValidateAudience = true , ValidAudience = jwt["Audience"] ,
-                             ValidateIssuerSigningKey = true , IssuerSigningKey = key , ValidateLifetime           = true ,
-                             ClockSkew                = TimeSpan.FromMinutes(2)
+                             ValidateIssuerSigningKey = true , IssuerSigningKey = key , ValidateLifetime           = true , ClockSkew = TimeSpan.FromMinutes(2)
                          };
                      });
 
