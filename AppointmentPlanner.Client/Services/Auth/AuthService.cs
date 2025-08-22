@@ -1,67 +1,48 @@
-﻿using System.Net.Http.Json;
-using AppointmentPlanner.Shared.Dtos;
-using Blazored.LocalStorage;
+﻿using AppointmentPlanner.Shared.AuthModels;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Authorization;
 
 namespace AppointmentPlanner.Client.Services.Auth;
 
-public class AuthService(
-    HttpClient http,
-    ILocalStorageService local,
-    AuthenticationStateProvider provider,
-    NavigationManager nav
-)
+public sealed class AuthService(
+    IAuthApi             api ,
+    ITokenStore          tokens ,
+    ApiAuthStateProvider stateProvider ,
+    NavigationManager    nav
+) : IAuthService
 {
-    private readonly ApiAuthStateProvider _authState = (ApiAuthStateProvider)provider;
-
-    public class AuthTokenResponse
+    public async Task<bool> LoginAsync(string email , string password , CancellationToken ct = default)
     {
-        public string AccessToken { get; set; } = "";
-        public DateTime ExpiresAtUtc { get; set; }
-        public MinimalUser User { get; set; } = new();
+        try
+        {
+            var res = await api.LoginAsync(new LoginRequest(email , password) , ct);
+
+            var session = new AuthSession(
+                res.AccessToken ,
+                res.RefreshToken ,
+                res.ExpiresAtUtc ,
+                res.User
+            );
+
+            await tokens.SetAsync(session , ct);
+            stateProvider.Notify(session);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 
-    public class MinimalUser
+    public async Task LogoutAsync(CancellationToken ct = default)
     {
-        public string Id { get; set; } = "";
-        public string Email { get; set; } = "";
-        public string FullName { get; set; } = "";
+        await tokens.ClearAsync(ct);
+        stateProvider.Notify(null);
+        nav.NavigateTo("/login" , forceLoad: true);
     }
 
-    public async Task<bool> LoginAsync(LoginDto dto)
+    public async Task<bool> RegisterAsync(string email , string password , string fullName , CancellationToken ct = default)
     {
-        var res = await http.PostAsJsonAsync("api/auth/login", dto);
-        if (!res.IsSuccessStatusCode) return false;
-
-        var payload = await res.Content.ReadFromJsonAsync<AuthTokenResponse>();
-        if (payload is null) return false;
-
-        await local.SetItemAsync("access_token",  payload.AccessToken);
-        await local.SetItemAsync("user_email",    payload.User.Email);
-        await local.SetItemAsync("user_name",     payload.User.FullName);
-        await local.SetItemAsync("token_expires", payload.ExpiresAtUtc);
-
-        await _authState.MarkUserAsAuthenticated(payload.User.Email);
-        return true;
-    }
-
-    public async Task LogoutAsync()
-    {
-        await local.RemoveItemAsync("access_token");
-        await local.RemoveItemAsync("user_email");
-        await local.RemoveItemAsync("user_name");
-        await local.RemoveItemAsync("token_expires");
-
-        _authState.MarkUserAsLoggedOut();
-        nav.NavigateTo("/login", forceLoad: true);
-    }
-
-    public async Task<bool> RegisterAsync(RegisterDto dto)
-    {
-        var res = await http.PostAsJsonAsync("api/auth/register",
-            dto);
-
-        return res.IsSuccessStatusCode;
+        var resp = await api.RegisterAsync(new RegisterRequest(email , password , fullName) , ct);
+        return resp.IsSuccessStatusCode;
     }
 }

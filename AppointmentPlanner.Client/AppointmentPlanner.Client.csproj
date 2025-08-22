@@ -16,6 +16,7 @@
     <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.8" />
     <PackageReference Include="MudBlazor" Version="8.11.0" />
     <PackageReference Include="MudBlazor.ThemeManager" Version="3.0.0" />
+    <PackageReference Include="Refit.HttpClientFactory" Version="8.0.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.1" />
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
 	
@@ -23,6 +24,12 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AppointmentPlanner.Shared\AppointmentPlanner.Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <_ContentIncludedByDefault Remove="Pages\Accounts\Login\Login.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Accounts\Logout\Logout.razor" />
+    <_ContentIncludedByDefault Remove="Pages\Accounts\Register\Register.razor" />
   </ItemGroup>
 
 </Project>

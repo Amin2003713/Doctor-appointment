@@ -1,11 +1,15 @@
 using AppointmentPlanner.Shared.Models;
 using AppointmentPlanner.Client.Pages;
+using AppointmentPlanner.Client.Services.Auth;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor;
 using MudBlazor.Services;
 
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
+
+builder.Services.AddClientJwtAuth(new Uri(builder.HostEnvironment.BaseAddress));
+
 
 builder.Services.AddMudServices(config =>
                                 {
@@ -19,6 +23,5 @@ builder.Services.AddMudServices(config =>
                                     config.SnackbarConfiguration.SnackbarVariant        = Variant.Filled;
                                 });
 
-builder.Services.AddJwtAuth(new Uri(builder.HostEnvironment.BaseAddress));
 
 await builder.Build().RunAsync();

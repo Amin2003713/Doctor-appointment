@@ -1,42 +1,60 @@
 ﻿using System.Security.Claims;
-using Blazored.LocalStorage;
+using AppointmentPlanner.Shared.AuthModels;
 using Microsoft.AspNetCore.Components.Authorization;
 
 namespace AppointmentPlanner.Client.Services.Auth;
 
-public class ApiAuthStateProvider (
-    ILocalStorageService local
-) : AuthenticationStateProvider
+#region Utilities
+
+#endregion
+
+#region Storage
+
+#endregion
+
+#region API Client
+
+#endregion
+
+#region Auth State Provider
+
+public sealed class ApiAuthStateProvider(ITokenStore tokens) : AuthenticationStateProvider
 {
+    private AuthenticationState _cached = new(new ClaimsPrincipal(new ClaimsIdentity()));
+
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        var token = await local.GetItemAsStringAsync("access_token");
-        if (string.IsNullOrWhiteSpace(token))
-            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+        var session = await tokens.GetAsync();
 
-        // You can parse JWT here to extract claims if you want
-        var identity = new ClaimsIdentity(new[]
-            {
-                new Claim(ClaimTypes.Name, await local.GetItemAsStringAsync("user_email") ?? "")
-            },
-            "jwt");
+        if (session is null)
+        {
+            _cached = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+            return _cached;
+        }
 
-        var user = new ClaimsPrincipal(identity);
-        return new AuthenticationState(user);
+        var identity = JwtUtils.BuildIdentity(session.AccessToken);
+        _cached = new AuthenticationState(new ClaimsPrincipal(identity));
+        return _cached;
     }
 
-    public  Task MarkUserAsAuthenticated(string email)
+    public void Notify(AuthSession? session)
     {
-        var identity = new ClaimsIdentity([
-                new Claim(ClaimTypes.Name, email)
-            ],
-            "jwt");
+        AuthenticationState state = session is null
+            ? new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()))
+            : new AuthenticationState(new ClaimsPrincipal(JwtUtils.BuildIdentity(session.AccessToken)));
 
-        var user = new ClaimsPrincipal(identity);
-        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
-        return Task.CompletedTask;
+        _cached = state;
+        NotifyAuthenticationStateChanged(Task.FromResult(state));
     }
-
-    public void MarkUserAsLoggedOut()
-        => NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()))));
 }
+
+#endregion
+
+#region Delegating Handler (Bearer + Refresh)
+
+#endregion
+
+#region Auth Service (login / logout / register)
+
+#endregion
+
