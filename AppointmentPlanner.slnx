@@ -1,4 +1,5 @@
 ﻿<Solution>
   <Project Path="AppointmentPlanner.Client\AppointmentPlanner.Client.csproj" Type="Classic C#" />
+  <Project Path="AppointmentPlanner.Shared\AppointmentPlanner.Shared.csproj" Type="Classic C#" />
   <Project Path="AppointmentPlanner\AppointmentPlanner.csproj" Type="Classic C#" />
 </Solution>
