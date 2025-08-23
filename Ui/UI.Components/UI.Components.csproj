@@ -22,10 +22,7 @@
 		<ProjectReference Include="..\..\Infrastructure\App.Handlers\App.Handlers.csproj"/>
 	</ItemGroup>
 
-	<ItemGroup>
-		<_ContentIncludedByDefault Remove="wwwroot\css\app.css"/>
-	</ItemGroup>
-
+	
 	<ItemGroup>
 		<Content Update="C:\Users\amin1\.nuget\packages\mudblazorjalali\7.6.1\contentFiles\any\net8.0\sasscompiler.json">
 			<DependentUpon>compilerconfig.json</DependentUpon>
@@ -33,47 +30,6 @@
 		</Content>
 	</ItemGroup>
 
-	<ItemGroup>
-		<EmbeddedResource Update="Resources\Featurs\Authorizions\Login\Login.fa-IR.resx">
-			<Generator>ResXFileCodeGenerator</Generator>
-			<LastGenOutput>Login.fa-IR.Designer.cs</LastGenOutput>
-		</EmbeddedResource>
-		<EmbeddedResource Update="Resources\Common\BaseLayouts\MudBaseLayout.fa-IR.resx">
-			<Generator>ResXFileCodeGenerator</Generator>
-			<LastGenOutput>MudBaseLayout.fa-IR.Designer.cs</LastGenOutput>
-		</EmbeddedResource>
-		<EmbeddedResource Update="Resources\Features\Companies\Dialogs\SelectCompany\SelectCompanyDialog.fa-IR.resx">
-			<Generator>ResXFileCodeGenerator</Generator>
-			<LastGenOutput>SelectCompanyDialog.fa-IR.Designer.cs</LastGenOutput>
-		</EmbeddedResource>
-		<EmbeddedResource Update="Resources\Features\Authorizions\ForgotPassword\ForgotPassword.fa-IR.resx">
-		  <Generator>ResXFileCodeGenerator</Generator>
-		  <LastGenOutput>ForgotPassword.fa-IR.Designer.cs</LastGenOutput>
-		</EmbeddedResource>
-	</ItemGroup>
-
-	<ItemGroup>
-		<Compile Update="Resources\Featurs\Authorizions\Login\Login.fa-IR.Designer.cs">
-			<DesignTime>True</DesignTime>
-			<AutoGen>True</AutoGen>
-			<DependentUpon>Login.fa-IR.resx</DependentUpon>
-		</Compile>
-		<Compile Update="Resources\Common\BaseLayouts\MudBaseLayout.fa-IR.Designer.cs">
-			<DesignTime>True</DesignTime>
-			<AutoGen>True</AutoGen>
-			<DependentUpon>MudBaseLayout.fa-IR.resx</DependentUpon>
-		</Compile>
-		<Compile Update="Resources\Features\Companies\Dialogs\SelectCompany\SelectCompanyDialog.fa-IR.Designer.cs">
-			<DesignTime>True</DesignTime>
-			<AutoGen>True</AutoGen>
-			<DependentUpon>SelectCompanyDialog.fa-IR.resx</DependentUpon>
-		</Compile>
-		<Compile Update="Resources\Features\Authorizions\ForgotPassword\ForgotPassword.fa-IR.Designer.cs">
-		  <DesignTime>True</DesignTime>
-		  <AutoGen>True</AutoGen>
-		  <DependentUpon>ForgotPassword.fa-IR.resx</DependentUpon>
-		</Compile>
-	</ItemGroup>
 
 	<ItemGroup>
 		<UpToDateCheckInput Remove="Common\BaseComponents\Modals\GetDomian\GetDomian.razor"/>
@@ -84,9 +40,7 @@
 		<UpToDateCheckInput Remove="Features\Authorizions\VerifyAccount\VerifyAccount.razor" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<AdditionalFiles Include="Resources\Features\Authorizions\ForgotPassword\ForgotPassword.razor" />
-	</ItemGroup>
+
 
 
 </Project>

@@ -1,11 +1,16 @@
-﻿@using Microsoft.AspNetCore.Components.Authorization
+﻿@using System.Reflection
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Routing
 @using UI.Components.Common.Redirects
-
 @using UI.Components.Common.BaseLayouts
+@using UI.Components.Layout
+
+
 <CascadingAuthenticationState>
     <Router
-        AppAssembly="@typeof(MainLayout).Assembly"
-        AdditionalAssemblies="new[] { typeof(MudBaseLayout).Assembly , typeof(RedirectToLogin).Assembly  }">
+        AppAssembly="@typeof(Program).Assembly"
+        AdditionalAssemblies="new[] { typeof(MudBaseLayout).Assembly, typeof(RedirectToLogin).Assembly }">
 
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MudBaseLayout)">
@@ -31,3 +36,5 @@
         </NotFound>
     </Router>
 </CascadingAuthenticationState>
+
+

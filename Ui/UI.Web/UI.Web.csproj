@@ -5,6 +5,8 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
+        <EnableDefaultScopedCssItems>false</EnableDefaultScopedCssItems>
+
     </PropertyGroup>
 
 
@@ -15,18 +17,22 @@
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.8" PrivateAssets="all"/>
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="9.0.8"/>
         <PackageReference Include="Scrutor" Version="6.1.0"/>
+        <PackageReference Include="System.Reflection" Version="4.1.0" />
     </ItemGroup>
 
     <ItemGroup>
         <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js"/>
     </ItemGroup>
-
-    <ItemGroup>
-        <ProjectReference Include="..\UI.Components\UI.Components.csproj"/>
-    </ItemGroup>
+    
 
     <ItemGroup>
       <ProjectReference Include="..\UI.Components\UI.Components.csproj" />
+    </ItemGroup>
+    
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Pages\Home.razor" />
+      <_ContentIncludedByDefault Remove="Layout\MainLayout.razor" />
     </ItemGroup>
 
 

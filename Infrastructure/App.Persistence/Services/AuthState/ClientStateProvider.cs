@@ -11,77 +11,119 @@ using Microsoft.AspNetCore.Components.Authorization;
 
 namespace App.Persistence.Services.AuthState;
 
-public class ClientStateProvider : AuthenticationStateProvider , IScopedDependency
+public class ClientStateProvider : AuthenticationStateProvider, IScopedDependency
 {
-    private readonly IMediator            _mediator;
-    private readonly NavigationManager    _navigationManager;
+    private readonly IMediator _mediator;
+    private readonly NavigationManager _navigationManager;
 
-    public ClientStateProvider(IMediator mediator ,NavigationManager navigationManager)
+    public ClientStateProvider(IMediator mediator, NavigationManager navigationManager)
     {
-        _mediator            = mediator;
-        _navigationManager   = navigationManager;
-        User                 = _mediator.Send(new GetUserInfoQuery()).Result;
+        _mediator = mediator;
+        _navigationManager = navigationManager;
+        // ❌ هیچ عملیات async یا .Result/.Wait() در سازنده انجام نده
     }
 
-    public UserInfo? User { get; set; }
+    public UserInfo? User { get;  set; }
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         try
         {
+            // بار اول از سرور/استوریج بگیر (کاملاً async)
             User ??= await _mediator.Send(new GetUserInfoQuery());
 
-            if (User?.Token == null || User.RefreshToken == null)
+            // کاربر لاگین نیست
+            if (User?.Token is null || User.RefreshToken is null)
             {
                 _navigationManager.NavigateTo("/login");
-                return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+                return Anonymous();
             }
 
-
+            // اگر توکن هنوز معتبر است
             if (!IsTokenExpired(User.Token))
-                return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(ExtractClaimsFromToken(User.Token) , "jwt")));
+            {
+                var principal = CreatePrincipal(User.Token);
+                return new AuthenticationState(principal);
+            }
 
-            if (IsTokenExpired(User?.Token!))
-                return await RefreshTokenAsync(User);
+            // تلاش برای رفرش
+            var refreshedState = await RefreshTokenAsync(User);
+            if (refreshedState is not null)
+            {
+                // تغییر وضعیت را به UI اطلاع بده
+                NotifyAuthenticationStateChanged(Task.FromResult(refreshedState));
+                return refreshedState;
+            }
 
+            // رفرش ناموفق
             _navigationManager.NavigateTo("/login");
-            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+            return Anonymous();
         }
-        catch (Exception)
+        catch
         {
             _navigationManager.NavigateTo("/login");
-            return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+            return Anonymous();
         }
     }
 
-    private bool IsTokenExpired(string token)
+    private static AuthenticationState Anonymous()
+        => new(new ClaimsPrincipal(new ClaimsIdentity()));
+
+    private static bool IsTokenExpired(string token)
     {
-        var jwtHandler = new JwtSecurityTokenHandler();
-        var jwtToken   = jwtHandler.ReadJwtToken(token);
-        return jwtToken.ValidTo < DateTime.Now;
+        var jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
+        // همیشه با UTC مقایسه کن
+        return jwt.ValidTo <= DateTime.UtcNow;
     }
 
-    private async Task<AuthenticationState> RefreshTokenAsync(UserInfo? user)
+    private async Task<AuthenticationState?> RefreshTokenAsync(UserInfo user)
     {
-        var login = await _mediator.Send(new RefreshTokenRequest(user!.RefreshToken , user.Token));
-        User = user;
-        return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(ExtractClaimsFromToken(login.Token) , "jwt")));
+        try
+        {
+            var login = await _mediator.Send(new RefreshTokenRequest(user.RefreshToken!, user.Token!));
+
+            // اگه نیاز داری رفرش‌توکن جدید رو هم ذخیره کنی، همینجا انجام بده
+            User = new UserInfo
+            {
+                Token = login.Token,
+                RefreshToken = login.RefreshToken ?? user.RefreshToken,
+                // سایر فیلدها...
+            };
+
+            var principal = CreatePrincipal(login.Token);
+            return new AuthenticationState(principal);
+        }
+        catch
+        {
+            return null;
+        }
     }
 
-    private IEnumerable<Claim> ExtractClaimsFromToken(string token)
+    private static ClaimsPrincipal CreatePrincipal(string jwtToken)
     {
-        var jwtHandler = new JwtSecurityTokenHandler();
-        var jwtToken   = jwtHandler.ReadJwtToken(token);
-        return jwtToken.Claims;
+        var jwt = new JwtSecurityTokenHandler().ReadJwtToken(jwtToken);
+        var identity = new ClaimsIdentity(jwt.Claims, authenticationType: "jwt");
+        return new ClaimsPrincipal(identity);
     }
 
     public async Task Logout()
     {
-        if(User is { Token: not null })
-            await _mediator.Send(new LogoutCommand(User.Token));
+        if (User?.Token is not null)
+        {
+            try { await _mediator.Send(new LogoutCommand(User.Token)); } catch { /* ignore */ }
+        }
 
-        var anonymousUser = Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity())));
-        User = null!;
-        NotifyAuthenticationStateChanged(anonymousUser);
+        User = null;
+        var anon = Task.FromResult(Anonymous());
+        NotifyAuthenticationStateChanged(anon);
+        _navigationManager.NavigateTo("/login");
+    }
+
+    // اختیاری: وقتی از بیرون (مثلاً بعد از Login) توکن گرفتی، صدا بزن
+    public Task SetUserAsync(UserInfo? user)
+    {
+        User = user;
+        NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
+        return Task.CompletedTask;
     }
 }
