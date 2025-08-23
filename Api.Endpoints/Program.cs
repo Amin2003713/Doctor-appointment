@@ -81,6 +81,8 @@ app.UseAuthorization();
 app.MapControllers();
 
 
+app.UseCors(a => a.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());
+
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;

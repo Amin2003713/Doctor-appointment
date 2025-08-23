@@ -14,7 +14,7 @@ public class GetUserInfoQueryHandler(ILocalStorage repository , ILogger<GetUserI
         try
         {
             var result = await repository.GetAsync<UserInfo>(nameof(UserInfo));
-            return (await Task.FromResult(result?.Id == Guid.Empty ? null : result))!;
+            return (await Task.FromResult(result?.Id == "" ? null : result))!;
         }
         catch (Exception e)
         {

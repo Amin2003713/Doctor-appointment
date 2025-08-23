@@ -22,7 +22,6 @@ public class LogoutCommandHandler(IMediator mediator) : IRequestHandler<LogoutCo
                 return;
 
             user.Token        = null!;
-            user.RefreshToken = null!;
 
             await mediator.Send(user.Adapt<UpdateUserInfoCommand>() , cancellationToken);
         }

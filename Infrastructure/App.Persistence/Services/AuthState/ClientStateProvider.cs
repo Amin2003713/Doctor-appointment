@@ -11,18 +11,12 @@ using Microsoft.AspNetCore.Components.Authorization;
 
 namespace App.Persistence.Services.AuthState;
 
-public class ClientStateProvider : AuthenticationStateProvider, IScopedDependency
+public class ClientStateProvider (
+    IMediator mediator,
+    NavigationManager navigationManager
+) : AuthenticationStateProvider,
+    IScopedDependency
 {
-    private readonly IMediator _mediator;
-    private readonly NavigationManager _navigationManager;
-
-    public ClientStateProvider(IMediator mediator, NavigationManager navigationManager)
-    {
-        _mediator = mediator;
-        _navigationManager = navigationManager;
-        // ❌ هیچ عملیات async یا .Result/.Wait() در سازنده انجام نده
-    }
-
     public UserInfo? User { get;  set; }
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
@@ -30,12 +24,12 @@ public class ClientStateProvider : AuthenticationStateProvider, IScopedDependenc
         try
         {
             // بار اول از سرور/استوریج بگیر (کاملاً async)
-            User ??= await _mediator.Send(new GetUserInfoQuery());
+            User ??= await mediator.Send(new GetUserInfoQuery());
 
             // کاربر لاگین نیست
-            if (User?.Token is null || User.RefreshToken is null)
+            if (User?.Token is null)
             {
-                _navigationManager.NavigateTo("/login");
+                navigationManager.NavigateTo("/login");
                 return Anonymous();
             }
 
@@ -46,22 +40,14 @@ public class ClientStateProvider : AuthenticationStateProvider, IScopedDependenc
                 return new AuthenticationState(principal);
             }
 
-            // تلاش برای رفرش
-            var refreshedState = await RefreshTokenAsync(User);
-            if (refreshedState is not null)
-            {
-                // تغییر وضعیت را به UI اطلاع بده
-                NotifyAuthenticationStateChanged(Task.FromResult(refreshedState));
-                return refreshedState;
-            }
 
             // رفرش ناموفق
-            _navigationManager.NavigateTo("/login");
+            navigationManager.NavigateTo("/login");
             return Anonymous();
         }
         catch
         {
-            _navigationManager.NavigateTo("/login");
+            navigationManager.NavigateTo("/login");
             return Anonymous();
         }
     }
@@ -76,28 +62,6 @@ public class ClientStateProvider : AuthenticationStateProvider, IScopedDependenc
         return jwt.ValidTo <= DateTime.UtcNow;
     }
 
-    private async Task<AuthenticationState?> RefreshTokenAsync(UserInfo user)
-    {
-        try
-        {
-            var login = await _mediator.Send(new RefreshTokenRequest(user.RefreshToken!, user.Token!));
-
-            // اگه نیاز داری رفرش‌توکن جدید رو هم ذخیره کنی، همینجا انجام بده
-            User = new UserInfo
-            {
-                Token = login.Token,
-                RefreshToken = login.RefreshToken ?? user.RefreshToken,
-                // سایر فیلدها...
-            };
-
-            var principal = CreatePrincipal(login.Token);
-            return new AuthenticationState(principal);
-        }
-        catch
-        {
-            return null;
-        }
-    }
 
     private static ClaimsPrincipal CreatePrincipal(string jwtToken)
     {
@@ -110,13 +74,13 @@ public class ClientStateProvider : AuthenticationStateProvider, IScopedDependenc
     {
         if (User?.Token is not null)
         {
-            try { await _mediator.Send(new LogoutCommand(User.Token)); } catch { /* ignore */ }
+            try { await mediator.Send(new LogoutCommand(User.Token)); } catch { /* ignore */ }
         }
 
         User = null;
         var anon = Task.FromResult(Anonymous());
         NotifyAuthenticationStateChanged(anon);
-        _navigationManager.NavigateTo("/login");
+        navigationManager.NavigateTo("/login");
     }
 
     // اختیاری: وقتی از بیرون (مثلاً بعد از Login) توکن گرفتی، صدا بزن

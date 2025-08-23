@@ -1,37 +1,55 @@
 ﻿#region
 
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using App.Domain.Users;
+    using System.IdentityModel.Tokens.Jwt;
+    using System.Security.Claims;
+    using App.Domain.Users;
 
-namespace App.Applications.Users.Response.Login;
+    namespace App.Applications.Users.Response.Login;
 
 #endregion
 
-public class LoginResponse
-{
-    public string Token { get; set; }
-
-    public string RefreshToken { get; set; }
-
-
-    public UserInfo CreateUser()
+    public class LoginResponse
     {
-        var handler  = new JwtSecurityTokenHandler();
-        var jwtToken = handler.ReadJwtToken(Token);
+        public string Token { get; set; }
 
-        return new UserInfo
+
+        public UserInfo CreateUser()
         {
-            UserName      = jwtToken.Claims.FirstOrDefault(c => c.Type == "username")?.Value ?? string.Empty ,
-            Id            = new Guid(jwtToken.Claims.FirstOrDefault(c => c.Type == "id")?.Value!) ,
-            FirstName     = jwtToken.Claims.FirstOrDefault(c => c.Type == "firstName")?.Value ?? string.Empty ,
-            LastName      = jwtToken.Claims.FirstOrDefault(c => c.Type == "lastName")?.Value  ?? string.Empty ,
-            Profile       = jwtToken.Claims.FirstOrDefault(c => c.Type == "profile")?.Value ,
-            LastLoginDate = jwtToken.Claims.FirstOrDefault(c => c.Type == "lastLoginDate")?.Value ?? string.Empty ,
-            PhoneNumber   = jwtToken.Claims.FirstOrDefault(c => c.Type == "PhoneNumber")?.Value ,
-            RolesList     = jwtToken.Claims.Where(c => c.Type          == ClaimTypes.Role).Select(c => c.Value).ToList() ,
-            Token         = Token ,
-            RefreshToken  = RefreshToken ,
-        };
+            var handler  = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(Token);
+
+            return new UserInfo
+            {
+                // UserName رو از ClaimTypes.Name می‌گیریم
+                UserName      = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value ?? string.Empty,
+
+                // Id رو از Sub یا NameIdentifier می‌گیریم
+                Id            = jwtToken.Claims.FirstOrDefault(c =>
+                                        c.Type == JwtRegisteredClaimNames.Sub ||
+                                        c.Type == ClaimTypes.NameIdentifier)
+                                    ?.Value ??
+                                string.Empty,
+
+                // چون توی توکن FirstName / LastName ست نمی‌شه، اینجا خالی می‌ذاریم
+                FirstName     = string.Empty,
+                LastName      = string.Empty,
+
+                // profile هم ست نشده → خالی
+                Profile       = null,
+
+                // LastLoginDate هم ست نشده → خالی
+                LastLoginDate = string.Empty,
+
+                // PhoneNumber هم ست نشده → خالی
+                PhoneNumber   = null,
+
+                // Roles اگه ست می‌کنی در توکن، اینجا هم قابل خوندنه
+                RolesList     = jwtToken.Claims
+                    .Where(c => c.Type == ClaimTypes.Role)
+                    .Select(c => c.Value)
+                    .ToList(),
+
+                Token         = Token
+            };
+        }
     }
-}
