@@ -27,13 +27,26 @@ builder.Services.AddAuthentication(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
+            // 🔒 Standard checks
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = "yourapp",
-            ValidAudience = "yourapp",
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("super_secret_key"))
+
+            // 👇 from your config (IOptions<JwtOptions>)
+            ValidIssuer = JwtOptions.Issuer,
+            ValidAudience = JwtOptions.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtOptions.SigningKey)),
+
+            // ⏰ Ensure token expires exactly as intended
+            ClockSkew = TimeSpan.Zero,   // default = 5 minutes; set to 0 for strict expiration
+
+            // ✅ Extra safety
+            RequireExpirationTime = true, // token *must* have exp claim
+            RequireSignedTokens = true,   // token must be signed
+            ValidateActor = false,        // only needed if you use "act" claim
+            ValidateTokenReplay = false,  // enable if you track jti in DB/Redis for replay protection
+            SaveSigninToken = false       // don't keep token instance in memory
         };
     });
 
