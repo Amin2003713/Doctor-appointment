@@ -5,10 +5,10 @@ using Microsoft.Extensions.Localization;
 namespace App.Applications.Users.Validators.ForgotPassword
 {
     /// <summary>
-    /// Validates the <see cref="ForgotPasswordRequest"/> ensuring that required fields are present
+    /// Validates the <see cref="ResetPasswordRequest"/> ensuring that required fields are present
     /// and follow the appropriate format rules.
     /// </summary>
-    public class ForgotPasswordRequestValidator : AbstractValidator<ForgotPasswordRequest>
+    public class ForgotPasswordRequestValidator : AbstractValidator<ResetPasswordRequest>
     {
         /// <summary>
         /// Initializes a new instance of the <see cref="ForgotPasswordRequestValidator"/> class.
@@ -23,7 +23,7 @@ namespace App.Applications.Users.Validators.ForgotPassword
                 WithMessage(localizer["PhoneNumberMinDigits"]);
 
             // New Password
-            RuleFor(x => x.NewPassword).
+            RuleFor(x => x.Password).
                 NotEmpty().
                 WithMessage(localizer["PasswordRequired"]).
                 MinimumLength(6).
@@ -41,7 +41,7 @@ namespace App.Applications.Users.Validators.ForgotPassword
             RuleFor(x => x.ConfirmPassword).
                 NotEmpty().
                 WithMessage(localizer["ConfirmPasswordRequired"]).
-                Equal(x => x.NewPassword).
+                Equal(x => x.Password).
                 WithMessage(localizer["ConfirmPasswordMustMatch"]);
         }
     }

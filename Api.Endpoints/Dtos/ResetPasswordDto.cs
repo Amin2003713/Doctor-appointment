@@ -1,3 +1,5 @@
 ﻿public record ResetPasswordDto(
-    string PhoneNumber
+    string PhoneNumber ,
+    string Password ,
+    string ConfirmPassword
 );

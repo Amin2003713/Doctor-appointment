@@ -2,7 +2,7 @@
 
 namespace App.Applications.Users.Requests.ForgotPassword;
 
-public class ForgotPasswordRequest : IRequest
+public class ResetPasswordRequest : IRequest
 {
     /// <summary>
     /// The phone number associated with the user account.
@@ -12,10 +12,10 @@ public class ForgotPasswordRequest : IRequest
     /// <summary>
     /// The new password to be set for the user account.
     /// </summary>
-     public string NewPassword { get; set; }
+     public string Password { get; set; }
 
     /// <summary>
-    /// A confirmation of the new password (must match <see cref="NewPassword"/>).
+    /// A confirmation of the new password (must match <see cref="Password"/>).
     /// </summary>
     public string ConfirmPassword { get; set; }
 }

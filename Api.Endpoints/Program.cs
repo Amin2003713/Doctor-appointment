@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -48,8 +49,26 @@ builder.Services.AddAuthentication(options =>
             ValidateTokenReplay = false,  // enable if you track jti in DB/Redis for replay protection
             SaveSigninToken = false       // don't keep token instance in memory
         };
+
+// Debug why it's 401
+        options.Events = new JwtBearerEvents
+        {
+            OnAuthenticationFailed = ctx =>
+            {
+                Console.WriteLine("JWT auth failed: " + ctx.Exception.Message);
+                return Task.CompletedTask;
+            },
+            OnChallenge = ctx => Task.CompletedTask
+        };
     });
 
+builder.Services.AddControllers();
+
+// 🔹 OpenAPI + Bearer security in the document
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
+});
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
@@ -64,6 +83,13 @@ app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
 {
+    var services = scope.ServiceProvider;
+
+    // 1) Apply migrations
+    var db = services.GetRequiredService<AppDbContext>();
+    await db.Database.MigrateAsync();
+
+    // 2) Seed roles
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<long>>>();
     var roles = new[]
     {
@@ -75,7 +101,49 @@ using (var scope = app.Services.CreateScope())
     foreach (var role in roles)
         if (!await roleManager.RoleExistsAsync(role))
             await roleManager.CreateAsync(new IdentityRole<long>(role));
+
+    // 3) Seed users (Doctor, Secretary, Patient)
+    var userManager = services.GetRequiredService<UserManager<AppUser>>();
+
+    await SeedHelper.SeedUserAsync(
+        userManager,
+        phone: "0911000001",        // will normalize to PhoneNumber +98911000001
+        fullName: "Dr. Example",
+        email: "doctor@example.com",
+        password: "Doctor#1234",
+        role: "Doctor");
+
+    await SeedHelper.SeedUserAsync(
+        userManager,
+        phone: "0911000002",
+        fullName: "Sec. Example",
+        email: "secretary@example.com",
+        password: "Secretary#1234",
+        role: "Secretary");
+
+    await SeedHelper.SeedUserAsync(
+        userManager,
+        phone: "0911000003",
+        fullName: "Mr. Patient",
+        email: "patient@example.com",
+        password: "Patient#1234",
+        role: "Patient");
 }
 
+app.MapOpenApi("/openapi/v1.json");
+
+app.MapScalarApiReference("/docs",
+    options =>
+    {
+        options
+            .WithTitle("Clinic Management API")
+            .WithSidebar(true)
+            .WithDarkMode(true)
+            .WithDefaultOpenAllTags(false)
+            .WithOpenApiRoutePattern("/openapi/{documentName}.json") // where Scalar fetches docs
+            .AddDocument("v1", "Production API");                    // documentName = "v1"
+    });
+
+app.MapGet("/", () => Results.Redirect("/docs"));
 
 app.Run();

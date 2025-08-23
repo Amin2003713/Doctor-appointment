@@ -18,20 +18,20 @@
             </MudText>
         </MudStack>
 
-        <MudDivider DividerType="DividerType.Middle"  Absolute FlexItem />
+        <MudDivider DividerType="DividerType.Middle" Absolute FlexItem/>
         <!-- Login Form -->
         <AppForm TModel="LoginRequest" Model="Request" OnValidSubmit="LoginAsync">
             <FormProps>
 
                 <!-- Username -->
                 <MudTextField
-                    For="@(() => Request.Username)"
-                    @bind-Value="Request.Username"
+                    For="@(() => Request.PhoneNumber)"
+                    @bind-Value="Request.PhoneNumber"
                     Label="نام کاربری"
                     Variant="Variant.Outlined"
                     Margin="Margin.Normal"
                     FullWidth="true"
-                    HelperText="نام کاربری خود را وارد کنید"
+                    HelperText="نام کاربری خود را وارد کنید(تلفن همراه)"
                     HelperTextOnFocus/>
 
                 <!-- Password -->
@@ -53,7 +53,7 @@
                     <MudLink
                         OnClick="GoToForgotPassword"
                         Color="Color.Info"
-                        Disabled="@string.IsNullOrWhiteSpace(Request.Username)"
+                        Disabled="@string.IsNullOrWhiteSpace(Request.PhoneNumber)"
                         Underline="Underline.Hover"
                         Typo="Typo.h5"> فراموشی رمز عبور؟
                     </MudLink>
@@ -126,7 +126,7 @@
     }
 
     private void GoToForgotPassword()
-        => NavigationManager.NavigateTo($"/forgot-password?Username={Request.Username}");
+        => NavigationManager.NavigateTo($"/forgot-password?Username={Request.PhoneNumber}");
 
     private void GoToRegister()
         => NavigationManager.NavigateTo($"/register-account");

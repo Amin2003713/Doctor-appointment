@@ -12,12 +12,9 @@ using Microsoft.IdentityModel.Tokens;
 public class UsersController(
     UserManager<AppUser> userManager,
     SignInManager<AppUser> signInManager,
-    RoleManager<IdentityRole<long>> roleManager,
-    IOptions<JwtOptions> jwtOptions // bind from configuration
+    RoleManager<IdentityRole<long>> roleManager
 ) : ControllerBase
 {
-    private readonly JwtOptions _jwt = jwtOptions.Value;
-
     [HttpPost("register")]
     [AllowAnonymous]
     public async Task<IActionResult> Register([FromBody] RegisterDto dto)
@@ -49,7 +46,7 @@ public class UsersController(
 
     [HttpPost("register/patient")]
     [Authorize(Roles = "Doctor,Secretary")]
-    public async Task<IActionResult> RegisterPatient([FromBody] RegisterOtherDto dto)
+    public async Task<IActionResult> RegisterPatient([FromBody] RegisterDto dto)
     {
         var (ok, msg) = await RegisterWithRole(dto, "Patient");
         return ok ? Ok() : BadRequest(msg);
@@ -57,7 +54,7 @@ public class UsersController(
 
     [HttpPost("register/secretary")]
     [Authorize(Roles = "Doctor")]
-    public async Task<IActionResult> RegisterSecretary([FromBody] RegisterOtherDto dto)
+    public async Task<IActionResult> RegisterSecretary([FromBody] RegisterDto dto)
     {
         var (ok, msg) = await RegisterWithRole(dto, "Secretary");
         return ok ? Ok() : BadRequest(msg);
@@ -231,9 +228,9 @@ public class UsersController(
         await userManager.UpdateAsync(user);
 
         var token = await GenerateJwtToken(user);
-        return Ok(new
+        return Ok(new LoginResponseDto
         {
-            token
+            Token = token
         });
     }
 
@@ -248,11 +245,10 @@ public class UsersController(
         if (user == null) return BadRequest("User not found");
 
         var token = await userManager.GeneratePasswordResetTokenAsync(user);
-        // In a real system, you’d send an SMS; here we return the token for dev/testing.
-        return Ok(new
-        {
-            token
-        });
+
+        await userManager.ResetPasswordAsync(user , token, dto.Password);
+
+        return Ok();
     }
 
     [HttpGet("me")]
@@ -278,7 +274,7 @@ public class UsersController(
     // Helpers
     // -------------------
 
-    private async Task<(bool ok, string? error)> RegisterWithRole(RegisterOtherDto dto, string role)
+    private async Task<(bool ok, string? error)> RegisterWithRole(RegisterDto dto, string role)
     {
         var e164     = PhoneHelper.NormalizeToE164Guess(dto.PhoneNumber);
         var username = PhoneHelper.NormalizeUsername(e164);
@@ -313,16 +309,17 @@ public class UsersController(
         var user = await userManager.FindByIdAsync(dto.UserId);
         if (user == null) return NotFound("User not found");
 
-        user.IsActive = dto.IsActive;
+        user.IsActive = !user.IsActive;
         await userManager.UpdateAsync(user);
 
-        return Ok(new
-        {
-            user.Id,
-            user.FullName,
-            user.PhoneNumber,
-            user.IsActive
-        });
+        return Ok(new UserDetailDto(user.Id ,
+            (user.PhoneNumber ?? user.UserName)!  ,
+            user.Email ,
+            user.FullName ,
+            user.IsActive ,
+            user.CreatedAtUtc ,
+            user.LastLoginAtUtc ,
+            []));
     }
 
     private async Task EnsureRolesExist()
@@ -358,15 +355,15 @@ public class UsersController(
 
         claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
 
-        var key   = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.SigningKey));
+        var key   = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtOptions.SigningKey));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer:   _jwt.Issuer,
-            audience: _jwt.Audience,
+            issuer:   JwtOptions.Issuer,
+            audience: JwtOptions.Audience,
             claims:   claims,
             notBefore: DateTime.UtcNow,
-            expires:  DateTime.UtcNow.Add(_jwt.AccessTokenLifetime),
+            expires:  DateTime.UtcNow.Add(JwtOptions.AccessTokenLifetime),
             signingCredentials: creds
         );
 

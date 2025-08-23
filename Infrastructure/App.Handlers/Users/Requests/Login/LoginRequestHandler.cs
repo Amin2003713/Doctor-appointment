@@ -1,6 +1,5 @@
 using App.Applications.Users.Apis;
 using App.Applications.Users.Commands.Update;
-
 using App.Applications.Users.Requests.Login;
 using App.Applications.Users.Response.Login;
 using App.Common.General.ApiResult;
@@ -18,7 +17,8 @@ public class LoginRequestHandler(
     ApiFactory apiFactory ,
     ClientStateProvider stateProvider ,
     NavigationManager navigationManager ,
-    IMediator mediator) : IRequestHandler<LoginRequest , LoginResponse>
+    IMediator mediator
+) : IRequestHandler<LoginRequest , LoginResponse>
 {
     public IUserApis Apis { get; set; } = apiFactory.CreateApi<IUserApis>();
 
@@ -27,15 +27,15 @@ public class LoginRequestHandler(
         ArgumentNullException.ThrowIfNull(request , nameof(request));
         ArgumentNullException.ThrowIfNull(Apis ,    nameof(Apis));
 
-        request.Username = request.Username.Trim();
-        var result = await Apis.Login(request , request.Username);
+        request.PhoneNumber = request.PhoneNumber.Trim();
+        var result = await Apis.Login(request);
 
         if (!result.IsSuccessStatusCode)
         {
             result.DeserializeAndThrow();
             return null!;
         }
-        
+
 
         var user = result?.Content!.CreateUser();
         await mediator.Send(user.Adapt<UpdateUserInfoCommand>() , cancellationToken);

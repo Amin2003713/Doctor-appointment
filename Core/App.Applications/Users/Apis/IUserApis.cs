@@ -1,94 +1,63 @@
 #region
 
-using App.Applications.Users.Requests.ForgotPassword;
-using App.Applications.Users.Requests.Login;
-using App.Applications.Users.Requests.SendActivationCode;
-using App.Applications.Users.Requests.Verify;
-using App.Applications.Users.Response.Login;
-using App.Applications.Users.Response.SendActivationCode;
-using App.Applications.Users.Response.Verify;
-using App.Common.General;
-using Refit;
+    using App.Applications.Users.Requests;
+    using App.Applications.Users.Requests.ForgotPassword;
+    using App.Applications.Users.Requests.Login;
+    using App.Applications.Users.Requests.Registers.Patient;
+    using App.Applications.Users.Requests.ToggleUsers;
+    using App.Applications.Users.Requests.UserQueries;
+    using App.Applications.Users.Response.Login;
+    using App.Applications.Users.Response.SendActivationCode;
+    using App.Applications.Users.Response.Verify;
+    using App.Common.General;
+    using App.Common.General.ApiResult;
+    using Refit;
 
 #endregion
 
-namespace App.Applications.Users.Apis;
+    namespace App.Applications.Users.Apis;
 
-public interface IUserApis
-{
-    /// <summary>login by username and password</summary>
-    /// <returns>A <see cref="Task" /> that completes when the request is finished.</returns>
-    /// <exception cref="ApiException">Thrown when the request returns a non-success status code.</exception>
-    [Post("/api/user/login")]
-    Task<ApiResponse<LoginResponse>> Login([Body] LoginRequest body , [Header(ApplicationConstants.Headers.UserName)] string userName);
+    public interface IUserApis
+    {
+        // ----------- Auth / Register -----------
 
+        [Post(ApiRoutes.Register)]
+        Task<ApiResponse<object>> Register([Body] RegisterRequest body);
 
-    /// <summary>get new refresh and access token</summary>
-    /// <returns>A <see cref="Task" /> that completes when the request is finished.</returns>
-    /// <exception cref="ApiException">Thrown when the request returns a non-success status code.</exception>
-    [Post("/api/user/refresh-token")]
-    Task<ApiResponse<LoginResponse>> RefreshToken([Body] RefreshTokenRequest body);
+        [Post(ApiRoutes.RegisterPatient)]
+        Task<ApiResponse<object>> RegisterPatient([Body] RegisterRequest body);
 
-    /// <summary>Send an activation code to the specified user.</summary>
-    /// <returns>OK</returns>
-    /// <exception cref="ApiException">
-    ///     Thrown when the request returns a non-success status code:
-    ///     <list type="table">
-    ///         <listheader>
-    ///             <term>Status</term>
-    ///             <description>Description</description>
-    ///         </listheader>
-    ///         <item>
-    ///             <term>400</term>
-    ///             <description>Bad Request</description>
-    ///         </item>
-    ///         <item>
-    ///             <term>404</term>
-    ///             <description>Not Found</description>
-    ///         </item>
-    ///         <item>
-    ///             <term>500</term>
-    ///             <description>Internal Server Error</description>
-    ///         </item>
-    ///     </list>
-    /// </exception>
-    [Get("/api/user/send-activation-code")]
-    Task<ApiResponse<SendActivationCodeResponse>> Code([Body] SendActivationCodeRequest body);
+        [Post(ApiRoutes.RegisterSecretary)]
+        Task<ApiResponse<object>> RegisterSecretary([Body] RegisterRequest body);
 
-    /// <summary>Verify the code sent to the user's phone number.</summary>
-    /// <returns>OK</returns>
-    /// <exception cref="ApiException">
-    ///     Thrown when the request returns a non-success status code:
-    ///     <list type="table">
-    ///         <listheader>
-    ///             <term>Status</term>
-    ///             <description>Description</description>
-    ///         </listheader>
-    ///         <item>
-    ///             <term>400</term>
-    ///             <description>Bad Request</description>
-    ///         </item>
-    ///         <item>
-    ///             <term>500</term>
-    ///             <description>Internal Server Error</description>
-    ///         </item>
-    ///     </list>
-    /// </exception>
-    [Put("/api/user/verify")]
-    Task<ApiResponse<VerifyPhoneNumberResponse>> Verify([Body] VerifyPhoneNumberRequest body);
+        // ----------- Role mgmt / Toggle -----------
+
+        [Post(ApiRoutes.ChangeRole)]
+        Task<ApiResponse<object>> ChangeRole([Body] ChangeRoleRequest body);
+
+        [Post(ApiRoutes.ToggleTemplate)]
+        Task<ApiResponse<UserInfoResponse>> Toggle([Body] ToggleUserRequest body);
+
+        // ----------- Login / Forgot -----------
+
+        [Post(ApiRoutes.Login)]
+        Task<ApiResponse<LoginResponse>> Login([Body] LoginRequest body);
+
+        [Post(ApiRoutes.ForgotPassword)]
+        Task<ApiResponse<object>> ForgotPassword([Body] ResetPasswordRequest body);
 
 
-    /// <summary>
-    /// Initiates a "forgot password" process by sending a reset link/code to the user's email.
-    /// </summary>
-    /// <param name="request">An object containing the user's email.</param>
-    /// <param name="userName">As the header to work</param>
-    /// <returns>A response indicating whether the email was sent successfully.</returns>
-    /// <response code="200">Returns a success message indicating an email was sent (or that the email does not exist).</response>
-    /// <response code="400">If the request is invalid (e.g., missing or invalid email address).</response>
-    /// <response code="403">If an error occurs with password.</response>
-    /// <response code="500">If an internal server error occurs.</response>
-    [Put("/api/user/forgot-password")]
-    Task<IApiResponse>  ForgotPassword([Body] ForgotPasswordRequest request , [Header(ApplicationConstants.Headers.UserName)] string userName);
+        [Get(ApiRoutes.Me)]
+        Task<ApiResponse<UserInfoResponse>> Me();
 
-}
+        // /api/auth/user/{id:long}
+        [Get(ApiRoutes.UserByIdTemplate)]
+        Task<ApiResponse<UserInfoResponse>> GetUser(long id);
+
+        // /api/auth/users?page=1&pageSize=20&search=...
+        [Get(ApiRoutes.Users)]
+        Task<ApiResponse<PagedResult<UserListItemResponse>>> GetUsers([Query] UsersQuery query);
+
+        [Get(ApiRoutes.UsersSecretaries)]
+        Task<ApiResponse<PagedResult<UserListItemResponse>>> GetSecretaries([Query] UsersQuery query);
+    }
