@@ -3,6 +3,7 @@
     using App.Applications.Users.Requests;
     using App.Applications.Users.Requests.ForgotPassword;
     using App.Applications.Users.Requests.Login;
+    using App.Applications.Users.Requests.Registers;
     using App.Applications.Users.Requests.Registers.Patient;
     using App.Applications.Users.Requests.ToggleUsers;
     using App.Applications.Users.Requests.UpdateUser;

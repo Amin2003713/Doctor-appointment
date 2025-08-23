@@ -1,7 +1,9 @@
 ﻿@page "/Login"
 
-<MudContainer MaxWidth="MaxWidth.Small" Gutters Class="d-flex justify-center align-center">
-    <MudCard Elevation="10" Class="p-6" Style="border-radius: 20px; width: 100%; padding: 20px; margin: 20px">
+<MudContainer MaxWidth="MaxWidth.Small"
+              Class="d-flex justify-center align-center"
+              Style="min-height: 100svh; padding: 0 !important;">
+    <MudCard Elevation="10" Style="border-radius: 20px; width: 100%; padding: 20px; margin: 20px;">
 
         <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Spacing="3">
             <MudImage
@@ -18,7 +20,6 @@
             </MudText>
         </MudStack>
 
-        <MudDivider DividerType="DividerType.Middle" Absolute FlexItem/>
         <!-- Login Form -->
         <AppForm TModel="LoginRequest" Model="Request" OnValidSubmit="LoginAsync">
             <FormProps>
@@ -114,7 +115,7 @@
         {
             await Mediator.Send(Request);
         }
-        catch(Exception ex)
+        catch (Exception ex)
         {
             //
         }
@@ -129,6 +130,6 @@
         => NavigationManager.NavigateTo($"/forgot-password?Username={Request.PhoneNumber}");
 
     private void GoToRegister()
-        => NavigationManager.NavigateTo($"/register-account");
+        => NavigationManager.NavigateTo($"/register");
 
 }

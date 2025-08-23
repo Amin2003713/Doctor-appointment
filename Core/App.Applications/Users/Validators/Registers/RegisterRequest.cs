@@ -20,25 +20,36 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
 
         RuleFor(x => x.Password)
             .NotEmpty()
-            .WithMessage("گذرواژه الزامی است.")
+            .WithMessage("رمز عبور الزامی است.")
             .MinimumLength(6)
-            .WithMessage("حداقل طول گذرواژه ۶ کاراکتر است.");
+            .WithMessage("رمز عبور باید حداقل ۶ کاراکتر باشد.");
+
+        RuleFor(x => x.FirstName)
+            .NotEmpty()
+            .WithMessage("نام الزامی است.")
+            .MaximumLength(50)
+            .WithMessage("حداکثر طول نام ۵۰ کاراکتر است.");
+
+        RuleFor(x => x.LastName)
+            .NotEmpty()
+            .WithMessage("نام خانوادگی الزامی است.")
+            .MaximumLength(80)
+            .WithMessage("حداکثر طول نام خانوادگی ۸۰ کاراکتر است.");
 
         RuleFor(x => x.FullName)
             .NotEmpty()
             .WithMessage("نام و نام خانوادگی الزامی است.")
-            .MinimumLength(2)
-            .WithMessage("نام و نام خانوادگی حداقل باید ۲ کاراکتر باشد.")
-            .MaximumLength(128)
-            .WithMessage("نام و نام خانوادگی حداکثر می‌تواند ۱۲۸ کاراکتر باشد.");
+            .MaximumLength(130)
+            .WithMessage("حداکثر طول نام کامل ۱۳۰ کاراکتر است.");
 
-        When(x => !string.IsNullOrWhiteSpace(x.Email),
-            () =>
-            {
-                RuleFor(x => x.Email!)
-                    .EmailAddress()
-                    .WithMessage("ایمیل نامعتبر است.");
-            });
+        RuleFor(x => x.Email)
+            .EmailAddress()
+            .When(x => !string.IsNullOrWhiteSpace(x.Email))
+            .WithMessage("فرمت ایمیل صحیح نیست.");
+
+        RuleFor(x => x.Address)
+            .MaximumLength(300)
+            .WithMessage("حداکثر طول آدرس ۳۰۰ کاراکتر است.");
     }
 
     private static bool IsValidIranMobile(string? value)

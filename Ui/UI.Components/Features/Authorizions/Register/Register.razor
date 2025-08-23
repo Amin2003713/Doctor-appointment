@@ -1,0 +1,255 @@
+﻿@page "/register"
+@using App.Applications.Users.Requests.Registers
+@using App.Applications.Users.Requests.Registers.Patient
+<MudContainer MaxWidth="MaxWidth.Small"
+              Class="d-flex justify-center align-center"
+              Style="height: 100svh; overflow:auto; padding: 0 !important;">
+    <MudCard Elevation="10" Style="border-radius: 20px; width: 100%; padding: 20px; margin: 0;">
+
+        <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Spacing="3">
+            <MudImage
+                Src="_content/Ui.Components/Icons/login.png"
+                Alt="لوگوی ثبت‌نام"
+                Width="160"
+                Height="160"
+                ObjectFit="ObjectFit.Contain"
+                ObjectPosition="ObjectPosition.Center"/>
+
+            <MudText Typo="Typo.h4" Align="Align.Center">
+                ایجاد حساب کاربری
+            </MudText>
+        </MudStack>
+
+        <AppForm TModel="RegisterRequest" Model="Request" OnValidSubmit="RegisterAsync">
+            <FormProps>
+
+                <!-- PhoneNumber -->
+                <MudTextField For="@(() => Request.PhoneNumber)"
+                              @bind-Value="Request.PhoneNumber"
+                              Label="شماره موبایل (نام کاربری)"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Normal"
+                              FullWidth="true"
+                              InputType="InputType.Telephone"
+                              Placeholder="مثلاً 09123456789"
+                              HelperText="این شماره به عنوان نام کاربری استفاده می‌شود"
+                              HelperTextOnFocus/>
+
+                <!-- Password -->
+                <MudTextField For="@(() => Request.Password)"
+                              @bind-Value="Request.Password"
+                              Label="رمز عبور"
+                              InputType="@_passwordInput"
+                              Adornment="Adornment.End"
+                              AdornmentIcon="@(_passwordInput == InputType.Password ? Icons.Filled.Visibility : Icons.Filled.VisibilityOff)"
+                              OnAdornmentClick="TogglePassword"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Normal"
+                              FullWidth="true"
+                              Placeholder="حداقل ۶ کاراکتر"
+                              HelperText="رمز عبور باید حداقل ۶ کاراکتر باشد"
+                              HelperTextOnFocus/>
+
+                <!-- First / Last Name -->
+                <MudStack Row="true" Spacing="2">
+                    <MudTextField For="@(() => Request.FirstName)"
+                                  @bind-Value="Request.FirstName"
+                                  Label="نام"
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.Normal"
+                                  FullWidth="true"
+                                  HelperText="نام خود را وارد کنید"
+                                  HelperTextOnFocus
+                                  Immediate="true"
+                                  ValueChanged="OnNameChanged"/>
+                    <MudTextField For="@(() => Request.LastName)"
+                                  @bind-Value="Request.LastName"
+                                  Label="نام خانوادگی"
+                                  Variant="Variant.Outlined"
+                                  Margin="Margin.Normal"
+                                  FullWidth="true"
+                                  HelperText="نام خانوادگی خود را وارد کنید"
+                                  HelperTextOnFocus
+                                  Immediate="true"
+                                  ValueChanged="OnNameChanged"/>
+                </MudStack>
+
+                <!-- FullName (auto from first/last; قابل ویرایش) -->
+                <MudTextField For="@(() => Request.FullName)"
+                              @bind-Value="Request.FullName"
+                              Label="نام و نام خانوادگی"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Normal"
+                              FullWidth="true"
+                              HelperText="در صورت نیاز می‌توانید ویرایش کنید"
+                              HelperTextOnFocus/>
+
+                <!-- Email (optional) -->
+                <MudTextField For="@(() => Request.Email)"
+                              @bind-Value="Request.Email"
+                              Label="ایمیل (اختیاری)"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Normal"
+                              FullWidth="true"
+                              InputType="InputType.Email"
+                              Placeholder="example@email.com"
+                              HelperText="برای بازیابی رمز عبور مفید است"
+                              HelperTextOnFocus/>
+
+                <!-- Address -->
+                <MudTextField For="@(() => Request.Address)"
+                              @bind-Value="Request.Address"
+                              Label="آدرس"
+                              Variant="Variant.Outlined"
+                              Margin="Margin.Normal"
+                              FullWidth="true"
+                              Lines="3"
+                              HelperText="نشانی دقیق پستی (اختیاری)"
+                              HelperTextOnFocus
+                              Text="@Request.Address"/>
+
+                <!-- Profile (avatar upload) -->
+                <MudStack Class="mt-2" Spacing="1">
+                    <MudText Typo="Typo.subtitle2">تصویر پروفایل (اختیاری)</MudText>
+
+                    <!-- اگر MudBlazor 7+ دارید از MudFileUpload استفاده کنید -->
+                    <MudFileUpload T="IBrowserFile"
+                                   bind-Files="_profileFile"
+                                   Accept="image/*"/>
+
+                    @if (!string.IsNullOrEmpty(_profileFileName))
+                    {
+                        <MudText Typo="Typo.caption">فایل انتخاب‌شده: @_profileFileName</MudText>
+                    }
+                    @if (_profileTooLarge)
+                    {
+                        <MudAlert Severity="Severity.Warning">
+                            حجم تصویر بیشتر از حد مجاز است. لطفاً تصویری کوچک‌تر انتخاب کنید.
+                        </MudAlert>
+                    }
+                </MudStack>
+
+                <!-- Login Link -->
+                <MudStack Row="true" Justify="Justify.FlexEnd" Class="mt-2" Reverse>
+                    <MudLink OnClick="GoToLogin"
+                             Color="Color.Info"
+                             Underline="Underline.Hover"
+                             Typo="Typo.h6">
+                        از قبل حساب دارید؟ ورود
+                    </MudLink>
+                </MudStack>
+            </FormProps>
+
+            <SubmitButton>
+                <MudStack Class="mt-4">
+                    <MudButton Color="Color.Primary"
+                               Variant="Variant.Filled"
+                               ButtonType="ButtonType.Submit"
+                               FullWidth="true"
+                               Disabled="@ApiCalling">
+                        @if (ApiCalling)
+                        {
+                            <CircularProgress Size="Size.Small" Color="Color.Info"/>
+                        }
+                        else
+                        {
+                            @("ثبت‌نام")
+                        }
+                    </MudButton>
+                </MudStack>
+            </SubmitButton>
+        </AppForm>
+
+    </MudCard>
+</MudContainer>
+
+@code {
+
+    private RegisterRequest Request { get; set; } = new();
+
+    private bool ApiCalling { get; set; }
+    private InputType _passwordInput = InputType.Password;
+
+    // نگه‌داری فایل انتخابی برای ساخت Stream هنگام ارسال
+    private IBrowserFile? _profileFile;
+    private string?       _profileFileName;
+    private bool          _profileTooLarge;
+
+    private const long MaxProfileBytes = 2 * 1024 * 1024; // 2MB
+
+    private void TogglePassword()
+        => _passwordInput = _passwordInput == InputType.Password ? InputType.Text : InputType.Password;
+
+    private void OnNameChanged(string _)
+    {
+        // وقتی نام/نام‌خانوادگی تغییر کرد، FullName را اتومات بساز
+        var fn = (Request.FirstName ?? "").Trim();
+        var ln = (Request.LastName  ?? "").Trim();
+        Request.FullName = string.Join(" ",
+            new[]
+            {
+                fn,
+                ln
+            }.Where(s => !string.IsNullOrWhiteSpace(s)));
+
+        StateHasChanged();
+    }
+
+    private  Task OnFilesSelected(IReadOnlyList<IBrowserFile> files)
+    {
+        _profileTooLarge = false;
+        _profileFile = null;
+        _profileFileName = null;
+
+        var file = files?.FirstOrDefault();
+        if (file is null) return Task.CompletedTask;
+
+        if (file.Size > MaxProfileBytes)
+        {
+            _profileTooLarge = true;
+            StateHasChanged();
+            return Task.CompletedTask;
+        }
+
+        _profileFile = file;
+        _profileFileName = file.Name;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private async Task RegisterAsync(RegisterRequest _)
+    {
+        ApiCalling = true;
+
+        try
+        {
+            // اگر کاربر فایل انتخاب کرده، Stream بساز و در مدل قرار بده
+            if (_profileFile is not null)
+            {
+                using var readStream = _profileFile.OpenReadStream(MaxProfileBytes);
+                var       ms         = new MemoryStream();
+                await readStream.CopyToAsync(ms);
+                ms.Position = 0;      // مهم
+                Request.Profile = ms; // به سرور می‌فرستیم؛ سمت Handler dispose شود
+            }
+
+            await Mediator.Send(Request); // Handler شما مپ و ارسال را انجام می‌دهد
+
+            // Snackbar.Add("ثبت‌نام با موفقیت انجام شد.", Severity.Success);
+            // NavigationManager.NavigateTo("/Login");
+        }
+        catch
+        {
+            // Snackbar.Add("خطا در ثبت‌نام. لطفاً دوباره تلاش کنید.", Severity.Error);
+        }
+        finally
+        {
+            ApiCalling = false;
+            StateHasChanged();
+        }
+    }
+
+    private void   GoToLogin()
+        => NavigationManager.NavigateTo("/Login");
+
+}
