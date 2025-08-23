@@ -1,0 +1,51 @@
+﻿<MudAppBar Elevation="2"
+           Fixed
+           Color="Color.Surface"
+           Class="px-4">
+
+    <!-- Start cluster -->
+    <MudIconButton Icon="@Icons.Filled.Menu"
+                   Color="Color.Default"
+                   OnClick="@(e => DrawerToggle.InvokeAsync())"/>
+
+    <MudText Typo="Typo.h6" Class="ml-2">مطب من</MudText>
+
+    <!-- Spacer pushes everything else to the end -->
+    <MudSpacer/>
+
+
+    <MudBadge Dot="true" Color="Color.Error" Overlap="true" Class="mr-2">
+        <MudIconButton Icon="@Icons.Filled.Notifications"
+                       Color="Color.Default"/>
+    </MudBadge>
+
+    <MudTextField @bind-Value="_search"
+                  Placeholder="جستجو"
+                  Adornment="Adornment.Start"
+                  AdornmentIcon="@Icons.Filled.Search"
+                  Class="search-box"
+                  Clearable="true"
+                  Immediate="true"
+                  Variant="Variant.Outlined"
+                  Margin="Margin.Dense"
+                  OnKeyDown="OnSearchKeyDown"/>
+
+    <MudAvatar>
+        <MudImage Alt="profile" Fluid ObjectFit="ObjectFit.Cover" Src="@StateProvider.User?.Profile"/>
+    </MudAvatar>
+</MudAppBar>
+
+@code {
+    [Parameter] public EventCallback DrawerToggle { get; set; }
+
+    private string? _search;
+
+    private void OnSearchKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key is "Enter" && !string.IsNullOrWhiteSpace(_search))
+        {
+            // TODO: trigger your search
+        }
+    }
+
+}

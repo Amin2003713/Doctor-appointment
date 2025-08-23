@@ -22,5 +22,6 @@ public static class ApiRoutes
     public const string ToggleTemplate   = $"{Base}/toggle";
 
     // (Optional)
-    public const string DebugClaims         = $"{Base}/debug-claims";
+    public const string UploadAvatar = $"{Base}/profile/avatar";
+    public const string UpdateUser = $"{Base}/profile";
 }

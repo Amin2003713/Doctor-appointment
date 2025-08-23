@@ -1,6 +1,9 @@
 ﻿public record RegisterDto(
-    string PhoneNumber, // required (username)
-    string Password,    // required
-    string FullName,    // required
-    string? Email       // optional
+    string PhoneNumber,
+    string Password,
+    string? Email,
+    string? FirstName,
+    string? LastName,
+    string? Profile,
+    string? Address
 );

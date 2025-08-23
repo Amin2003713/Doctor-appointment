@@ -5,6 +5,7 @@
     using App.Applications.Users.Requests.Login;
     using App.Applications.Users.Requests.Registers.Patient;
     using App.Applications.Users.Requests.ToggleUsers;
+    using App.Applications.Users.Requests.UpdateUser;
     using App.Applications.Users.Requests.UserQueries;
     using App.Applications.Users.Response.Login;
     using App.Applications.Users.Response.SendActivationCode;
@@ -60,4 +61,12 @@
 
         [Get(ApiRoutes.UsersSecretaries)]
         Task<ApiResponse<PagedResult<UserListItemResponse>>> GetSecretaries([Query] UsersQuery query);
+
+
+        [Multipart]
+        [Post("/api/user/profile/avatar")]
+        Task<ApiResponse<object>> UploadAvatar([AliasAs("file")] StreamPart file);
+
+        [Put("/api/user/profile")]
+        Task<ApiResponse<object>> UploadAvatar(UpdateProfileRequest body);
     }

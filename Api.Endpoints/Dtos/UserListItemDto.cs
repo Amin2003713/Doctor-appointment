@@ -1,8 +1,12 @@
 ﻿public record UserListItemDto(
     long Id,
-    string PhoneNumber,
+    string PhoneOrUsername,
     string? Email,
+    string? FirstName,
+    string? LastName,
     string? FullName,
+    string? Profile,
+    string? Address,
     bool IsActive,
     DateTime CreatedAtUtc,
     DateTime? LastLoginAtUtc,

@@ -12,9 +12,112 @@ using Microsoft.IdentityModel.Tokens;
 public class UsersController(
     UserManager<AppUser> userManager,
     SignInManager<AppUser> signInManager,
-    RoleManager<IdentityRole<long>> roleManager
+    RoleManager<IdentityRole<long>> roleManager,
+    IWebHostEnvironment env
 ) : ControllerBase
 {
+// PUT api/User/profile
+    [HttpPut("profile")]
+    [Authorize]
+    public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto dto)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null) return Unauthorized();
+
+        // Update allowed fields
+        if (dto.FirstName is not null) user.FirstName = dto.FirstName.Trim();
+        if (dto.LastName  is not null) user.LastName  = dto.LastName.Trim();
+        if (dto.Address   is not null) user.Address   = dto.Address.Trim();
+
+        // Optional: allow email change (add confirmation flow if needed)
+        if (!string.IsNullOrWhiteSpace(dto.Email))
+            user.Email = dto.Email.Trim();
+
+        // Keep FullName in sync
+        user.FullName = BuildFullName(user.FirstName, user.LastName);
+
+        var result = await userManager.UpdateAsync(user);
+        if (!result.Succeeded) return BadRequest(result.Errors);
+
+        return Ok();
+    }
+
+
+    [HttpPost("profile/avatar")]
+    [Authorize]
+    [RequestSizeLimit(5 * 1024 * 1024)] // 5 MB max
+    public async Task<IActionResult> UploadAvatar([FromForm] IFormFile file)
+    {
+        var user = await userManager.GetUserAsync(User);
+        if (user is null) return Unauthorized();
+
+        if (file is null || file.Length == 0)
+            return BadRequest("No file uploaded.");
+
+        // Validate content type
+        if (!IsAllowedImageContentType(file.ContentType))
+            return BadRequest("Only PNG, JPEG or WebP images are allowed.");
+
+        // Validate extension
+        var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
+        if (!IsAllowedImageExtension(ext))
+            return BadRequest("Only .png, .jpg/.jpeg, or .webp files are allowed.");
+
+        // Build storage paths: /wwwroot/uploads/profiles/{userId}/
+        var root    = env.WebRootPath ?? Path.Combine(env.ContentRootPath, "wwwroot");
+        var userDir = Path.Combine(root, "uploads", "profiles", user.Id.ToString());
+        Directory.CreateDirectory(userDir);
+
+        // Unique file name
+        var fileName = $"{Guid.NewGuid():N}{ext}";
+        var fullPath = Path.Combine(userDir, fileName);
+
+        // OPTIONAL: purge previous avatar files to keep only one
+        TryDeleteExistingAvatarFiles(userDir);
+
+        // Save file
+        await using (var stream = System.IO.File.Create(fullPath))
+            await file.CopyToAsync(stream);
+
+        // Persist relative/public URL
+        var publicUrl = $"/uploads/profiles/{user.Id}/{fileName}";
+        user.Profile = publicUrl;
+
+        var result = await userManager.UpdateAsync(user);
+        if (!result.Succeeded) return BadRequest(result.Errors);
+
+        return Ok();
+    }
+
+    private static bool IsAllowedImageContentType(string? contentType)
+    {
+        // Common browser values
+        return contentType is "image/png" or "image/jpeg" or "image/webp";
+    }
+
+    private static bool IsAllowedImageExtension(string ext)
+    {
+        return ext is ".png" or ".jpg" or ".jpeg" or ".webp";
+    }
+
+    private static void TryDeleteExistingAvatarFiles(string userDir)
+    {
+        try
+        {
+            if (!Directory.Exists(userDir)) return;
+
+            var files = Directory.GetFiles(userDir);
+            foreach (var f in files) System.IO.File.Delete(f);
+        }
+        catch
+        {
+            /* ignore */
+        }
+    }
+
+    // ---------------------------
+    // Register (self) => Patient
+    // ---------------------------
     [HttpPost("register")]
     [AllowAnonymous]
     public async Task<IActionResult> Register([FromBody] RegisterDto dto)
@@ -22,44 +125,86 @@ public class UsersController(
         var e164     = PhoneHelper.NormalizeToE164Guess(dto.PhoneNumber);
         var username = PhoneHelper.NormalizeUsername(e164);
 
-        // Ensure phone (username) is unique
         var existing = await userManager.FindByNameAsync(username);
         if (existing is not null) return BadRequest("Phone number already registered.");
 
         var user = new AppUser
         {
-            UserName = username,           // username = phone
-            NormalizedUserName = username, // Identity will set too, but we align
-            PhoneNumber = e164,
-            Email = string.IsNullOrWhiteSpace(dto.Email) ? null : dto.Email,
-            FullName = dto.FullName
+            UserName          = username,
+            NormalizedUserName = username,
+            PhoneNumber       = e164,
+            Email             = string.IsNullOrWhiteSpace(dto.Email) ? null : dto.Email,
+            FirstName         = dto.FirstName?.Trim(),
+            LastName          = dto.LastName?.Trim(),
+            Profile           = dto.Profile,
+            Address           = dto.Address,
+            FullName          = BuildFullName(dto.FirstName, dto.LastName),
+            CreatedAtUtc      = DateTime.UtcNow,
+            IsActive          = true
         };
 
         var result = await userManager.CreateAsync(user, dto.Password);
         if (!result.Succeeded) return BadRequest(result.Errors);
 
         await EnsureRolesExist();
-        await userManager.AddToRoleAsync(user, "Patient"); // self-registers as Patient
+        await userManager.AddToRoleAsync(user, "Patient");
 
-        return Ok();
+        return Ok(new UserDetailDto(
+            user.Id,
+            user.PhoneNumber ?? user.UserName ?? "",
+            user.Email,
+            user.FirstName,
+            user.LastName,
+            user.FullName,
+            user.Profile,
+            user.Address,
+            user.IsActive,
+            user.CreatedAtUtc,
+            user.LastLoginAtUtc,
+            Roles: new[]
+            {
+                "Patient"
+            }
+        ));
     }
 
+    // ---------------------------
+    // Doctor/Secretary create Patient
+    // ---------------------------
     [HttpPost("register/patient")]
     [Authorize(Roles = "Doctor,Secretary")]
     public async Task<IActionResult> RegisterPatient([FromBody] RegisterDto dto)
     {
-        var (ok, msg) = await RegisterWithRole(dto, "Patient");
-        return ok ? Ok() : BadRequest(msg);
+        var (ok, msg, user) = await RegisterWithRole(dto, "Patient");
+        return ok
+            ? Ok(ToDetail(user!,
+                new[]
+                {
+                    "Patient"
+                }))
+            : BadRequest(msg);
     }
 
+    // ---------------------------
+    // Doctor create Secretary
+    // ---------------------------
     [HttpPost("register/secretary")]
     [Authorize(Roles = "Doctor")]
     public async Task<IActionResult> RegisterSecretary([FromBody] RegisterDto dto)
     {
-        var (ok, msg) = await RegisterWithRole(dto, "Secretary");
-        return ok ? Ok() : BadRequest(msg);
+        var (ok, msg, user) = await RegisterWithRole(dto, "Secretary");
+        return ok
+            ? Ok(ToDetail(user!,
+                new[]
+                {
+                    "Secretary"
+                }))
+            : BadRequest(msg);
     }
 
+    // ---------------------------
+    // Change role (Doctor only)
+    // ---------------------------
     [HttpPost("change-role")]
     [Authorize(Roles = "Doctor")]
     public async Task<IActionResult> ChangeRole([FromBody] ChangeRoleDto dto)
@@ -71,7 +216,7 @@ public class UsersController(
             }.Contains(dto.NewRole))
             return BadRequest("Invalid role");
 
-        if (!long.TryParse(dto.UserId, out var userId))
+        if (!long.TryParse(dto.UserId, out _))
             return BadRequest("Invalid user id");
 
         var user = await userManager.FindByIdAsync(dto.UserId);
@@ -81,9 +226,13 @@ public class UsersController(
         await userManager.RemoveFromRolesAsync(user, currentRoles);
         await userManager.AddToRoleAsync(user, dto.NewRole);
 
-        return Ok();
+        var roles = await userManager.GetRolesAsync(user);
+        return Ok(ToDetail(user, roles));
     }
 
+    // ---------------------------
+    // Users list (Doctor only)
+    // ---------------------------
     [HttpGet("users")]
     [Authorize(Roles = "Doctor")]
     public async Task<ActionResult<PagedResult<UserListItemDto>>> GetUsers(
@@ -100,21 +249,21 @@ public class UsersController(
         {
             search = search.Trim();
             q = q.Where(u =>
-                (u.FullName != null && u.FullName.Contains(search)) ||
-                (u.Email != null && u.Email.Contains(search)) ||
-                (u.PhoneNumber != null && u.PhoneNumber.Contains(search)) ||
-                (u.UserName != null && u.UserName.Contains(search)));
+                (u.FullName     != null && u.FullName.Contains(search)) ||
+                (u.FirstName    != null && u.FirstName.Contains(search)) ||
+                (u.LastName     != null && u.LastName.Contains(search)) ||
+                (u.Address      != null && u.Address.Contains(search)) ||
+                (u.Email        != null && u.Email.Contains(search)) ||
+                (u.PhoneNumber  != null && u.PhoneNumber.Contains(search)) ||
+                (u.UserName     != null && u.UserName.Contains(search)));
         }
 
-        var total = await Task.FromResult(q.LongCount()); // If using EF Core, use await q.LongCountAsync()
-
-        var users = q
-            .OrderByDescending(u => u.CreatedAtUtc)
+        var total = q.LongCount(); // use LongCountAsync with EF
+        var users = q.OrderByDescending(u => u.CreatedAtUtc)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .ToList(); // If EF Core: await q.ToListAsync()
+            .ToList();
 
-        // Load roles (simple N+1; fine for moderate page sizes)
         var list = new List<UserListItemDto>(users.Count);
 
         foreach (var u in users)
@@ -124,16 +273,24 @@ public class UsersController(
                 u.Id,
                 u.PhoneNumber ?? u.UserName ?? "",
                 u.Email,
+                u.FirstName,
+                u.LastName,
                 u.FullName,
+                u.Profile,
+                u.Address,
                 u.IsActive,
                 u.CreatedAtUtc,
                 u.LastLoginAtUtc,
-                roles));
+                roles
+            ));
         }
 
         return Ok(new PagedResult<UserListItemDto>(list, page, pageSize, total));
     }
 
+    // ---------------------------
+    // Secretaries list (Doctor only)
+    // ---------------------------
     [HttpGet("users/secretaries")]
     [Authorize(Roles = "Doctor")]
     public async Task<ActionResult<PagedResult<UserListItemDto>>> GetSecretaries(
@@ -144,25 +301,24 @@ public class UsersController(
         if (page <= 0) page = 1;
         if (pageSize is < 1 or > 200) pageSize = 20;
 
-        // Pull all secretaries via Identity and then filter/page (works across providers)
         var secretaries = await userManager.GetUsersInRoleAsync("Secretary");
-
-        var filtered = secretaries.AsQueryable();
+        var filtered    = secretaries.AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(search))
         {
             search = search.Trim();
             filtered = filtered.Where(u =>
-                (u.FullName != null && u.FullName.Contains(search)) ||
-                (u.Email != null && u.Email.Contains(search)) ||
-                (u.PhoneNumber != null && u.PhoneNumber.Contains(search)) ||
-                (u.UserName != null && u.UserName.Contains(search)));
+                (u.FullName     != null && u.FullName.Contains(search)) ||
+                (u.FirstName    != null && u.FirstName.Contains(search)) ||
+                (u.LastName     != null && u.LastName.Contains(search)) ||
+                (u.Address      != null && u.Address.Contains(search)) ||
+                (u.Email        != null && u.Email.Contains(search)) ||
+                (u.PhoneNumber  != null && u.PhoneNumber.Contains(search)) ||
+                (u.UserName     != null && u.UserName.Contains(search)));
         }
 
         var total = filtered.LongCount();
-
-        var pageItems = filtered
-            .OrderByDescending(u => u.CreatedAtUtc)
+        var pageItems = filtered.OrderByDescending(u => u.CreatedAtUtc)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToList();
@@ -171,23 +327,29 @@ public class UsersController(
 
         foreach (var u in pageItems)
         {
-            // Roles will include "Secretary" (and any others)
             var roles = await userManager.GetRolesAsync(u);
             list.Add(new UserListItemDto(
                 u.Id,
                 u.PhoneNumber ?? u.UserName ?? "",
                 u.Email,
+                u.FirstName,
+                u.LastName,
                 u.FullName,
+                u.Profile,
+                u.Address,
                 u.IsActive,
                 u.CreatedAtUtc,
                 u.LastLoginAtUtc,
-                roles));
+                roles
+            ));
         }
 
         return Ok(new PagedResult<UserListItemDto>(list, page, pageSize, total));
     }
 
-// Already added before, shown here for completeness
+    // ---------------------------
+    // Single user (Doctor only)
+    // ---------------------------
     [HttpGet("user/{id:long}")]
     [Authorize(Roles = "Doctor")]
     public async Task<ActionResult<UserDetailDto>> GetUser(long id)
@@ -196,21 +358,12 @@ public class UsersController(
         if (user == null) return NotFound("User not found");
 
         var roles = await userManager.GetRolesAsync(user);
-
-        var dto = new UserDetailDto(
-            user.Id,
-            user.PhoneNumber ?? user.UserName ?? "",
-            user.Email,
-            user.FullName ?? "",
-            user.IsActive,
-            user.CreatedAtUtc,
-            user.LastLoginAtUtc,
-            roles
-        );
-
-        return Ok(dto);
+        return Ok(ToDetail(user, roles));
     }
 
+    // ---------------------------
+    // Login
+    // ---------------------------
     [HttpPost("login")]
     [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginDto dto)
@@ -225,15 +378,22 @@ public class UsersController(
         if (!pwd.Succeeded) return Unauthorized();
 
         user.LastLoginAtUtc = DateTime.UtcNow;
-        await userManager.UpdateAsync(user);
 
         var token = await GenerateJwtToken(user);
+
+        // OPTIONAL: persist the token (only if you really need it)
+        user.Token = token;
+        await userManager.UpdateAsync(user);
+
         return Ok(new LoginResponseDto
         {
-            Token = token
+            Token     = token,
         });
     }
 
+    // ---------------------------
+    // Forgot password (reset)
+    // ---------------------------
     [HttpPost("forgot-password")]
     [AllowAnonymous]
     public async Task<IActionResult> ForgotPassword([FromBody] ResetPasswordDto dto)
@@ -244,13 +404,16 @@ public class UsersController(
         var user = await userManager.FindByNameAsync(username);
         if (user == null) return BadRequest("User not found");
 
-        var token = await userManager.GeneratePasswordResetTokenAsync(user);
-
-        await userManager.ResetPasswordAsync(user , token, dto.Password);
+        var token  = await userManager.GeneratePasswordResetTokenAsync(user);
+        var result = await userManager.ResetPasswordAsync(user, token, dto.Password);
+        if (!result.Succeeded) return BadRequest(result.Errors);
 
         return Ok();
     }
 
+    // ---------------------------
+    // Me
+    // ---------------------------
     [HttpGet("me")]
     [Authorize]
     public async Task<ActionResult<UserInfoDto>> Me()
@@ -259,52 +422,27 @@ public class UsersController(
         if (user == null) return Unauthorized();
 
         var roles = await userManager.GetRolesAsync(user);
-        var dto = new UserInfoDto(
+        return Ok(new UserInfoDto(
             user.Id,
             user.PhoneNumber ?? user.UserName ?? "",
             user.Email,
-            user.FullName ?? "",
+            user.FirstName,
+            user.LastName,
+            user.FullName ?? $"{user.FirstName} {user.LastName}".Trim(),
+            user.Profile,
+            user.Address,
             roles.FirstOrDefault()
-        );
-
-        return Ok(dto);
+        ));
     }
 
-    // -------------------
-    // Helpers
-    // -------------------
-
-    private async Task<(bool ok, string? error)> RegisterWithRole(RegisterDto dto, string role)
-    {
-        var e164     = PhoneHelper.NormalizeToE164Guess(dto.PhoneNumber);
-        var username = PhoneHelper.NormalizeUsername(e164);
-
-        var existing = await userManager.FindByNameAsync(username);
-        if (existing is not null) return (false, "Phone number already registered.");
-
-        var user = new AppUser
-        {
-            UserName = username,
-            NormalizedUserName = username,
-            PhoneNumber = e164,
-            Email = string.IsNullOrWhiteSpace(dto.Email) ? null : dto.Email,
-            FullName = dto.FullName
-        };
-
-        var create = await userManager.CreateAsync(user, dto.Password);
-        if (!create.Succeeded) return (false, string.Join("; ", create.Errors.Select(e => e.Description)));
-
-        await EnsureRolesExist();
-        await userManager.AddToRoleAsync(user, role);
-        return (true, null);
-    }
-
+    // ---------------------------
+    // Toggle active (Doctor only)
+    // ---------------------------
     [HttpPost("toggle")]
     [Authorize(Roles = "Doctor")]
     public async Task<IActionResult> ToggleUser([FromBody] ToggleUserDto dto)
     {
-        if (!long.TryParse(dto.UserId, out var userId))
-            return BadRequest("Invalid user id");
+        if (!long.TryParse(dto.UserId, out _)) return BadRequest("Invalid user id");
 
         var user = await userManager.FindByIdAsync(dto.UserId);
         if (user == null) return NotFound("User not found");
@@ -312,14 +450,50 @@ public class UsersController(
         user.IsActive = !user.IsActive;
         await userManager.UpdateAsync(user);
 
-        return Ok(new UserDetailDto(user.Id ,
-            (user.PhoneNumber ?? user.UserName)!  ,
-            user.Email ,
-            user.FullName ,
-            user.IsActive ,
-            user.CreatedAtUtc ,
-            user.LastLoginAtUtc ,
-            []));
+        var roles = await userManager.GetRolesAsync(user);
+        return Ok(ToDetail(user, roles));
+    }
+
+    // ---------------------------
+    // Helpers
+    // ---------------------------
+    private static string? BuildFullName(string? first, string? last)
+        => string.Join(" ",
+            new[]
+            {
+                first,
+                last
+            }.Where(s => !string.IsNullOrWhiteSpace(s)));
+
+    private async Task<(bool ok, string? error, AppUser? user)> RegisterWithRole(RegisterDto dto, string role)
+    {
+        var e164     = PhoneHelper.NormalizeToE164Guess(dto.PhoneNumber);
+        var username = PhoneHelper.NormalizeUsername(e164);
+
+        var existing = await userManager.FindByNameAsync(username);
+        if (existing is not null) return (false, "Phone number already registered.", null);
+
+        var user = new AppUser
+        {
+            UserName          = username,
+            NormalizedUserName = username,
+            PhoneNumber       = e164,
+            Email             = string.IsNullOrWhiteSpace(dto.Email) ? null : dto.Email,
+            FirstName         = dto.FirstName?.Trim(),
+            LastName          = dto.LastName?.Trim(),
+            Profile           = dto.Profile,
+            Address           = dto.Address,
+            FullName          = BuildFullName(dto.FirstName, dto.LastName),
+            CreatedAtUtc      = DateTime.UtcNow,
+            IsActive          = true
+        };
+
+        var create = await userManager.CreateAsync(user, dto.Password);
+        if (!create.Succeeded) return (false, string.Join("; ", create.Errors.Select(e => e.Description)), null);
+
+        await EnsureRolesExist();
+        await userManager.AddToRoleAsync(user, role);
+        return (true, null, user);
     }
 
     private async Task EnsureRolesExist()
@@ -342,9 +516,13 @@ public class UsersController(
         {
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new(ClaimTypes.Name, user.FullName ?? user.UserName ?? ""),
+            new(ClaimTypes.Name, user.FullName ?? BuildFullName(user.FirstName, user.LastName) ?? user.UserName ?? ""),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
+            new("first_name", user.FirstName ?? string.Empty),
+            new("last_name",  user.LastName  ?? string.Empty),
+            new("profile",    user.Profile   ?? string.Empty),
+            new("address",    user.Address   ?? string.Empty)
         };
 
         if (!string.IsNullOrWhiteSpace(user.PhoneNumber))
@@ -359,14 +537,30 @@ public class UsersController(
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer:   JwtOptions.Issuer,
+            issuer: JwtOptions.Issuer,
             audience: JwtOptions.Audience,
-            claims:   claims,
+            claims: claims,
             notBefore: DateTime.UtcNow,
-            expires:  DateTime.UtcNow.Add(JwtOptions.AccessTokenLifetime),
+            expires: DateTime.UtcNow.Add(JwtOptions.AccessTokenLifetime),
             signingCredentials: creds
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
+
+    private static UserDetailDto ToDetail(AppUser u, IEnumerable<string> roles)
+        => new(
+            u.Id,
+            u.PhoneNumber ?? u.UserName ?? "",
+            u.Email,
+            u.FirstName,
+            u.LastName,
+            u.FullName ?? BuildFullName(u.FirstName, u.LastName),
+            u.Profile,
+            u.Address,
+            u.IsActive,
+            u.CreatedAtUtc,
+            u.LastLoginAtUtc,
+            roles.ToArray()
+        );
 }

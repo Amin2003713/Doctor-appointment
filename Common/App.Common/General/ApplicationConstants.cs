@@ -23,9 +23,9 @@ public static class ApplicationConstants
 
     public static class Server
     {
-        public readonly static string ServerUrl = "localhost:7162";
+        public readonly static string ServerUrl = "localhost:5232";
 
-        public readonly static string BaseUrl = $"https://{ServerUrl}";
+        public readonly static string BaseUrl = $"http://{ServerUrl}";
 
         public readonly static RefitSettings RefitSettings = new RefitSettings
         {

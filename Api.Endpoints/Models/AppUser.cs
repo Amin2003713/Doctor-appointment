@@ -2,6 +2,11 @@
 
 public class AppUser : IdentityUser<long>
 {
+    public string Token { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
+    public string? Profile { get; set; }
+    public string Address { get; set; }
     public string? FullName { get; set; }
 
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
