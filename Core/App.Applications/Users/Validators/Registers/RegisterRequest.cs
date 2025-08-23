@@ -53,5 +53,5 @@ public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
     }
 
     private static bool IsValidIranMobile(string? value)
-        => !string.IsNullOrWhiteSpace(value) && IranMobileRegex.IsMatch(value.Trim());
+        => !string.IsNullOrWhiteSpace(value);
 }

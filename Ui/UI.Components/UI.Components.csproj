@@ -57,5 +57,9 @@
 		<UpToDateCheckInput Remove="Features\Authorizions\VerifyAccount\VerifyAccount.razor" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Common\BaseComponents\Inputs\" />
+	</ItemGroup>
+
 
 </Project>

@@ -380,8 +380,7 @@ public class UsersController(
 
         var token = await GenerateJwtToken(user);
 
-        // OPTIONAL: persist the token (only if you really need it)
-        user.Token = token;
+        
         await userManager.UpdateAsync(user);
 
         return Ok(new LoginResponseDto
