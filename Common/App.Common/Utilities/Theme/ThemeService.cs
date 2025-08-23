@@ -43,7 +43,7 @@ namespace App.Common.Utilities.Theme
                 {
                     Default    = new DefaultTypography
                     {
-                        FontFamily = ["B Ziba", "Tahoma", "Arial", "Helvetica", "sans-serif"],
+                        FontFamily = [ "Tahoma", "Arial", "Helvetica", "sans-serif"],
                         FontSize = "1rem"
                     },
                     H1         = new H1Typography
@@ -143,7 +143,7 @@ namespace App.Common.Utilities.Theme
                 {
                     Default    = new DefaultTypography
                     {
-                        FontFamily = ["B Ziba", "Tahoma", "Arial", "Helvetica", "sans-serif"],
+                        FontFamily = [ "Tahoma", "Arial", "Helvetica", "sans-serif"],
                         FontSize = "1rem"
                     },
                     H1         = new H1Typography

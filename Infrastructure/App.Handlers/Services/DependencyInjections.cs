@@ -9,10 +9,7 @@ public static class DependencyInjections
 {
     public static IServiceCollection AddHandlersServices(this IServiceCollection services)
     {
-        services.AddMediatR(cfg =>
-                            {
-                                cfg.RegisterServicesFromAssemblies(typeof(GetUserInfoQueryHandler).Assembly);
-                            });
+        
 
         services.AddInfrastructureServices();
         return services;

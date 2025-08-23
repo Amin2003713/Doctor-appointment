@@ -13,7 +13,7 @@
 
     namespace App.Persistence.Services.Refit;
 
-    public abstract class RefitDelegatingHandler : DelegatingHandler ,
+    public class RefitDelegatingHandler : DelegatingHandler ,
                                                    ITransientDependency
     {
         private readonly IMediator                                _mediator;

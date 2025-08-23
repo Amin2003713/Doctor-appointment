@@ -18,7 +18,7 @@ public static class ApiRoutes
     public const string UsersSecretaries = $"{Base}/users/secretaries";
 
     // Template routes (must be const for attributes)
-    public const string UserByIdTemplate = $"{Base}/user/{{id:long}}";
+    public const string UserByIdTemplate = $"{Base}/user/{{id}}";
     public const string ToggleTemplate   = $"{Base}/toggle";
 
     // (Optional)

@@ -23,7 +23,7 @@ public static class ApplicationConstants
 
     public static class Server
     {
-        public readonly static string ServerUrl = "mrshift.ir";
+        public readonly static string ServerUrl = "localhost:7162";
 
         public readonly static string BaseUrl = $"https://{ServerUrl}";
 
