@@ -45,7 +45,6 @@ public class UsersController(
 
     [HttpPost("profile/avatar")]
     [Authorize]
-    [RequestSizeLimit(5 * 1024 * 1024)] // 5 MB max
     public async Task<IActionResult> UploadAvatar([FromForm] IFormFile file)
     {
         var user = await userManager.GetUserAsync(User);
