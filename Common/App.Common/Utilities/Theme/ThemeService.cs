@@ -17,48 +17,100 @@ namespace App.Common.Utilities.Theme
             // === LIGHT THEME (Persian-inspired) ===
             _lightTheme = new MudTheme
             {
-                PaletteLight = new PaletteLight()
+                PaletteLight = new PaletteLight
                 {
-                    Primary                  = "#00A693" , // Persian Green
-                    Secondary                = "#FE28A2" , // Persian Rose
-                    Tertiary                 = "#1C39BB" , // Persian Blue
-                    Background               = "#FDFDFD" , // Very light background
-                    Surface                  = "#FFFFFF" ,
-                    AppbarBackground         = "#1C39BB" , // Persian Blue
-                    AppbarText               = "#FFFFFF" ,
-                    DrawerBackground         = "#FFFFFF" ,
-                    DrawerText               = "#3B3B3B" ,
-                    TextPrimary              = "#3B3B3B" ,
-                    TextSecondary            = "#5B5B5B" ,
-                    ActionDefault            = "#FE28A2" , // Use Persian Rose for hover/focus
-                    ActionDisabled           = "#BDBDBD" ,
-                    ActionDisabledBackground = "#E0E0E0" ,
-                    Divider                  = "#E0E0E0" ,
-                    Success                  = "#2E7D32" , // Keep defaults or use your own Persian-inspired success color
-                    Info                     = "#2196F3" ,
-                    Warning                  = "#FBC02D" ,
-                    Error                    = "#CA3433" , // Persian Red
+                    Primary                  = "#1976D2", // Medical Blue
+                    Secondary                = "#4CAF50", // Healing Green
+                    Tertiary                 = "#FDD835", // Warm Yellow
+                    Background               = "#FAFAFA", // Light Grayish
+                    Surface                  = "#FFFFFF",
+                    AppbarBackground         = "#1976D2",
+                    AppbarText               = "#FFFFFF",
+                    DrawerBackground         = "#FFFFFF",
+                    DrawerText               = "#333333",
+                    TextPrimary              = "#212121",
+                    TextSecondary            = "#555555",
+                    ActionDefault            = "#1976D2",
+                    ActionDisabled           = "#BDBDBD",
+                    ActionDisabledBackground = "#E0E0E0",
+                    Divider                  = "#E0E0E0",
+                    Success                  = "#388E3C",
+                    Info                     = "#0288D1",
+                    Warning                  = "#FFA000",
+                    Error                    = "#D32F2F"
                 } ,
                 Typography = new Typography
                 {
-                    Default = new DefaultTypography()
+                    Default    = new DefaultTypography
                     {
-                        FontFamily = ["B Ziba" , "Tahoma" , "Arial" , "Helvetica" , "sans-serif"] ,
-                        FontSize   = "0.875rem" ,
-                    } ,
-                    H1        = new H1Typography() { FontFamily        = ["B Ziba"] , FontSize = "2.125rem" } ,
-                    H2        = new H2Typography() { FontFamily        = ["B Ziba"] , FontSize = "1.75rem" } ,
-                    H3        = new H3Typography() { FontFamily        = ["B Ziba"] , FontSize = "1.5rem" } ,
-                    H4        = new H4Typography() { FontFamily        = ["B Ziba"] , FontSize = "1.25rem" } ,
-                    H5        = new H5Typography() { FontFamily        = ["B Ziba"] , FontSize = "1.125rem" } ,
-                    H6        = new H6Typography() { FontFamily        = ["B Ziba"] , FontSize = "1rem" } ,
-                    Button    = new ButtonTypography() { FontFamily    = ["B Ziba"] , FontSize = "0.875rem" } ,
-                    Body1     = new Body1Typography() { FontFamily     = ["B Ziba"] } ,
-                    Body2     = new Body2Typography() { FontFamily     = ["B Ziba"] } ,
-                    Subtitle1 = new Subtitle1Typography() { FontFamily = ["B Ziba"] } ,
-                    Subtitle2 = new Subtitle2Typography() { FontFamily = ["B Ziba"] } ,
-                    Caption   = new CaptionTypography() { FontFamily   = ["B Ziba"] } ,
-                    Overline  = new OverlineTypography() { FontFamily  = ["B Ziba"] }
+                        FontFamily = ["B Ziba", "Tahoma", "Arial", "Helvetica", "sans-serif"],
+                        FontSize = "1rem"
+                    },
+                    H1         = new H1Typography
+                    {
+                        FontFamily = ["B Ziba"],
+                        FontSize = "2rem"
+                    },
+                    H2         = new H2Typography
+                    {
+                        FontFamily = ["B Ziba"],
+                        FontSize = "1.75rem"
+                    },
+                    H3         = new H3Typography
+                    {
+                        FontFamily = ["B Ziba"],
+                        FontSize = "1.5rem"
+                    },
+                    H4         = new H4Typography
+                    {
+                        FontFamily = ["B Ziba"],
+                        FontSize = "1.25rem"
+                    },
+                    H5         = new H5Typography
+                    {
+                        FontFamily = ["B Ziba"],
+                        FontSize = "1.125rem"
+                    },
+                    H6         = new H6Typography
+                    {
+                        FontFamily = ["B Ziba"],
+                        FontSize = "1rem"
+                    },
+                    Button     = new ButtonTypography
+                    {
+                        FontFamily = ["B Ziba"],
+                        FontSize = "0.95rem"
+                    },
+                    Body1      = new Body1Typography
+                    {
+                        FontFamily = ["B Ziba"],
+                        FontSize = "1rem"
+                    },
+                    Body2      = new Body2Typography
+                    {
+                        FontFamily = ["B Ziba"],
+                        FontSize = "0.95rem"
+                    },
+                    Subtitle1  = new Subtitle1Typography
+                    {
+                        FontFamily = ["B Ziba"],
+                        FontSize = "0.95rem"
+                    },
+                    Subtitle2  = new Subtitle2Typography
+                    {
+                        FontFamily = ["B Ziba"],
+                        FontSize = "0.875rem"
+                    },
+                    Caption    = new CaptionTypography
+                    {
+                        FontFamily = ["B Ziba"],
+                        FontSize = "0.75rem"
+                    },
+                    Overline   = new OverlineTypography
+                    {
+                        FontFamily = ["B Ziba"],
+                        FontSize = "0.75rem"
+                    }
                 }
             };
 
@@ -67,46 +119,98 @@ namespace App.Common.Utilities.Theme
             {
                 PaletteDark = new PaletteDark
                 {
-                    Primary                  = "#1565C0" ,                // Ocean Blue
-                    Secondary                = "#29B6F6" ,                // Light Cyan
-                    Tertiary                 = "#0D47A1" ,                // Deep Navy Blue
-                    Background               = "#121212" ,                // Dark Gray (for contrast)
-                    Surface                  = "#1A1A1A" ,                // Slightly lighter dark background
-                    AppbarBackground         = "#0D47A1" ,                // Deep Blue
-                    AppbarText               = "#FFFFFF" ,                // White for contrast
-                    DrawerBackground         = "#1A1A1A" ,                // Matches Surface
-                    DrawerText               = "#B0BEC5" ,                // Light Gray Text
-                    TextPrimary              = "#E3F2FD" ,                // Very Light Blue
-                    TextSecondary            = "#90A4AE" ,                // Muted Grayish Blue
-                    ActionDefault            = "#29B6F6" ,                // Light Cyan (for buttons)
-                    ActionDisabled           = "rgba(255,255,255, 0.3)" , // Muted White
-                    ActionDisabledBackground = "rgba(255,255,255, 0.1)" , // Subtle disabled effect
-                    Divider                  = "rgba(255,255,255, 0.1)" , // Soft white divider
-                    Success                  = "#2E7D32" ,                // Green (for success messages)
-                    Info                     = "#0288D1" ,                // Strong Cyan
-                    Warning                  = "#F9A825" ,                // Yellowish Orange
-                    Error                    = "#D32F2F" ,                  // Dark Red
-                } ,
+                    Primary                  = "#90CAF9", // Light Blue
+                    Secondary                = "#A5D6A7", // Soft Green
+                    Tertiary                 = "#FFF59D", // Warm Yellow
+                    Background               = "#121212",
+                    Surface                  = "#1E1E1E",
+                    AppbarBackground         = "#1E88E5",
+                    AppbarText               = "#FFFFFF",
+                    DrawerBackground         = "#1E1E1E",
+                    DrawerText               = "#CFD8DC",
+                    TextPrimary              = "#E0F7FA",
+                    TextSecondary            = "#B0BEC5",
+                    ActionDefault            = "#90CAF9",
+                    ActionDisabled           = "rgba(255,255,255,0.3)",
+                    ActionDisabledBackground = "rgba(255,255,255,0.1)",
+                    Divider                  = "rgba(255,255,255,0.1)",
+                    Success                  = "#66BB6A",
+                    Info                     = "#4FC3F7",
+                    Warning                  = "#FFB300",
+                    Error                    = "#EF5350"
+                },
                 Typography = new Typography
                 {
-                    Default = new DefaultTypography()
+                    Default    = new DefaultTypography
                     {
-                        FontFamily = new[] { "B Ziba" , "Tahoma" , "Arial" , "Helvetica" , "sans-serif" } ,
-                        FontSize   = "0.875rem"
-                    } ,
-                    H1        = new H1Typography() { FontFamily        = ["B Ziba"] , FontSize = "2.125rem" } ,
-                    H2        = new H2Typography() { FontFamily        = ["B Ziba"] , FontSize = "1.75rem" } ,
-                    H3        = new H3Typography() { FontFamily        = ["B Ziba"] , FontSize = "1.5rem" } ,
-                    H4        = new H4Typography() { FontFamily        = ["B Ziba"] , FontSize = "1.25rem" } ,
-                    H5        = new H5Typography() { FontFamily        = ["B Ziba"] , FontSize = "1.125rem" } ,
-                    H6        = new H6Typography() { FontFamily        = ["B Ziba"] , FontSize = "1rem" } ,
-                    Button    = new ButtonTypography() { FontFamily    = ["B Ziba"] , FontSize = "0.875rem" } ,
-                    Body1     = new Body1Typography() { FontFamily     = ["B Ziba"] } ,
-                    Body2     = new Body2Typography() { FontFamily     = ["B Ziba"] } ,
-                    Subtitle1 = new Subtitle1Typography() { FontFamily = ["B Ziba"] } ,
-                    Subtitle2 = new Subtitle2Typography() { FontFamily = ["B Ziba"] } ,
-                    Caption   = new CaptionTypography() { FontFamily   = ["B Ziba"] } ,
-                    Overline  = new OverlineTypography() { FontFamily  = ["B Ziba"] }
+                        FontFamily = ["B Ziba", "Tahoma", "Arial", "Helvetica", "sans-serif"],
+                        FontSize = "1rem"
+                    },
+                    H1         = new H1Typography
+                    {
+                        FontFamily = ["B Ziba"],
+                        FontSize = "2rem"
+                    },
+                    H2         = new H2Typography
+                    {
+                        FontFamily = ["B Ziba"],
+                        FontSize = "1.75rem"
+                    },
+                    H3         = new H3Typography
+                    {
+                        FontFamily = ["B Ziba"],
+                        FontSize = "1.5rem"
+                    },
+                    H4         = new H4Typography
+                    {
+                        FontFamily = ["B Ziba"],
+                        FontSize = "1.25rem"
+                    },
+                    H5         = new H5Typography
+                    {
+                        FontFamily = ["B Ziba"],
+                        FontSize = "1.125rem"
+                    },
+                    H6         = new H6Typography
+                    {
+                        FontFamily = ["B Ziba"],
+                        FontSize = "1rem"
+                    },
+                    Button     = new ButtonTypography
+                    {
+                        FontFamily = ["B Ziba"],
+                        FontSize = "0.95rem"
+                    },
+                    Body1      = new Body1Typography
+                    {
+                        FontFamily = ["B Ziba"],
+                        FontSize = "1rem"
+                    },
+                    Body2      = new Body2Typography
+                    {
+                        FontFamily = ["B Ziba"],
+                        FontSize = "0.95rem"
+                    },
+                    Subtitle1  = new Subtitle1Typography
+                    {
+                        FontFamily = ["B Ziba"],
+                        FontSize = "0.95rem"
+                    },
+                    Subtitle2  = new Subtitle2Typography
+                    {
+                        FontFamily = ["B Ziba"],
+                        FontSize = "0.875rem"
+                    },
+                    Caption    = new CaptionTypography
+                    {
+                        FontFamily = ["B Ziba"],
+                        FontSize = "0.75rem"
+                    },
+                    Overline   = new OverlineTypography
+                    {
+                        FontFamily = ["B Ziba"],
+                        FontSize = "0.75rem"
+                    }
                 }
             };
 

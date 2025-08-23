@@ -11,6 +11,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="Blazored.FluentValidation" Version="2.2.0" />
 		<PackageReference Include="Bromix.MudBlazor.MaterialDesignIcons" Version="7.4.47.56"/>
 		<PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.8" />
 		<PackageReference Include="Blazor.Heroicons" Version="2.2.0"/>
@@ -22,7 +23,9 @@
 		<ProjectReference Include="..\..\Infrastructure\App.Handlers\App.Handlers.csproj"/>
 	</ItemGroup>
 
-	
+<!--	<ItemGroup>-->
+<!--		<Content Include="wwwroot\**\*" CopyToOutputDirectory="PreserveNewest"/>-->
+<!--	</ItemGroup>-->
 	<ItemGroup>
 		<Content Update="C:\Users\amin1\.nuget\packages\mudblazorjalali\7.6.1\contentFiles\any\net8.0\sasscompiler.json">
 			<DependentUpon>compilerconfig.json</DependentUpon>
@@ -30,6 +33,20 @@
 		</Content>
 	</ItemGroup>
 
+	<ItemGroup>
+		<EmbeddedResource Update="Resources\Featurs\Authorizions\Login\Login.fa-IR.resx">
+			<Generator>ResXFileCodeGenerator</Generator>
+			<LastGenOutput>Login.fa-IR.Designer.cs</LastGenOutput>
+		</EmbeddedResource>
+	</ItemGroup>
+
+	<ItemGroup>
+		<Compile Update="Resources\Featurs\Authorizions\Login\Login.fa-IR.Designer.cs">
+			<DesignTime>True</DesignTime>
+			<AutoGen>True</AutoGen>
+			<DependentUpon>Login.fa-IR.resx</DependentUpon>
+		</Compile>
+	</ItemGroup>
 
 	<ItemGroup>
 		<UpToDateCheckInput Remove="Common\BaseComponents\Modals\GetDomian\GetDomian.razor"/>
@@ -39,8 +56,6 @@
 		<UpToDateCheckInput Remove="Common\BaseComponents\Flex\FlexItem.razor" />
 		<UpToDateCheckInput Remove="Features\Authorizions\VerifyAccount\VerifyAccount.razor" />
 	</ItemGroup>
-
-
 
 
 </Project>

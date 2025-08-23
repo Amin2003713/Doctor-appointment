@@ -1,10 +1,11 @@
 @using FluentValidation
-@using Severity = MudBlazor.Severity
+@using Blazored.FluentValidation
 @typeparam TModel
 @inject IValidator<TModel> Validator
 
 <EditForm Model="Model" OnValidSubmit="HandleValidSubmit"
           Enhance="@Enhance" FormName="@FormName" AdditionalAttributes="@AdditionalAttributes">
+
     <FluentValidationValidator/>
 
     <CascadingValue Value="this">
@@ -17,17 +18,6 @@
     }
 </EditForm>
 
-@if (ValidationErrors.Any())
-{
-    <MudAlert Severity="Severity.Error">
-        <ul>
-            @foreach (var error in ValidationErrors)
-            {
-                <li>@error</li>
-            }
-        </ul>
-    </MudAlert>
-}
 
 @code {
 

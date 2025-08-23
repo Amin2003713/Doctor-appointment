@@ -1,99 +1,103 @@
 ﻿@page "/Login"
 
-@inject IStringLocalizer<Login> LoginLocalizer
+<MudContainer MaxWidth="MaxWidth.Small" Gutters Class="d-flex justify-center align-center" Style="min-height: 100vh;">
+    <MudCard Elevation="10" Class="p-6" Style="border-radius: 20px; width: 100%; padding: 20px; margin: 20px">
 
-
-<MudGrid Justify="Justify.Center" Spacing="8">
-    <!-- Left side: logo or other content -->
-    <MudItem xs="12" sm="6" md="6" Class="d-flex flex-column justify-center align-center">
-        <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center" Row="false" Spacing="10">
+        <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Spacing="3">
             <MudImage
-                Src=""
-                Alt="@LoginLocalizer["Company logo"]"
-                Width="150"
-                Height="150"
+                Src="_content/Ui.Components/Icons/login.png"
+                Alt="لوگوی ورود"
+                Width="250"
+                Height="250"
                 ObjectFit="ObjectFit.Contain"
-                ObjectPosition="ObjectPosition.Center"/>
+                ObjectPosition="ObjectPosition.Center"
+            />
 
-            <MudText Align="Align.Center" Typo="Typo.h3">
-                به سامانه نوبت دهی خوش آمدید
+            <MudText Typo="Typo.h1" Align="Align.Center">
+                به سامانه نوبت‌دهی خوش آمدید
             </MudText>
         </MudStack>
-    </MudItem>
 
-
-    <!-- Right side: the login form -->
-    <MudItem xs="12" sm="6" md="6">
+        <MudDivider DividerType="DividerType.Middle"  Absolute FlexItem />
+        <!-- Login Form -->
         <AppForm TModel="LoginRequest" Model="Request" OnValidSubmit="LoginAsync">
             <FormProps>
-                <!-- Username field -->
+
+                <!-- Username -->
                 <MudTextField
                     For="@(() => Request.Username)"
                     @bind-Value="Request.Username"
-                    InputType="InputType.Text"
+                    Label="نام کاربری"
                     Variant="Variant.Outlined"
                     Margin="Margin.Normal"
-                    HelperText="@LoginLocalizer["UserName Tips"]"
+                    FullWidth="true"
+                    HelperText="نام کاربری خود را وارد کنید"
                     HelperTextOnFocus/>
 
-                <!-- Password field -->
+                <!-- Password -->
                 <MudTextField
                     For="@(() => Request.Password)"
                     @bind-Value="Request.Password"
+                    Label="رمز عبور"
                     InputType="@_passwordInput"
                     Adornment="Adornment.End"
-                    AdornmentIcon="@(_passwordInput == InputType.Password
-                                       ? MaterialIcons.Rounded.Visibility
-                                       : MaterialIcons.Rounded.VisibilityOff)"
+                    AdornmentIcon="@(_passwordInput == InputType.Password ? Icons.Filled.Visibility : Icons.Filled.VisibilityOff)"
                     OnAdornmentClick="ShowPassword"
                     Variant="Variant.Outlined"
                     Margin="Margin.Normal"
+                    FullWidth="true"
                     HelperTextOnFocus/>
 
-                <MudStack Justify="Justify.FlexEnd" Row="true" AlignItems="AlignItems.End" Class="my-2" Spacing="6">
+                <!-- Forgot Password / Register Links -->
+                <MudStack Row="true" Justify="Justify.FlexEnd" Class="mt-2" Reverse>
                     <MudLink
                         OnClick="GoToForgotPassword"
                         Color="Color.Info"
-                        Disabled="@(Request.Username == null || string.IsNullOrEmpty(Request.Username))"
-                        Underline="Underline.None"
-                        Typo="Typo.caption">
-                        @LoginLocalizer["Forget Password"]
+                        Disabled="@string.IsNullOrWhiteSpace(Request.Username)"
+                        Underline="Underline.Hover"
+                        Typo="Typo.h5"> فراموشی رمز عبور؟
+                    </MudLink>
+
+                    <MudSpacer/>
+
+                    <MudLink
+                        OnClick="GoToRegister"
+                        Color="Color.Tertiary"
+                        Underline="Underline.Hover"
+                        Typo="Typo.h5">
+                        ثبت‌نام
                     </MudLink>
                 </MudStack>
             </FormProps>
 
+            <!-- Login Button -->
             <SubmitButton>
-                <MudItem xs="12">
-                    <MudStack Row="false" Spacing="8">
-                        <MudButton
-                            Color="Color.Primary"
-                            Variant="Variant.Filled"
-                            ButtonType="ButtonType.Submit"
-                            FullWidth="true">
-                            @if (ApiCalling)
-                            {
-                                <CircularProgress Size="Size.Small" Color="Color.Info"/>
-                            }
-                            else
-                            {
-                                @LoginLocalizer["Login"]
-                            }
-                        </MudButton>
-
-                    </MudStack>
-                </MudItem>
+                <MudStack Class="mt-4" Row="false">
+                    <MudButton
+                        Color="Color.Primary"
+                        Variant="Variant.Filled"
+                        ButtonType="ButtonType.Submit"
+                        FullWidth="true">
+                        @if (ApiCalling)
+                        {
+                            <CircularProgress Size="Size.Small" Color="Color.Info"/>
+                        }
+                        else
+                        {
+                            @("ورود")
+                        }
+                    </MudButton>
+                </MudStack>
             </SubmitButton>
         </AppForm>
 
-    </MudItem>
-</MudGrid>
-
+    </MudCard>
+</MudContainer>
 
 @code {
     private LoginRequest Request { get; set; } = new LoginRequest();
     private bool ApiCalling { get; set; } = false;
     private InputType _passwordInput = InputType.Password;
-
 
     private void ShowPassword()
     {
@@ -109,11 +113,10 @@
         try
         {
             await Mediator.Send(Request);
-            ApiCalling = false;
         }
         catch
         {
-            ApiCalling = false;
+            //
         }
         finally
         {
@@ -122,10 +125,10 @@
         }
     }
 
-
     private void GoToForgotPassword()
-        // => NavigationManager.NavigateTo($"/forgot-password?Username={Request.Username}");
-        => NavigationManager.NavigateTo($"/verify-account");
+        => NavigationManager.NavigateTo($"/forgot-password?Username={Request.Username}");
 
+    private void GoToRegister()
+        => NavigationManager.NavigateTo($"/register-account");
 
 }
