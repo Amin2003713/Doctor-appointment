@@ -1,0 +1,154 @@
+﻿@using App.Applications.Users.Queries.GetUserInfo
+@using App.Applications.Users.Requests.UpdateUser
+@using App.Domain.Users
+@using MudBlazor
+
+<MudDialog>
+    <DialogContent>
+
+        <MudStack Spacing="2">
+            <!-- دکمه‌ی سوییچ حالت -->
+            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                <MudText Typo="Typo.h6">اطلاعات کاربر</MudText>
+                <MudButton Variant="Variant.Outlined"
+                           Color="@(_Editing ? Color.Secondary : Color.Primary)"
+                           OnClick="ToggleEdit">
+                    @(_Editing ? "بازگشت به نمایش" : "ویرایش")
+
+                </MudButton>
+            </MudStack>
+
+            <MudForm @ref="_form" Model="_editModel" Disabled="!_Editing">
+                <MudGrid>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="StateProvider.User!.UserName" Label="نام کاربری" ReadOnly Disabled/>
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="_editModel.Email" Label="ایمیل"/>
+                    </MudItem>
+
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="_editModel.FirstName" Label="نام"/>
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="_editModel.LastName" Label="نام خانوادگی"/>
+                    </MudItem>
+
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="(StateProvider.User!.PhoneNumber)" ReadOnly Disabled
+                                      Label="شماره تماس"/>
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudSelect
+                            T="string"
+                            @bind-Value="_newRole"
+                            Label="نقش"
+                            Disabled="@(StateProvider.User!.RolesList.Contains("Doctor"))"
+                            Variant="Variant.Text"
+                            Margin="Margin.Normal"
+                            HelperTextOnFocus>
+                            @foreach (var value in Roles)
+                            {
+                                <MudSelectItem T="string" Value="value">@ToPersian(value)</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12" sm="12">
+                        <MudTextField @bind-Value="_editModel.Address" Label="آدرس"/>
+                    </MudItem>
+
+                </MudGrid>
+            </MudForm>
+
+        </MudStack>
+
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton Color="Color.Info" OnClick="Cancel">انصراف</MudButton>
+        <MudButton Color="@(_Editing ? Color.Success : Color.Warning)" OnClick="Submit">
+            @(_Editing ? "ذخیره" : "تأیید") ؟
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public UserInfo? Model { get; set; }
+    [Parameter] public bool AllowEdit { get; set; } = true;
+
+    public bool _Editing { get; set; } = false;
+
+    private MudForm?             _form;
+    private UpdateProfileRequest _editModel = new();
+    private string?              _newRole;
+
+    public string[] Roles => GetRoles();
+
+    private string[] GetRoles()
+    {
+        if (StateProvider.User!.RolesList!.Contains("Doctor"))
+            return
+            [
+                "Secretary",
+                "Patient",
+            ];
+
+        if (StateProvider.User!.RolesList!.Contains("Secretary"))
+            return ["Patient",];
+        else
+            return [];
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (Model is not null)
+        {
+            _editModel = new UpdateProfileRequest()
+            {
+                FirstName = Model.FirstName,
+                LastName  = Model.LastName,
+
+                Address = Model.Address,
+
+                Email = Model.Email,
+            };
+        }
+    }
+
+    private void ToggleEdit()
+    {
+        if (!AllowEdit) return;
+        _Editing = !_Editing;
+    }
+
+    private async Task Submit()
+    {
+        if (_Editing)
+        {
+            if (_form is not null)
+            {
+                await _form.Validate();
+                if (!_form.IsValid) return;
+                await Mediator.Send(_editModel);
+            }
+        }
+        
+    }
+
+    private void Cancel()
+        => MudDialog.Cancel();
+
+    private string ToPersian(string value)
+    {
+        return value switch
+               {
+                   "Secretary" => "منشی",
+                   "Patient"   => "بیمار",
+                   "Doctor"    => "دکتر",
+                   _           => throw new ArgumentOutOfRangeException(nameof(value), value, null)
+               };
+    }
+
+}

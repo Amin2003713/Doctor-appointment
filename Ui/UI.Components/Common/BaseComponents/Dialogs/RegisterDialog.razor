@@ -59,13 +59,12 @@
 
                         <MudSelect For="@(() => Request.Role)"
                                    @bind-Value="Request.Role"
-                                   Label="آدرس"
+                                   Label="نقش"
                                    Variant="Variant.Outlined"
                                    Margin="Margin.Normal"
                                    FullWidth="true"
                                    Lines="1"
                                    Typo="Typo.h5"
-                                   HelperText="نشانی دقیق پستی (اختیاری)"
                                    HelperTextOnFocus>
                             @foreach (var value in Roles)
                             {

@@ -1,8 +1,12 @@
-﻿namespace App.Applications.Users.Requests.UpdateUser;
+﻿using MediatR;
 
-public record UpdateProfileRequest(
-    string? FirstName,
-    string? LastName,
-    string? Address,
-    string? Email      // optional: allow email change if you want
-);
+namespace App.Applications.Users.Requests.UpdateUser;
+
+public class UpdateProfileRequest : IRequest
+{
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public string? Address { get; set; }
+    public string? Email { get; set; }
+ 
+}

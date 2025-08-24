@@ -1,5 +1,7 @@
-﻿@using Microsoft.AspNetCore.Components.Authorization
+﻿@using App.Applications.Users.Queries.GetUserInfo
+@using Microsoft.AspNetCore.Components.Authorization
 @using UI.Components.Common.BaseComponents.Dialogs
+@using UI.Components.Common.BaseComponents.Picture
 <MudNavMenu Margin="Margin.Normal" Rounded Bordered Dense>
 
     <!-- عمومی -->
@@ -77,8 +79,19 @@
     <AuthorizeView>
         <Authorized Context="auth">
             <MudDivider Class="my-2"/>
-            <MudNavLink Href="/manage" Icon="@Icons.Filled.Person" IconColor="Color.Primary">
-                @(auth.User.Identity?.Name) (@GetRoleName(auth.User))
+            <MudNavLink OnClick="OpenUserInfo" IconColor="Color.Primary">
+                <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.FlexStart">
+                    <MudAvatar>
+                        <ServerImage Src="@StateProvider.User?.Profile"/>
+                    </MudAvatar>
+                    <MudText>
+                        @(auth.User.Identity?.Name)
+                    </MudText>
+                    <MudText>
+                        (@GetRoleName(auth.User))
+                    </MudText>
+                </MudStack>
+
             </MudNavLink>
         </Authorized>
     </AuthorizeView>
@@ -105,6 +118,35 @@
 
 
         await DialogService.ShowAsync<RegisterDialog>("ثبت‌نام", options);
+    }
+
+
+    private async Task OpenUserInfo()
+    {
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            MaxWidth         = MaxWidth.Medium,
+            FullWidth        = true,
+            CloseButton      = true,
+            Position         = DialogPosition.Center
+        };
+
+        var user = await Mediator.Send(new GetUserInfoQuery());
+
+
+        var parameters = new DialogParameters
+        {
+            {
+                "Model", user
+            },
+            {
+                "AllowEdit", (!StateProvider.User?.RolesList?.Contains("Patient") ?? false)
+            }
+        };
+
+
+        await DialogService.ShowAsync<ProfileInfoDialog>("اطلاعات کاربر", parameters, options);
     }
 
 }
