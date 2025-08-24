@@ -49,7 +49,7 @@
             {
                 throw ShiftyException.Create(_localizer["TimeoutError"]);
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 throw ShiftyException.Create(_localizer["UnHandlerError"]);
             }

@@ -113,13 +113,13 @@
                                    Color="Color.Primary"
                                    FullWidth
                                    StartIcon="@Icons.Filled.CloudUpload">
-                            @if (string.IsNullOrEmpty(_profileFile?.Name ?? null))
+                            @if (string.IsNullOrEmpty(Request.Profile?.Name ?? null))
                             {
                                 @("تصویر پروفایل(اختیاری)")
                             }
                             else
                             {
-                                @(_profileFile?.Name)
+                                @(Request.Profile?.Name)
                             }
                         </MudButton>
                     </ActivatorContent>
@@ -165,9 +165,6 @@
     private bool ApiCalling { get; set; }
     private InputType _passwordInput = InputType.Password;
 
-    // نگه‌داری فایل انتخابی برای ساخت Stream هنگام ارسال
-    private IBrowserFile? _profileFile;
-    private bool          _profileTooLarge;
 
     private string _fullName
     {
@@ -175,7 +172,6 @@
         set => value = Request?.FirstName + " " + Request?.LastName;
     }
 
-    private const long MaxProfileBytes = 2 * 1024 * 1024; // 2MB
 
     private void TogglePassword()
         => _passwordInput = _passwordInput == InputType.Password ? InputType.Text : InputType.Password;
@@ -183,18 +179,10 @@
 
     private Task OnFilesSelected(IBrowserFile file)
     {
-        _profileTooLarge = false;
-        _profileFile     = null;
+        Request.Profile = null;
 
 
-        if (file.Size > MaxProfileBytes)
-        {
-            _profileTooLarge = true;
-            StateHasChanged();
-            return Task.CompletedTask;
-        }
-
-        _profileFile = file;
+        Request.Profile = file;
         StateHasChanged();
         return Task.CompletedTask;
     }
@@ -205,22 +193,16 @@
 
         try
         {
-            // اگر کاربر فایل انتخاب کرده، Stream بساز و در مدل قرار بده
-            if (_profileFile is not null)
-            {
-                using var readStream = _profileFile.OpenReadStream(MaxProfileBytes);
-                var       ms         = new MemoryStream();
-                await readStream.CopyToAsync(ms);
-                ms.Position     = 0;  // مهم
-                Request.Profile = ms; // به سرور می‌فرستیم؛ سمت Handler dispose شود
-            }
-
             await Mediator.Send(Request); // Handler شما مپ و ارسال را انجام می‌دهد
 
-            // Snackbar.Add("ثبت‌نام با موفقیت انجام شد.", Severity.Success);
-            // NavigationManager.NavigateTo("/Login");
+            Snackbar.ShowSuccess("ثبت‌نام با موفقیت انجام شد.\nدرحال ورود ...");
+
+            await Mediator.Send(new LoginRequest()
+            {
+                Password = Request.Password , PhoneNumber = Request.PhoneNumber
+            });
         }
-        catch
+        catch (Exception e)
         {
             // Snackbar.Add("خطا در ثبت‌نام. لطفاً دوباره تلاش کنید.", Severity.Error);
         }

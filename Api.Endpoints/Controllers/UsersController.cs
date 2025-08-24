@@ -44,11 +44,9 @@ public class UsersController(
 
 
     [HttpPost("profile/avatar")]
-    [Authorize]
+    [AllowAnonymous]
     public async Task<IActionResult> UploadAvatar([FromForm] IFormFile file)
     {
-        var user = await userManager.GetUserAsync(User);
-        if (user is null) return Unauthorized();
 
         if (file is null || file.Length == 0)
             return BadRequest("No file uploaded.");
@@ -62,9 +60,9 @@ public class UsersController(
         if (!IsAllowedImageExtension(ext))
             return BadRequest("Only .png, .jpg/.jpeg, or .webp files are allowed.");
 
-        // Build storage paths: /wwwroot/uploads/profiles/{userId}/
+        var id      = Guid.NewGuid().ToString();
         var root    = env.WebRootPath ?? Path.Combine(env.ContentRootPath, "wwwroot");
-        var userDir = Path.Combine(root, "uploads", "profiles", user.Id.ToString());
+        var userDir = Path.Combine(root, "uploads", "profiles",id);
         Directory.CreateDirectory(userDir);
 
         // Unique file name
@@ -79,13 +77,9 @@ public class UsersController(
             await file.CopyToAsync(stream);
 
         // Persist relative/public URL
-        var publicUrl = $"/uploads/profiles/{user.Id}/{fileName}";
-        user.Profile = publicUrl;
+        var publicUrl = $"/uploads/profiles/{id}/{fileName}";
 
-        var result = await userManager.UpdateAsync(user);
-        if (!result.Succeeded) return BadRequest(result.Errors);
-
-        return Ok();
+        return Ok(publicUrl);
     }
 
     private static bool IsAllowedImageContentType(string? contentType)

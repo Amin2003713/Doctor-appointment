@@ -42,10 +42,6 @@ public class LoginRequestHandler(
 
         await stateProvider.GetAuthenticationStateAsync();
         navigationManager.NavigateTo("/" , forceLoad: true);
-
-
-        Console.WriteLine("-----------------Finish LoginRequestHandler.Handle -----------------");
-
         return result?.Content!;
     }
 }

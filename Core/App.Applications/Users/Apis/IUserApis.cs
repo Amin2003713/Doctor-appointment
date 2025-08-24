@@ -24,13 +24,13 @@
         // ----------- Auth / Register -----------
 
         [Post(ApiRoutes.Register)]
-        Task<ApiResponse<object>> Register([Body] RegisterRequest body);
+        Task<ApiResponse<object>> Register([Body] RegisterApiRequest body);
 
         [Post(ApiRoutes.RegisterPatient)]
-        Task<ApiResponse<object>> RegisterPatient([Body] RegisterRequest body);
+        Task<ApiResponse<object>> RegisterPatient([Body] RegisterApiRequest body);
 
         [Post(ApiRoutes.RegisterSecretary)]
-        Task<ApiResponse<object>> RegisterSecretary([Body] RegisterRequest body);
+        Task<ApiResponse<object>> RegisterSecretary([Body] RegisterApiRequest body);
 
         // ----------- Role mgmt / Toggle -----------
 
@@ -66,8 +66,8 @@
 
         [Multipart]
         [Post("/api/user/profile/avatar")]
-        Task<ApiResponse<object>> UploadAvatar([AliasAs("file")] StreamPart file);
+        Task<ApiResponse<string>> UploadAvatar([AliasAs("file")] StreamPart file);
 
         [Put("/api/user/profile")]
-        Task<ApiResponse<object>> UploadAvatar(UpdateProfileRequest body);
+        Task<ApiResponse<object>> UpdateProfile(UpdateProfileRequest body);
     }

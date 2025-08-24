@@ -22,10 +22,7 @@
 	<ItemGroup>
 		<ProjectReference Include="..\..\Infrastructure\App.Handlers\App.Handlers.csproj"/>
 	</ItemGroup>
-
-<!--	<ItemGroup>-->
-<!--		<Content Include="wwwroot\**\*" CopyToOutputDirectory="PreserveNewest"/>-->
-<!--	</ItemGroup>-->
+	
 	<ItemGroup>
 		<Content Update="C:\Users\amin1\.nuget\packages\mudblazorjalali\7.6.1\contentFiles\any\net8.0\sasscompiler.json">
 			<DependentUpon>compilerconfig.json</DependentUpon>
