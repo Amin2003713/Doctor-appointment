@@ -18,38 +18,30 @@
             var handler  = new JwtSecurityTokenHandler();
             var jwtToken = handler.ReadJwtToken(Token);
 
+            string Get(params string[] types)
+                => jwtToken.Claims.FirstOrDefault(c => types.Contains(c.Type))?.Value ?? string.Empty;
+
+            // ID: prefer sub, then nameidentifier
+            var id = Get(JwtRegisteredClaimNames.Sub , ClaimTypes.NameIdentifier);
+
+            // Full display name comes from ClaimTypes.Name (you issued it as FullName or fallback)
+            var userName = Get(ClaimTypes.Name);
+
+            // Custom claims you added
+            var firstName = Get("first_name");
+            var lastName  = Get("last_name");
+            var profile   = Get("profile");
+            var address   = Get("address");
+
+            var roles = jwtToken.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
+
             return new UserInfo
             {
-                // UserName رو از ClaimTypes.Name می‌گیریم
-                UserName      = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)?.Value ?? string.Empty,
+                UserName = userName , Id                                                 = id , FirstName = firstName , LastName = lastName ,
+                Profile  = string.IsNullOrWhiteSpace(profile) ? null : profile , Address = (string.IsNullOrWhiteSpace(address) ? null : address)! ,
 
-                // Id رو از Sub یا NameIdentifier می‌گیریم
-                Id            = jwtToken.Claims.FirstOrDefault(c =>
-                                        c.Type == JwtRegisteredClaimNames.Sub ||
-                                        c.Type == ClaimTypes.NameIdentifier)
-                                    ?.Value ??
-                                string.Empty,
-
-                // چون توی توکن FirstName / LastName ست نمی‌شه، اینجا خالی می‌ذاریم
-                FirstName     = string.Empty,
-                LastName      = string.Empty,
-
-                // profile هم ست نشده → خالی
-                Profile       = null,
-
-                // LastLoginDate هم ست نشده → خالی
-                LastLoginDate = string.Empty,
-
-                // PhoneNumber هم ست نشده → خالی
-                PhoneNumber   = null,
-
-                // Roles اگه ست می‌کنی در توکن، اینجا هم قابل خوندنه
-                RolesList     = jwtToken.Claims
-                    .Where(c => c.Type == ClaimTypes.Role)
-                    .Select(c => c.Value)
-                    .ToList(),
-
-                Token         = Token
+                // Not present in your token (leave empty/null)
+                LastLoginDate = string.Empty , PhoneNumber = null , RolesList = roles , Token = Token
             };
         }
     }

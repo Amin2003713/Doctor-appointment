@@ -1,34 +1,121 @@
 ﻿@using Microsoft.AspNetCore.Components.Authorization
 
-<MudNavMenu>
-    <MudNavLink Href="#" Match="NavLinkMatch.All" Icon="@Icons.Filled.Home">Home</MudNavLink>
-    <MudNavLink Href="counter" Match="NavLinkMatch.Prefix" Icon="@Icons.Filled.Add">Counter</MudNavLink>
-    <MudNavLink Href="weather" Match="NavLinkMatch.Prefix" Icon="@Icons.Filled.List">Weather</MudNavLink>
-    <MudNavLink Href="auth" Match="NavLinkMatch.Prefix" Icon="@Icons.Filled.Lock">Auth Required</MudNavLink>
+<MudNavMenu Dense="true">
+
+    <!-- عمومی -->
+    <MudNavLink Href="/" Match="NavLinkMatch.All"
+                Icon="@Icons.Filled.Home" IconColor="Color.Primary">
+        صفحه اصلی
+    </MudNavLink>
+
+    <!-- برای همه کاربران (می‌تواند به لاگین هدایت کند) -->
+    <MudNavLink Href="/appointments"
+                Match="NavLinkMatch.Prefix"
+                Icon="@Icons.Filled.CalendarMonth"
+                IconColor="Color.Info">
+        رزرو نوبت
+    </MudNavLink>
+
+    <!-- فقط مهمانان -->
     <AuthorizeView>
-        <Authorized>
-            <MudNavLink Href="Account/Manage" Match="NavLinkMatch.Prefix"
-                        Icon="@Icons.Filled.Person">@context.User.Identity?.Name</MudNavLink>
-            <form action="Account/Logout" method="post">
-                <AntiforgeryToken/>
-                <button type="submit" class="mud-nav-link mud-ripple">
-                    <MudIcon Icon="@Icons.Filled.Logout" Color="Color.Info" Class="mr-3"></MudIcon>
-                    Logout
-                </button>
-            </form>
-        </Authorized>
         <NotAuthorized>
-            <MudNavLink Href="Account/Register" Match="NavLinkMatch.Prefix" Icon="@Icons.Filled.Person">
-                Register
+            <MudNavLink Href="/account/register"
+                        Icon="@Icons.Filled.PersonAdd"
+                        IconColor="Color.Success">
+                ثبت‌نام
             </MudNavLink>
-            <MudNavLink Href="Account/Login" Match="NavLinkMatch.Prefix" Icon="@Icons.Filled.Password">Login
+            <MudNavLink Href="/account/login"
+                        Icon="@Icons.Filled.Login"
+                        IconColor="Color.Warning">
+                ورود
             </MudNavLink>
         </NotAuthorized>
     </AuthorizeView>
+
+    <!-- بیمار / کاربر عادی -->
+    <AuthorizeView Roles="Patient">
+        <Authorized>
+            <MudNavGroup Text="پنل بیمار"
+                         Icon="@Icons.Filled.Badge"
+                         IconColor="Color.Primary" Expanded="true">
+                <MudNavLink Href="/patient/appointments"
+                            Icon="@Icons.Filled.EventAvailable"
+                            IconColor="Color.Success">
+                    نوبت‌های من
+                </MudNavLink>
+                <MudNavLink Href="/patient/history"
+                            Icon="@Icons.Filled.History"
+                            IconColor="Color.Info">
+                    سوابق نوبت
+                </MudNavLink>
+                <MudNavLink Href="/patient/cancel"
+                            Icon="@Icons.Filled.Cancel"
+                            IconColor="Color.Error">
+                    لغو نوبت
+                </MudNavLink>
+            </MudNavGroup>
+        </Authorized>
+    </AuthorizeView>
+
+    <!-- پزشک / مدیر -->
+    <AuthorizeView Roles="Doctor">
+        <Authorized>
+            <MudNavGroup Text="پنل پزشک"
+                         Icon="@Icons.Filled.MedicalServices"
+                         IconColor="Color.Secondary" Expanded="true">
+
+                <MudNavLink Href="/doctor/schedule"
+                            Icon="@Icons.Filled.Schedule"
+                            IconColor="Color.Info">
+                    تعریف زمان‌های قابل رزرو
+                </MudNavLink>
+
+                <MudNavLink Href="/doctor/agenda"
+                            Icon="@Icons.Filled.ViewAgenda"
+                            IconColor="Color.Primary">
+                    لیست نوبت‌ها (روزانه)
+                </MudNavLink>
+
+                <MudNavLink Href="/doctor/manage"
+                            Icon="@Icons.Filled.EditCalendar"
+                            IconColor="Color.Warning">
+                    جابجایی/حذف نوبت
+                </MudNavLink>
+            </MudNavGroup>
+        </Authorized>
+    </AuthorizeView>
+
+    <!-- منشی -->
+    <AuthorizeView Roles="Secretary">
+        <Authorized>
+            <MudNavGroup Text="امور منشی"
+                         Icon="@Icons.Filled.SupportAgent"
+                         IconColor="Color.Primary">
+                <MudNavLink Href="/secretary/book-for-patient"
+                            Icon="@Icons.Filled.PersonAddAlt1"
+                            IconColor="Color.Success">
+                    رزرو نوبت برای بیمار
+                </MudNavLink>
+                <MudNavLink Href="/secretary/patients"
+                            Icon="@Icons.Filled.Group"
+                            IconColor="Color.Info">
+                    مدیریت بیماران
+                </MudNavLink>
+            </MudNavGroup>
+        </Authorized>
+    </AuthorizeView>
+
+    <AuthorizeView>
+        <Authorized>
+            <MudDivider Class="my-2"/>
+
+            <MudNavLink Href="/account/manage"
+                        Icon="@Icons.Filled.Person"
+                        IconColor="Color.Primary">
+                @context.User.Identity?.Name
+            </MudNavLink>
+            
+        </Authorized>
+    </AuthorizeView>
+
 </MudNavMenu>
-
-
-@code {
-
-
-}
