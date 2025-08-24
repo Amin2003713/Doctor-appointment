@@ -10,6 +10,7 @@
 		<SupportedPlatform Include="browser"/>
 	</ItemGroup>
 
+	
 	<ItemGroup>
 		<PackageReference Include="Blazored.FluentValidation" Version="2.2.0" />
 		<PackageReference Include="Bromix.MudBlazor.MaterialDesignIcons" Version="7.4.47.56"/>
@@ -45,18 +46,6 @@
 		</Compile>
 	</ItemGroup>
 
-	<ItemGroup>
-		<UpToDateCheckInput Remove="Common\BaseComponents\Modals\GetDomian\GetDomian.razor"/>
-		<UpToDateCheckInput Remove="Common\BaseComponents\OtpInput\OtpInput.razor" />
-		<UpToDateCheckInput Remove="Common\BaseComponents\stepper\Stepper.razor" />
-		<UpToDateCheckInput Remove="Common\BaseComponents\Flex\Flex.razor" />
-		<UpToDateCheckInput Remove="Common\BaseComponents\Flex\FlexItem.razor" />
-		<UpToDateCheckInput Remove="Features\Authorizions\VerifyAccount\VerifyAccount.razor" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Common\BaseComponents\Inputs\" />
-	</ItemGroup>
 
 
 </Project>

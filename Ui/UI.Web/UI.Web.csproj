@@ -5,7 +5,7 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
-        <EnableDefaultScopedCssItems>false</EnableDefaultScopedCssItems>
+        <EnableDefaultScopedCssItems>true</EnableDefaultScopedCssItems>
 
     </PropertyGroup>
 
@@ -30,10 +30,7 @@
     </ItemGroup>
     
 
-    <ItemGroup>
-      <_ContentIncludedByDefault Remove="Pages\Home.razor" />
-      <_ContentIncludedByDefault Remove="Layout\MainLayout.razor" />
-    </ItemGroup>
+
 
 
 </Project>

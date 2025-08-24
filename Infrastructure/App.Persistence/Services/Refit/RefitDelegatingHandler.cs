@@ -7,39 +7,41 @@
     using App.Common.General;
     using App.Common.Utilities.LifeTime;
     using MediatR;
+    using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Localization;
 
 #endregion
 
     namespace App.Persistence.Services.Refit;
 
-    public class RefitDelegatingHandler : DelegatingHandler ,
-                                                   ITransientDependency
+    public class RefitDelegatingHandler : DelegatingHandler,
+                                          ITransientDependency
     {
-        private readonly IMediator                                _mediator;
+        private readonly IServiceScopeFactory                     _scopeFactory;
         private readonly IStringLocalizer<RefitDelegatingHandler> _localizer;
 
         public RefitDelegatingHandler(
-            IMediator                                mediator ,
-            IStringLocalizer<RefitDelegatingHandler> localizer)
+            IStringLocalizer<RefitDelegatingHandler> localizer,
+            IServiceScopeFactory                     scopeFactory)
         {
-            _mediator  = mediator;
-            _localizer = localizer;
+            _localizer         = localizer;
+            _scopeFactory = scopeFactory;
 
             InnerHandler = new HttpClientHandler()
             {
-                AllowAutoRedirect = false ,
+                AllowAutoRedirect = false,
             };
         }
 
-        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request , CancellationToken cancellationToken)
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            ArgumentNullException.ThrowIfNull(request ,            nameof(request));
-            ArgumentNullException.ThrowIfNull(request.RequestUri , nameof(request.RequestUri));
+            ArgumentNullException.ThrowIfNull(request,            nameof(request));
+            ArgumentNullException.ThrowIfNull(request.RequestUri, nameof(request.RequestUri));
 
             try
             {
-                return await base.SendAsync(request , cancellationToken);
+                await AddTokenHeaderAsync(request.Headers);
+                return await base.SendAsync(request, cancellationToken);
             }
             catch (HttpRequestException)
             {
@@ -55,6 +57,27 @@
             }
         }
 
+        private async Task AddTokenHeaderAsync(HttpRequestHeaders headers)
+        {
+            try
+
+            {
+                using var scope    = _scopeFactory.CreateScope();
+                var       mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var       user     = await mediator.Send(new GetUserInfoQuery());
+
+
+                if (!string.IsNullOrEmpty(user?.Token) && !IsTokenExpired(user.Token))
+                    headers.Authorization = new AuthenticationHeaderValue(ApplicationConstants.Headers.Token, user.Token);
+            }
+
+            catch (Exception e)
+
+            {
+                Console.WriteLine(e);
+                throw;
+            }
+        }
 
         private bool IsTokenExpired(string token)
         {

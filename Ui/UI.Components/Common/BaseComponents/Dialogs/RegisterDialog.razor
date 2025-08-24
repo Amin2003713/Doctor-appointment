@@ -1,0 +1,171 @@
+﻿@using App.Applications.Users.Requests.Registers
+@using Microsoft.AspNetCore.Components.Authorization
+<MudDialog Gutters>
+    <TitleContent>ثبت‌نام</TitleContent>
+    <DialogContent>
+
+        <AuthorizeView>
+            <Authorized>
+                <AppForm TModel="RegisterRequest" Model="Request" OnValidSubmit="RegisterAsync">
+                    <FormProps>
+
+                        <!-- PhoneNumber -->
+                        <MudTextField For="@(() => Request.PhoneNumber)"
+                                      @bind-Value="Request.PhoneNumber"
+                                      Label="شماره موبایل"
+                                      Variant="Variant.Outlined"
+                                      Margin="Margin.Normal"
+                                      FullWidth="true"
+                                      HelperText="این شماره به عنوان نام کاربری و رمز عبور استفاده می‌شود"
+                                      HelperTextOnFocus
+                                      Immediate="true"
+                                      OnBlur="OnPhoneChanged"/>
+
+                        <!-- First / Last Name -->
+                        <MudStack Row="true" Spacing="2">
+                            <MudTextField For="@(() => Request.FirstName)"
+                                          @bind-Value="Request.FirstName"
+                                          Label="نام"
+                                          Variant="Variant.Outlined"
+                                          Margin="Margin.Normal"
+                                          FullWidth="true"
+                                          HelperText="نام خود را وارد کنید"
+                                          HelperTextOnFocus
+                                          Immediate="true"
+                                          OnBlur="OnNameChanged"/>
+                            <MudTextField For="@(() => Request.LastName)"
+                                          @bind-Value="Request.LastName"
+                                          Label="نام خانوادگی"
+                                          Variant="Variant.Outlined"
+                                          Margin="Margin.Normal"
+                                          FullWidth="true"
+                                          HelperText="نام خانوادگی خود را وارد کنید"
+                                          HelperTextOnFocus
+                                          Immediate="true"
+                                          OnBlur="OnNameChanged"/>
+                        </MudStack>
+
+                        <MudTextField For="@(() => Request.Address)"
+                                      @bind-Value="Request.Address"
+                                      Label="آدرس"
+                                      Variant="Variant.Outlined"
+                                      Margin="Margin.Normal"
+                                      FullWidth="true"
+                                      Lines="1"
+                                      Typo="Typo.h5"
+                                      HelperText="نشانی دقیق پستی (اختیاری)"
+                                      HelperTextOnFocus
+                                      Text="@Request.Address"/>
+
+                        <MudSelect For="@(() => Request.Role)"
+                                   @bind-Value="Request.Role"
+                                   Label="آدرس"
+                                   Variant="Variant.Outlined"
+                                   Margin="Margin.Normal"
+                                   FullWidth="true"
+                                   Lines="1"
+                                   Typo="Typo.h5"
+                                   HelperText="نشانی دقیق پستی (اختیاری)"
+                                   HelperTextOnFocus>
+                            @foreach (var value in Roles)
+                            {
+                                <MudSelectItem Value="value">@ToPersian(value)</MudSelectItem>
+                            }
+                        </MudSelect>
+
+                    </FormProps>
+
+                    <SubmitButton>
+                        <MudStack Class="mt-4">
+                            <MudButton Color="Color.Secondary"
+                                       Variant="Variant.Filled"
+                                       OnClick="RegisterAsync"
+                                       FullWidth="true"
+                                       Disabled="@ApiCalling">
+                                @if (ApiCalling)
+                                {
+                                    <CircularProgress Size="Size.Small" Color="Color.Info"/>
+                                }
+                                else
+                                {
+                                    @("ثبت‌نام")
+                                }
+                            </MudButton>
+                        </MudStack>
+                    </SubmitButton>
+                </AppForm>
+            </Authorized>
+        </AuthorizeView>
+
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="@(() => MudDialog.Close())" Color="Color.Error">بستن</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
+
+    private bool ApiCalling { get; set; }
+
+    private RegisterRequest Request { get; set; } = new();
+    public string[] Roles => GetRoles();
+
+    private string[] GetRoles()
+    {
+        if (StateProvider.User!.RolesList!.Contains("Doctor"))
+            return
+            [
+                "Secretary",
+                "Patient",
+            ];
+
+        if (StateProvider.User!.RolesList!.Contains("Secretary"))
+            return ["Patient",];
+        else
+            return [];
+    }
+
+    private async Task RegisterAsync()
+    {
+        try
+        {
+            // ensure fullname is set before sending
+            Request.FullName = $"{Request.FirstName} {Request.LastName}".Trim();
+            Console.WriteLine(Request);
+            await Mediator.Send(Request);
+            Snackbar.ShowSuccess("ثبت‌نام موفقیت‌آمیز بود");
+            MudDialog.Close();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex);
+            Snackbar.ShowError("خطا در ثبت‌نام");
+        }
+    }
+
+    private void OnPhoneChanged(FocusEventArgs args)
+    {
+        if (!string.IsNullOrWhiteSpace(Request.PhoneNumber))
+        {
+            Request.Password = Request.PhoneNumber;
+        }
+    }
+
+    private void OnNameChanged(FocusEventArgs args)
+    {
+        Request.FullName = $"{Request.FirstName} {Request.LastName}".Trim();
+    }
+
+    private string ToPersian(string value)
+    {
+        return value switch
+               {
+                   "Secretary" => "منشی",
+                   "Patient"   => "بیمار",
+                   _           => throw new ArgumentOutOfRangeException(nameof(value), value, null)
+               };
+    }
+
+}
+

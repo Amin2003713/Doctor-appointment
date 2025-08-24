@@ -9,15 +9,15 @@ using Refit;
 namespace App.Applications.Users.Requests.Registers.Patient;
 
 public record RegisterRequestHandler(
-    ApiFactory          apiFactory ,
-    ClientStateProvider stateProvider ,
-    NavigationManager   navigationManager ,
+    ApiFactory          apiFactory,
+    ClientStateProvider stateProvider,
+    NavigationManager   navigationManager,
     ISnackbarService    SnackbarService
 ) : IRequestHandler<RegisterRequest>
 {
     private IUserApis Apis { get; } = apiFactory.CreateApi<IUserApis>();
 
-    public async Task Handle(RegisterRequest request , CancellationToken cancellationToken)
+    public async Task Handle(RegisterRequest request, CancellationToken cancellationToken)
     {
         try
         {
@@ -27,11 +27,11 @@ public record RegisterRequestHandler(
             if (request.Profile is not null)
             {
                 await using var readStream = request.Profile.OpenReadStream(request.Profile.Size);
-                var       ms         = new MemoryStream();
-                await readStream.CopyToAsync(ms , cancellationToken);
+                var             ms         = new MemoryStream();
+                await readStream.CopyToAsync(ms, cancellationToken);
                 ms.Position = 0; // مهم
 
-                var imageUrl = await Apis.UploadAvatar(new StreamPart(ms , request.Profile.Name , request.Profile.ContentType));
+                var imageUrl = await Apis.UploadAvatar(new StreamPart(ms, request.Profile.Name, request.Profile.ContentType));
 
                 if (imageUrl.IsSuccessful)
                     profile = imageUrl.Content;
@@ -42,19 +42,28 @@ public record RegisterRequestHandler(
                 }
             }
 
-
-            var result = await Apis.Register(new RegisterApiRequest()
+            var apiRequest = new RegisterApiRequest()
             {
-                Profile = profile , FirstName         = request.FirstName , LastName   = request.LastName , Address  = request.Address ,
-                Email   = request.Email , PhoneNumber = request.PhoneNumber , FullName = request.FullName , Password = request.Password ,
-            });
+                Profile     = profile,
+                FirstName   = request.FirstName,
+                LastName    = request.LastName,
+                Address     = request.Address,
+                Email       = request.Email,
+                PhoneNumber = request.PhoneNumber,
+                FullName    = request.FullName,
+                Password    = request.Password,
+            };
+
+
+            var result = request.Role switch
+                         {
+                             "Secretary" => await Apis.RegisterSecretary(apiRequest),
+                             "Patient"   => stateProvider.User != null ? await Apis.RegisterPatient(apiRequest) :await Apis.Register(apiRequest),
+                             _           => throw new ArgumentOutOfRangeException()
+                         };
 
             if (!result.IsSuccessful)
                 throw new Exception("wrong");
-
-            var u = request.PhoneNumber;
-
-            navigationManager.NavigateTo($"/Login?registered=1&u={Uri.EscapeDataString(u ?? string.Empty)}" , forceLoad: false);
         }
 
         catch (Exception e)
