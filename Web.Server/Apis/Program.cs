@@ -75,11 +75,11 @@ builder.Services.AddControllers();
 
 
 var app = builder.Build();
+app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
-app.UseStaticFiles();
 
 
 app.UseCors(a => a.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin());

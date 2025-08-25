@@ -1,7 +1,7 @@
 ﻿@page "/register"
 @using App.Applications.Users.Requests.Registers
 @using App.Applications.Users.Requests.Registers.Patient
-<MudContainer MaxWidth="MaxWidth.Small" 
+<MudContainer MaxWidth="MaxWidth.Small"
               Class="d-flex justify-center align-center"
               Style="height: 100svh; overflow:auto; padding: 0 !important;">
     <MudCard Elevation="10" Style="border-radius: 20px; width: 100%; padding:20px; margin: 0;">
@@ -28,7 +28,6 @@
                               @bind-Value="Request.PhoneNumber"
                               Label="شماره موبایل"
                               Variant="Variant.Outlined"
-                              Margin="Margin.Dense"
                               FullWidth="true"
                               HelperText="این شماره به عنوان نام کاربری استفاده می‌شود"
                               HelperTextOnFocus/>
@@ -42,7 +41,6 @@
                               AdornmentIcon="@(_passwordInput == InputType.Password ? Icons.Filled.Visibility : Icons.Filled.VisibilityOff)"
                               OnAdornmentClick="TogglePassword"
                               Variant="Variant.Outlined"
-                              Margin="Margin.Dense"
                               FullWidth="true"
                               HelperText="رمز عبور باید حداقل ۶ کاراکتر باشد"
                               HelperTextOnFocus/>
@@ -53,7 +51,6 @@
                                   @bind-Value="Request.FirstName"
                                   Label="نام"
                                   Variant="Variant.Outlined"
-                                  Margin="Margin.Dense"
                                   FullWidth="true"
                                   HelperText="نام خود را وارد کنید"
                                   HelperTextOnFocus
@@ -63,7 +60,6 @@
                                   @bind-Value="Request.LastName"
                                   Label="نام خانوادگی"
                                   Variant="Variant.Outlined"
-                                  Margin="Margin.Dense"
                                   FullWidth="true"
                                   HelperText="نام خانوادگی خود را وارد کنید"
                                   HelperTextOnFocus
@@ -76,7 +72,6 @@
                         @bind-Value="@(_fullName)"
                         Label="نام و نام خانوادگی"
                         Variant="Variant.Outlined"
-                        Margin="Margin.Dense"
                         FullWidth="true"
                         HelperText="در صورت نیاز می‌توانید ویرایش کنید"
                         HelperTextOnFocus/>
@@ -87,7 +82,6 @@
                               @bind-Value="Request.Email"
                               Label="ایمیل (اختیاری)"
                               Variant="Variant.Outlined"
-                              Margin="Margin.Dense"
                               FullWidth="true"
                               HelperText="برای بازیابی رمز عبور مفید است"
                               HelperTextOnFocus
@@ -99,7 +93,6 @@
                               @bind-Value="Request.Address"
                               Label="آدرس"
                               Variant="Variant.Outlined"
-                              Margin="Margin.Dense"
                               FullWidth="true"
                               Lines="1"
                               HelperText="نشانی دقیق پستی (اختیاری)"

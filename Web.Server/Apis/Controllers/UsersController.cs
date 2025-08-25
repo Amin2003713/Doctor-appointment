@@ -28,6 +28,7 @@ public class UsersController(
         if (dto.FirstName is not null) user.FirstName = dto.FirstName.Trim();
         if (dto.LastName  is not null) user.LastName  = dto.LastName.Trim();
         if (dto.Address   is not null) user.Address   = dto.Address.Trim();
+        if (dto.Profile   is not null) user.Profile   = dto.Profile.Trim();
 
         // Optional: allow email change (add confirmation flow if needed)
         if (!string.IsNullOrWhiteSpace(dto.Email))

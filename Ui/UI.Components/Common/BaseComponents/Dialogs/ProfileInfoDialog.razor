@@ -12,7 +12,7 @@
             <!-- دکمه‌ی سوییچ حالت -->
             <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
                 <MudText Typo="Typo.h6">اطلاعات کاربر</MudText>
-                <MudButton Variant="Variant.Outlined"
+                <MudButton Variant="Variant.Filled"
                            Color="@(_Editing ? Color.Secondary : Color.Primary)"
                            OnClick="ToggleEdit">
                     @(_Editing ? "بازگشت به نمایش" : "ویرایش")
@@ -23,22 +23,24 @@
             <MudForm @ref="_form" Model="_editModel" Disabled="!_Editing">
                 <MudGrid>
                     <MudItem xs="12" sm="6">
-                        <MudTextField @bind-Value="StateProvider.User!.UserName" Label="نام کاربری" ReadOnly Disabled/>
+                        <MudTextField Variant="Variant.Outlined" @bind-Value="StateProvider.User!.UserName"
+                                      Label="نام کاربری" ReadOnly Disabled/>
                     </MudItem>
                     <MudItem xs="12" sm="6">
-                        <MudTextField @bind-Value="_editModel.Email" Label="ایمیل"/>
+                        <MudTextField @bind-Value="_editModel.Email" Variant="Variant.Outlined" Label="ایمیل"/>
                     </MudItem>
 
                     <MudItem xs="12" sm="6">
-                        <MudTextField @bind-Value="_editModel.FirstName" Label="نام"/>
+                        <MudTextField @bind-Value="_editModel.FirstName" Label="نام" Variant="Variant.Outlined"/>
                     </MudItem>
                     <MudItem xs="12" sm="6">
-                        <MudTextField @bind-Value="_editModel.LastName" Label="نام خانوادگی"/>
+                        <MudTextField @bind-Value="_editModel.LastName" Variant="Variant.Outlined"
+                                      Label="نام خانوادگی"/>
                     </MudItem>
 
                     <MudItem xs="12" sm="6">
                         <MudTextField @bind-Value="(StateProvider.User!.PhoneNumber)" ReadOnly Disabled
-                                      Label="شماره تماس"/>
+                                      Variant="Variant.Outlined" Label="شماره تماس"/>
                     </MudItem>
                     <MudItem xs="12" sm="6">
                         <MudSelect
@@ -46,7 +48,7 @@
                             @bind-Value="_newRole"
                             Label="نقش"
                             Disabled="@(StateProvider.User!.RolesList.Contains("Doctor"))"
-                            Variant="Variant.Text"
+                            Variant="Variant.Outlined"
                             Margin="Margin.Normal"
                             HelperTextOnFocus>
                             @foreach (var value in Roles)
@@ -55,10 +57,28 @@
                             }
                         </MudSelect>
                     </MudItem>
-                    <MudItem xs="12" sm="12">
-                        <MudTextField @bind-Value="_editModel.Address" Label="آدرس"/>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField Variant="Variant.Outlined" @bind-Value="_editModel.Address" Label="آدرس"/>
                     </MudItem>
-
+                    <MudItem xs="12" sm="6">
+                        <MudFileUpload T="IBrowserFile" FilesChanged="OnFilesSelected!">
+                            <ActivatorContent>
+                                <MudButton Variant="Variant.Filled"
+                                           Color="Color.Primary"
+                                           FullWidth
+                                           StartIcon="@Icons.Filled.CloudUpload">
+                                    @if (string.IsNullOrEmpty(_browserFile?.Name ?? null))
+                                    {
+                                        @("تصویر پروفایل(اختیاری)")
+                                    }
+                                    else
+                                    {
+                                        @(_browserFile?.Name)
+                                    }
+                                </MudButton>
+                            </ActivatorContent>
+                        </MudFileUpload>
+                    </MudItem>
                 </MudGrid>
             </MudForm>
 
@@ -80,6 +100,8 @@
     [Parameter] public UserInfo? Model { get; set; }
     [Parameter] public bool AllowEdit { get; set; } = true;
 
+
+    private IBrowserFile? _browserFile = null!;
     public bool _Editing { get; set; } = false;
 
     private MudForm?             _form;
@@ -101,6 +123,16 @@
             return ["Patient",];
         else
             return [];
+    }
+
+    private Task OnFilesSelected(IBrowserFile file)
+    {
+        _browserFile = null;
+
+
+        _browserFile = file;
+        StateHasChanged();
+        return Task.CompletedTask;
     }
 
     protected override void OnParametersSet()
@@ -135,7 +167,12 @@
                 await _form.Validate();
                 if (!_form.IsValid) return;
 
-                await Mediator.Send(_editModel);
+                if (_browserFile?.Name != null)
+                    _editModel.Profile=  await Mediator.Send(new UploadProfilePictureRequest(_browserFile));
+
+
+                    await Mediator.Send(_editModel);
+
                 var newInfo = await Mediator.Send(new UserInfoRequest());
                 _editModel = newInfo.Adapt<UpdateProfileRequest>();
                 _Editing = false;

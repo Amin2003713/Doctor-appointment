@@ -18,5 +18,6 @@ public sealed record UpdateProfileDto(
     string? FirstName,
     string? LastName,
     string? Address,
-    string? Email      // optional: allow email change if you want
+    string? Email  ,
+    string? Profile
 );
