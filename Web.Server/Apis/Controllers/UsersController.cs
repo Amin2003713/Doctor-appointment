@@ -227,7 +227,7 @@ public class UsersController(
     // Users list (Doctor only)
     // ---------------------------
     [HttpGet("users")]
-    [Authorize(Roles = "Doctor")]
+    [Authorize(Roles = "Doctor,Secretary")]
     public async Task<ActionResult<PagedResult<UserListItemDto>>> GetUsers(
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
@@ -236,7 +236,8 @@ public class UsersController(
         if (page <= 0) page = 1;
         if (pageSize is < 1 or > 200) pageSize = 20;
 
-        var q = userManager.Users.AsQueryable();
+        var secretaries = await userManager.GetUsersInRoleAsync("Patient");
+        var q           = secretaries.AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(search))
         {

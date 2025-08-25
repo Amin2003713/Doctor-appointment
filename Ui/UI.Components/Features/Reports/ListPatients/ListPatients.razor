@@ -1,0 +1,278 @@
+﻿@page "/users"
+@using App.Applications.Users.Requests.UserQueries
+@using UI.Components.Common.BaseComponents.Picture
+
+<MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="pt-8">
+
+    <!-- Toolbar -->
+    <MudPaper Elevation="2" Class="p-3 mb-4 rounded-lg">
+        <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+            <MudText Typo="Typo.h5" Class="fw-bold">
+                @_title
+                <MudText Typo="Typo.caption" Class="ms-2" Color="Color.Secondary">
+                    (@_totalCount.ToString("N0"))
+                </MudText>
+            </MudText>
+
+            <MudSpacer/>
+
+            <MudTextField @bind-Value="_search"
+                          Placeholder="جستجوی کاربر…"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Filled.Search"
+                          Variant="Variant.Outlined"
+                          Dense="true"
+                          Immediate="true"
+                          Clearable="true"
+                          DebounceInterval="400"
+                          OnBlur="RefreshTable"
+                          Class="w-72"/>
+
+            <MudButton Variant="Variant.Filled"
+                       Color="Color.Primary"
+                       OnClick="RefreshTable"
+                       StartIcon="@Icons.Filled.Refresh">
+                بروزرسانی
+            </MudButton>
+        </MudStack>
+    </MudPaper>
+
+    <!-- Table -->
+    <MudPaper Elevation="2" Class="rounded-xl overflow-hidden">
+        <MudTable T="UserListItemResponse"
+                  ServerData="LoadServerData"
+                  Class="rounded-xl"
+                  Dense="true"
+                  Hover="true"
+                  Bordered="false"
+                  Striped="true"
+                  FixedHeader="true"
+                  Breakpoint="Breakpoint.Sm"
+                  Height="68vh"
+                  CanCancelEdit
+                  RowsPerPage="20"
+                  RowsPerPageOptions="new int[]{10,20,50}"
+                  @ref="_table">
+
+            <ToolBarContent>
+                <!-- keep for consistency if you use MudTable's own toolbar -->
+                <MudText Typo="Typo.subtitle2">@_title</MudText>
+            </ToolBarContent>
+
+            <HeaderContent>
+                <MudTh Class="whitespace-nowrap">شناسه</MudTh>
+                <MudTh>نام کاربری</MudTh>
+                <MudTh Class="whitespace-nowrap">نام و نام خانوادگی</MudTh>
+                <MudTh>ایمیل</MudTh>
+                <MudTh>وضعیت</MudTh>
+                <MudTh>پروفایل</MudTh>
+                <MudTh>آدرس</MudTh>
+                <MudTh>آخرین ورود</MudTh>
+                <MudTh>تاریخ ایجاد</MudTh>
+                <MudTh></MudTh>
+            </HeaderContent>
+
+            <RowTemplate>
+                <MudTd DataLabel="شناسه">
+                    <MudText Typo="Typo.body2" Class="font-mono">@context.Id</MudText>
+                </MudTd>
+
+
+                <MudTd DataLabel="نام کاربری">
+                    <MudRTLProvider RightToLeft="false">
+                        <MudText>@context.Username</MudText>
+                    </MudRTLProvider>
+                </MudTd>
+
+
+                <MudTd DataLabel="نام کامل">
+                    @{
+                        var full = !string.IsNullOrWhiteSpace(context.FullName)
+                            ? context.FullName
+                            : $"{context.FirstName} {context.LastName}".Trim();
+                    }
+                    <MudText>@(string.IsNullOrWhiteSpace(full) ? "-" : full)</MudText>
+                </MudTd>
+
+                <MudTd DataLabel="ایمیل">
+                    <MudRTLProvider RightToLeft="false">
+
+                        <MudText>@(string.IsNullOrWhiteSpace(context.Email) ? "-" : context.Email)</MudText>
+                    </MudRTLProvider>
+
+                </MudTd>
+
+                <MudTd DataLabel="وضعیت">
+                    <MudChip T="string"
+                             Color="@(context.IsActive ? Color.Success : Color.Error)"
+                             Variant="Variant.Filled"
+                             Size="Size.Small"
+                             StartIcon="@((context.IsActive ? Icons.Filled.CheckCircle : Icons.Filled.Block))">
+                        @(context.IsActive ? "فعال" : "غیرفعال")
+                    </MudChip>
+                </MudTd>
+
+                <MudTd DataLabel="پروفایل">
+                    <MudTooltip
+                        Text="@($"{(!string.IsNullOrWhiteSpace(context.FullName) ? context.FullName : context.Username)}")">
+                        <MudAvatar Size="Size.Medium" Class="ring-2 ring-offset-1 ring-gray-200">
+                            @if (!string.IsNullOrWhiteSpace(context.Profile))
+                            {
+                                <ServerImage Src="@context.Profile" Alt="پروفایل"/>
+                            }
+                            else
+                            {
+                                <MudAvatar Icon="@Icons.Filled.Person" Color="Color.Default"/>
+                            }
+                        </MudAvatar>
+                    </MudTooltip>
+                </MudTd>
+
+                <MudTd DataLabel="آدرس">
+                    <MudText>@(string.IsNullOrWhiteSpace(context.Address) ? "-" : context.Address)</MudText>
+                </MudTd>
+
+                <MudTd DataLabel="آخرین ورود">
+                    <MudRTLProvider RightToLeft="false">
+
+                        @{
+                            var lastLogin = context.LastLoginAtUtc?.ToLocalTime();
+                        }
+                        @if (lastLogin is not null)
+                        {
+                            <MudTooltip Text="@lastLogin.Value.ToString("yyyy-MM-dd HH:mm")">
+                                <MudText>@lastLogin.Value.ToString("yyyy/MM/dd HH:mm")</MudText>
+                            </MudTooltip>
+                        }
+                        else
+                        {
+                            <MudText>-</MudText>
+                        }
+                    </MudRTLProvider>
+
+                </MudTd>
+
+
+                <MudTd DataLabel="تاریخ ایجاد">
+                    <MudRTLProvider RightToLeft="false">
+
+                        @{
+                            var created = context.CreatedAtUtc.ToLocalTime();
+                        }
+                        <MudTooltip Text="@created.ToString("yyyy-MM-dd HH:mm")">
+                            <MudText>@created.ToString("yyyy/MM/dd HH:mm")</MudText>
+                        </MudTooltip>
+                    </MudRTLProvider>
+                </MudTd>
+
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Filled.Visibility"
+                                   Color="Color.Primary"
+                                   Title="مشاهده"
+                                   OnClick="() => ViewUser(context)"/>
+                </MudTd>
+            </RowTemplate>
+
+            <!-- Loading state -->
+            <LoadingContent>
+                <MudStack Spacing="1" Class="p-4">
+                    @for (int i = 0; i < 6; i++)
+                    {
+                        <MudSkeleton Height="38px" Width="100%" Animation="Animation.Wave"/>
+                    }
+                </MudStack>
+            </LoadingContent>
+
+            <!-- Empty state -->
+            <NoRecordsContent>
+                <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Spacing="2" Class="py-14">
+                    <MudIcon Icon="@Icons.Outlined.SearchOff" Size="Size.Large" Color="Color.Default"/>
+                    <MudText Typo="Typo.h6">موردی یافت نشد</MudText>
+                    <MudText Typo="Typo.body2" Color="Color.Secondary">
+                        عبارت جستجو را تغییر دهید یا فیلترها را بازنشانی کنید.
+                    </MudText>
+                    <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="ClearSearch">
+                        بازنشانی جستجو
+                    </MudButton>
+                </MudStack>
+            </NoRecordsContent>
+
+            <PagerContent>
+                <MudTablePager InfoFormat="نمایش {first_item}-{last_item} از {all_items}"/>
+            </PagerContent>
+        </MudTable>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private MudTable<UserListItemResponse>? _table;
+    private string?                         _search;
+
+    [Parameter, SupplyParameterFromQuery] public bool Secretaries { get; set; }
+    private string _title = "کاربران";
+    private long   _totalCount;
+
+    protected override void OnInitialized()
+    {
+        _title = Secretaries ? "منشی‌ها" : "بیماران";
+    }
+
+    private async Task<TableData<UserListItemResponse>> LoadServerData(TableState state, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var pageNumber = state.Page + 1;
+
+            var req = new UsersQueryRequest(
+                Page: pageNumber,
+                PageSize: state.PageSize,
+                Search: string.IsNullOrWhiteSpace(_search) ? null : _search,
+                IsSecretaries: Secretaries
+            );
+
+            var resp = await Mediator.Send(req, cancellationToken);
+
+            if (resp?.Items is null)
+            {
+                _totalCount = 0;
+                return new TableData<UserListItemResponse>
+                {
+                    Items = [],
+                    TotalItems = 0
+                };
+            }
+
+            _totalCount = resp.TotalCount;
+
+            return new TableData<UserListItemResponse>
+            {
+                Items = resp.Items.ToList(),
+                TotalItems = (int)Math.Min(int.MaxValue, resp.TotalCount)
+            };
+        }
+        catch
+        {
+            _totalCount = 0;
+            return new TableData<UserListItemResponse>
+            {
+                Items = [],
+                TotalItems = 0
+            };
+        }
+    }
+
+    private void RefreshTable()
+        => _ = _table?.ReloadServerData();
+
+    private void ClearSearch()
+    {
+        _search = null;
+        RefreshTable();
+    }
+
+    private void ViewUser(UserListItemResponse user)
+    {
+        
+    }
+
+}

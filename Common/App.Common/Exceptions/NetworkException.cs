@@ -1,1 +1,3 @@
-﻿public class NetworkException : Exception;
+﻿namespace App.Common.Exceptions;
+
+public class NetworkException : Exception;

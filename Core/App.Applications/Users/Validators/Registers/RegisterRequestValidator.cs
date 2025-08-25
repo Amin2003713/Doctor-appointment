@@ -1,8 +1,8 @@
 ﻿using System.Text.RegularExpressions;
+using App.Applications.Users.Requests.Registers;
 using FluentValidation;
-using MediatR;
 
-namespace App.Applications.Users.Requests.Registers.Patient;
+namespace App.Applications.Users.Validators.Registers;
 
 public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
 {

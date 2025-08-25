@@ -1,6 +1,6 @@
 ﻿public record UserListItemDto(
     long Id,
-    string PhoneOrUsername,
+    string Username,
     string? Email,
     string? FirstName,
     string? LastName,

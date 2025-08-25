@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace App.Applications.Users.Requests;
+namespace App.Applications.Users.Requests.ChangeRoles;
 
 public class ChangeRoleRequest : IRequest
 {

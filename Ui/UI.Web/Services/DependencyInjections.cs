@@ -1,11 +1,10 @@
 ﻿#region
 
     using UI.Components.Services;
-    using MediatR;
 
 #endregion
 
-    namespace App.Services;
+    namespace UI.Web.Services;
 
     public static class DependencyInjections
     {

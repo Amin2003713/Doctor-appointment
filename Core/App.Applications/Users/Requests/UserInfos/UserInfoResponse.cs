@@ -1,4 +1,6 @@
-﻿public class UserInfoResponse
+﻿namespace App.Applications.Users.Requests.UserInfos;
+
+public class UserInfoResponse
 {
     public long Id { get; set; }
     public string Username { get; set; } = default!;

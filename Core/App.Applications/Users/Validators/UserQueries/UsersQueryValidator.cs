@@ -1,10 +1,9 @@
-﻿using App.Common.General.ApiResult;
+﻿using App.Applications.Users.Requests.UserQueries;
 using FluentValidation;
-using MediatR;
 
-namespace App.Applications.Users.Requests.UserQueries;
+namespace App.Applications.Users.Validators.UserQueries;
 
-public class UsersQueryValidator : AbstractValidator<UsersQuery>
+public class UsersQueryValidator : AbstractValidator<UsersQueryRequest>
 {
     public UsersQueryValidator()
     {

@@ -1,12 +1,11 @@
 ﻿using App.Applications.Users.Apis;
+using App.Applications.Users.Requests.UploadProfilePicture;
 using App.Common.Utilities.Snackbar;
-using App.Persistence.Services.AuthState;
 using App.Persistence.Services.Refit;
 using MediatR;
-using Microsoft.AspNetCore.Components;
 using Refit;
 
-namespace App.Handlers.Users.Requests;
+namespace App.Handlers.Users.Requests.UploadProfilePicture;
 
 public class UploadProfilePictureRequestHandler(
     ApiFactory          apiFactory,

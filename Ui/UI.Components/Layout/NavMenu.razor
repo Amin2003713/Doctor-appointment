@@ -51,8 +51,8 @@
             <MudNavLink Href="/secretary/book" Icon="@Icons.Filled.PersonAddAlt1" IconColor="Color.Success">
                 @(auth.User.IsInRole("Secretary") ? "رزرو برای بیمار" : "رزرو برای بیمار")
             </MudNavLink>
-            <MudNavLink Href="/secretary/patients" Icon="@Icons.Filled.Group" IconColor="Color.Info">
-                @(auth.User.IsInRole("Secretary") ? "مدیریت بیماران" : "مدیریت بیماران")
+            <MudNavLink Href="/users?Secretaries=false" Icon="@Icons.Filled.Group" IconColor="Color.Info">
+                @("لیست بیماران")
             </MudNavLink>
         </Authorized>
     </AuthorizeView>
@@ -60,6 +60,9 @@
     <!-- Doctor (super admin only) -->
     <AuthorizeView Roles="Doctor">
         <Authorized>
+            <MudNavLink Href="/users?Secretaries=true" Icon="@Icons.Filled.Group" IconColor="Color.Info">
+                @("لیست منشی ها")
+            </MudNavLink>
             <MudNavLink Href="/doctor/schedule" Icon="@Icons.Filled.Schedule" IconColor="Color.Info">
                 تعریف بازه‌های زمانی
             </MudNavLink>

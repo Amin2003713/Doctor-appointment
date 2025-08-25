@@ -1,12 +1,13 @@
 #region
 
     using App.Applications.Users.Requests;
+    using App.Applications.Users.Requests.ChangeRoles;
     using App.Applications.Users.Requests.ForgotPassword;
     using App.Applications.Users.Requests.Login;
     using App.Applications.Users.Requests.Registers;
-    using App.Applications.Users.Requests.Registers.Patient;
     using App.Applications.Users.Requests.ToggleUsers;
     using App.Applications.Users.Requests.UpdateUser;
+    using App.Applications.Users.Requests.UserInfos;
     using App.Applications.Users.Requests.UserQueries;
     using App.Applications.Users.Response.Login;
     using App.Applications.Users.Response.SendActivationCode;
@@ -58,10 +59,10 @@
 
         // /api/auth/users?page=1&pageSize=20&search=...
         [Get(ApiRoutes.Users)]
-        Task<ApiResponse<PagedResult<UserListItemResponse>>> GetUsers([Query] UsersQuery query);
+        Task<ApiResponse<PagedResult<UserListItemResponse>>> GetUsers([Query] UsersQueryRequest queryRequest);
 
         [Get(ApiRoutes.UsersSecretaries)]
-        Task<ApiResponse<PagedResult<UserListItemResponse>>> GetSecretaries([Query] UsersQuery query);
+        Task<ApiResponse<PagedResult<UserListItemResponse>>> GetSecretaries([Query] UsersQueryRequest queryRequest);
 
 
         [Multipart]

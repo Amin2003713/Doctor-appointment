@@ -43,22 +43,9 @@ namespace App.Common.Utilities.Theme
                 {
                     Default = new DefaultTypography()
                     {
-                        FontFamily = ["B Ziba" , "Tahoma" , "Arial" , "Helvetica" , "sans-serif"] ,
+                        FontFamily = ["B nazanin" , "Tahoma" , "Arial" , "Helvetica" , "sans-serif"] ,
                         FontSize   = "0.875rem" ,
-                    } ,
-                    H1        = new H1Typography() { FontFamily        = ["B Ziba"] , FontSize = "2.125rem" } ,
-                    H2        = new H2Typography() { FontFamily        = ["B Ziba"] , FontSize = "1.75rem" } ,
-                    H3        = new H3Typography() { FontFamily        = ["B Ziba"] , FontSize = "1.5rem" } ,
-                    H4        = new H4Typography() { FontFamily        = ["B Ziba"] , FontSize = "1.25rem" } ,
-                    H5        = new H5Typography() { FontFamily        = ["B Ziba"] , FontSize = "1.125rem" } ,
-                    H6        = new H6Typography() { FontFamily        = ["B Ziba"] , FontSize = "1rem" } ,
-                    Button    = new ButtonTypography() { FontFamily    = ["B Ziba"] , FontSize = "0.875rem" } ,
-                    Body1     = new Body1Typography() { FontFamily     = ["B Ziba"] } ,
-                    Body2     = new Body2Typography() { FontFamily     = ["B Ziba"] } ,
-                    Subtitle1 = new Subtitle1Typography() { FontFamily = ["B Ziba"] } ,
-                    Subtitle2 = new Subtitle2Typography() { FontFamily = ["B Ziba"] } ,
-                    Caption   = new CaptionTypography() { FontFamily   = ["B Ziba"] } ,
-                    Overline  = new OverlineTypography() { FontFamily  = ["B Ziba"] }
+                    } 
                 }
             };
 
@@ -91,22 +78,9 @@ namespace App.Common.Utilities.Theme
                 {
                     Default = new DefaultTypography()
                     {
-                        FontFamily = new[] { "B Ziba" , "Tahoma" , "Arial" , "Helvetica" , "sans-serif" } ,
+                        FontFamily = new[] { "B nazanin" , "Tahoma" , "Arial" , "Helvetica" , "sans-serif" } ,
                         FontSize   = "0.875rem"
-                    } ,
-                    H1        = new H1Typography() { FontFamily        = ["B Ziba"] , FontSize = "2.125rem" } ,
-                    H2        = new H2Typography() { FontFamily        = ["B Ziba"] , FontSize = "1.75rem" } ,
-                    H3        = new H3Typography() { FontFamily        = ["B Ziba"] , FontSize = "1.5rem" } ,
-                    H4        = new H4Typography() { FontFamily        = ["B Ziba"] , FontSize = "1.25rem" } ,
-                    H5        = new H5Typography() { FontFamily        = ["B Ziba"] , FontSize = "1.125rem" } ,
-                    H6        = new H6Typography() { FontFamily        = ["B Ziba"] , FontSize = "1rem" } ,
-                    Button    = new ButtonTypography() { FontFamily    = ["B Ziba"] , FontSize = "0.875rem" } ,
-                    Body1     = new Body1Typography() { FontFamily     = ["B Ziba"] } ,
-                    Body2     = new Body2Typography() { FontFamily     = ["B Ziba"] } ,
-                    Subtitle1 = new Subtitle1Typography() { FontFamily = ["B Ziba"] } ,
-                    Subtitle2 = new Subtitle2Typography() { FontFamily = ["B Ziba"] } ,
-                    Caption   = new CaptionTypography() { FontFamily   = ["B Ziba"] } ,
-                    Overline  = new OverlineTypography() { FontFamily  = ["B Ziba"] }
+                    } 
                 }
             };
 

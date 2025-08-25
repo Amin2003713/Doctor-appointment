@@ -1,5 +1,4 @@
 ﻿using App.Applications.Users.Apis;
-using App.Applications.Users.Requests.UpdateUser;
 using App.Applications.Users.Requests.UserInfos;
 using App.Common.Utilities.Snackbar;
 using App.Common.Utilities.Storage;
@@ -10,6 +9,8 @@ using App.Persistence.Services.Refit;
 using Mapster;
 using MediatR;
 using Microsoft.Extensions.Logging;
+
+namespace App.Handlers.Users.Requests.UserInfos;
 
 public record UserInfoRequestHandler(
     ILocalStorage repository,

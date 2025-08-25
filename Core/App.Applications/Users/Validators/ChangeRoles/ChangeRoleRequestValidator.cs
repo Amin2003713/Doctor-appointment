@@ -1,7 +1,7 @@
-﻿using FluentValidation;
-using MediatR;
+﻿using App.Applications.Users.Requests.ChangeRoles;
+using FluentValidation;
 
-namespace App.Applications.Users.Requests;
+namespace App.Applications.Users.Validators.ChangeRoles;
 
 public class ChangeRoleRequestValidator : AbstractValidator<ChangeRoleRequest>
 {

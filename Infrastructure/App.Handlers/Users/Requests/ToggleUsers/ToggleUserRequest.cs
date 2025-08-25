@@ -1,6 +1,7 @@
-﻿using MediatR;
+﻿using App.Applications.Users.Requests.UserInfos;
+using MediatR;
 
-namespace App.Applications.Users.Requests.ToggleUsers;
+namespace App.Handlers.Users.Requests.ToggleUsers;
 
 public class ToggleUserRequest : IRequest<UserInfoResponse>
 {

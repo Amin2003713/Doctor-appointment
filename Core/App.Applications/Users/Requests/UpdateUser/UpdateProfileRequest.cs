@@ -9,5 +9,6 @@ public class UpdateProfileRequest : IRequest
     public string? Address { get; set; }
     public string? Email { get; set; }
     public string? Profile { get; set; }
- 
+    public string? userId { get; set; }
+    
 }

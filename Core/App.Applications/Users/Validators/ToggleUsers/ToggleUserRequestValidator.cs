@@ -1,7 +1,7 @@
-﻿using FluentValidation;
-using MediatR;
+﻿using App.Applications.Users.Requests.ToggleUsers;
+using FluentValidation;
 
-namespace App.Applications.Users.Requests.ToggleUsers;
+namespace App.Applications.Users.Validators.ToggleUsers;
 
 
 public class ToggleUserRequestValidator : AbstractValidator<ToggleUserRequest>

@@ -1,4 +1,5 @@
 ﻿using App.Applications.Users.Apis;
+using App.Applications.Users.Requests.Registers;
 using App.Common.Utilities.Snackbar;
 using App.Persistence.Services.AuthState;
 using App.Persistence.Services.Refit;
@@ -6,7 +7,7 @@ using MediatR;
 using Microsoft.AspNetCore.Components;
 using Refit;
 
-namespace App.Applications.Users.Requests.Registers.Patient;
+namespace App.Handlers.Users.Requests.Registers;
 
 public record RegisterRequestHandler(
     ApiFactory          apiFactory,

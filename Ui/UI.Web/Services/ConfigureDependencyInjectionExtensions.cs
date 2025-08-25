@@ -1,11 +1,12 @@
+using App.Applications.Users.Requests.UserInfos;
 using App.Common.General;
 using App.Common.Utilities.LifeTime;
-using UI.Components.Features.Authorizions.Login;
 using App.Domain.Users;
 using App.Handlers.Users.Requests.Login;
 using App.Persistence.Services.Refit;
+using UI.Components.Features.Authorizions.Login;
 
-namespace App.Services;
+namespace UI.Web.Services;
 
 public static class ConfigureDependencyInjectionExtensions
 {
