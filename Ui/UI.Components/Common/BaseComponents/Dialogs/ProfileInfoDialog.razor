@@ -1,6 +1,7 @@
 ﻿@using App.Applications.Users.Commands.Update
 @using App.Applications.Users.Queries.GetUserInfo
 @using App.Applications.Users.Requests.UpdateUser
+@using App.Applications.Users.Requests.UserInfos
 @using App.Domain.Users
 @using MudBlazor
 
@@ -106,7 +107,6 @@
     {
         if (Model is not null)
         {
-            Console.WriteLine(  "user phone : " +  Model.UserName);
             _editModel = new UpdateProfileRequest()
             {
                 FirstName = Model.FirstName,
@@ -136,10 +136,15 @@
                 if (!_form.IsValid) return;
 
                 await Mediator.Send(_editModel);
-                await Mediator.Send(new GetUserInfoRequest());
-                await Mediator.Send(new UpdateUserInfoCommand());
+                var newInfo = await Mediator.Send(new UserInfoRequest());
+                _editModel = newInfo.Adapt<UpdateProfileRequest>();
+                _Editing = false;
                 StateHasChanged();
             }
+        }
+        else
+        {
+            MudDialog.Close();
         }
     }
 

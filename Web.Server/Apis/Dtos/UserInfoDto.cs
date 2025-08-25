@@ -1,11 +1,17 @@
 ﻿public record UserInfoDto(
     long Id,
-    string PhoneOrUsername,
+    string Username,
     string? Email,
     string? FirstName,
     string? LastName,
     string? FullName,
     string? Profile,
     string? Address,
-    string? PrimaryRole
+    bool IsActive,
+    DateTime? CreatedAtUtc,
+    DateTime? LastLoginAtUtc,
+    IEnumerable<string> Roles
 );
+
+
+

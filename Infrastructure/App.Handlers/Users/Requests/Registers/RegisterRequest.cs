@@ -33,7 +33,7 @@ public record RegisterRequestHandler(
 
                 var imageUrl = await Apis.UploadAvatar(new StreamPart(ms, request.Profile.Name, request.Profile.ContentType));
 
-                if (imageUrl.IsSuccessful)
+                if (imageUrl.IsSuccessStatusCode)
                     profile = imageUrl.Content;
                 else
                 {
@@ -62,7 +62,7 @@ public record RegisterRequestHandler(
                              _           => throw new ArgumentOutOfRangeException()
                          };
 
-            if (!result.IsSuccessful)
+            if (!result.IsSuccessStatusCode)
                 throw new Exception("wrong");
         }
 

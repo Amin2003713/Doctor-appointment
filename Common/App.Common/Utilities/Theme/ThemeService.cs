@@ -14,68 +14,110 @@ namespace App.Common.Utilities.Theme
 
         public ThemeService()
         {
-            // === LIGHT THEME ===
+            // === LIGHT THEME (Persian-inspired) ===
             _lightTheme = new MudTheme
             {
-                PaletteLight = new PaletteLight
+                PaletteLight = new PaletteLight()
                 {
-                    Primary                  = "#c5aff3", // Greenish mint
-                    Secondary                = "#A19397", // Dusty Gray
-                    Background               = "#FAFAFA",
-                    Surface                  = "#FFFFFF",
-                    AppbarBackground         = "#c5aff3",
-                    AppbarText               = "#030303",
-                    DrawerBackground         = "#FFFFFF",
-                    DrawerText               = "#030303",
-                    TextPrimary              = "#030303",
-                    TextSecondary            = "#555555",
-                    Success                  = "#7AF63B",
-                    Info                     = "#3B71E4",
-                    Warning                  = "#E5A226",
-                    Error                    = "#8F8E8D", // Danger
-                    Divider                  = "#E0E0E0",
-                    ActionDefault            = "#c5aff3",
-                    ActionDisabled           = "#BDBDBD",
-                    ActionDisabledBackground = "#E0E0E0"
-                },
-                Typography = BuildTypography()
+                    Primary                  = "#00A693" , // Persian Green
+                    Secondary                = "#FE28A2" , // Persian Rose
+                    Tertiary                 = "#1C39BB" , // Persian Blue
+                    Background               = "#FDFDFD" , // Very light background
+                    Surface                  = "#FFFFFF" ,
+                    AppbarBackground         = "#1C39BB" , // Persian Blue
+                    AppbarText               = "#FFFFFF" ,
+                    DrawerBackground         = "#FFFFFF" ,
+                    DrawerText               = "#3B3B3B" ,
+                    TextPrimary              = "#3B3B3B" ,
+                    TextSecondary            = "#5B5B5B" ,
+                    ActionDefault            = "#FE28A2" , // Use Persian Rose for hover/focus
+                    ActionDisabled           = "#BDBDBD" ,
+                    ActionDisabledBackground = "#E0E0E0" ,
+                    Divider                  = "#E0E0E0" ,
+                    Success                  = "#2E7D32" , // Keep defaults or use your own Persian-inspired success color
+                    Info                     = "#2196F3" ,
+                    Warning                  = "#FBC02D" ,
+                    Error                    = "#CA3433" , // Persian Red
+                } ,
+                Typography = new Typography
+                {
+                    Default = new DefaultTypography()
+                    {
+                        FontFamily = ["B Ziba" , "Tahoma" , "Arial" , "Helvetica" , "sans-serif"] ,
+                        FontSize   = "0.875rem" ,
+                    } ,
+                    H1        = new H1Typography() { FontFamily        = ["B Ziba"] , FontSize = "2.125rem" } ,
+                    H2        = new H2Typography() { FontFamily        = ["B Ziba"] , FontSize = "1.75rem" } ,
+                    H3        = new H3Typography() { FontFamily        = ["B Ziba"] , FontSize = "1.5rem" } ,
+                    H4        = new H4Typography() { FontFamily        = ["B Ziba"] , FontSize = "1.25rem" } ,
+                    H5        = new H5Typography() { FontFamily        = ["B Ziba"] , FontSize = "1.125rem" } ,
+                    H6        = new H6Typography() { FontFamily        = ["B Ziba"] , FontSize = "1rem" } ,
+                    Button    = new ButtonTypography() { FontFamily    = ["B Ziba"] , FontSize = "0.875rem" } ,
+                    Body1     = new Body1Typography() { FontFamily     = ["B Ziba"] } ,
+                    Body2     = new Body2Typography() { FontFamily     = ["B Ziba"] } ,
+                    Subtitle1 = new Subtitle1Typography() { FontFamily = ["B Ziba"] } ,
+                    Subtitle2 = new Subtitle2Typography() { FontFamily = ["B Ziba"] } ,
+                    Caption   = new CaptionTypography() { FontFamily   = ["B Ziba"] } ,
+                    Overline  = new OverlineTypography() { FontFamily  = ["B Ziba"] }
+                }
             };
 
-            // === DARK THEME ===
+            // === DARK THEME (Persian-inspired) ===
             _darkTheme = new MudTheme
             {
                 PaletteDark = new PaletteDark
                 {
-                    Primary                  = "#c5aff3", // keep consistent
-                    Secondary                = "#A19397",
-                    Background               = "#121212",
-                    Surface                  = "#1E1E1E",
-                    AppbarBackground         = "#030303",
-                    AppbarText               = "#FFFFFF",
-                    DrawerBackground         = "#1E1E1E",
-                    DrawerText               = "#CFD8DC",
-                    TextPrimary              = "#FAFAFA",
-                    TextSecondary            = "#B0BEC5",
-                    Success                  = "#7AF63B",
-                    Info                     = "#3B71E4",
-                    Warning                  = "#E5A226",
-                    Error                    = "#8F8E8D",
-                    Divider                  = "rgba(255,255,255,0.1)",
-                    ActionDefault            = "#c5aff3",
-                    ActionDisabled           = "rgba(255,255,255,0.3)",
-                    ActionDisabledBackground = "rgba(255,255,255,0.1)"
-                },
-                Typography = BuildTypography()
+                    Primary                  = "#1565C0" ,                // Ocean Blue
+                    Secondary                = "#29B6F6" ,                // Light Cyan
+                    Tertiary                 = "#0D47A1" ,                // Deep Navy Blue
+                    Background               = "#121212" ,                // Dark Gray (for contrast)
+                    Surface                  = "#1A1A1A" ,                // Slightly lighter dark background
+                    AppbarBackground         = "#0D47A1" ,                // Deep Blue
+                    AppbarText               = "#FFFFFF" ,                // White for contrast
+                    DrawerBackground         = "#1A1A1A" ,                // Matches Surface
+                    DrawerText               = "#B0BEC5" ,                // Light Gray Text
+                    TextPrimary              = "#E3F2FD" ,                // Very Light Blue
+                    TextSecondary            = "#90A4AE" ,                // Muted Grayish Blue
+                    ActionDefault            = "#29B6F6" ,                // Light Cyan (for buttons)
+                    ActionDisabled           = "rgba(255,255,255, 0.3)" , // Muted White
+                    ActionDisabledBackground = "rgba(255,255,255, 0.1)" , // Subtle disabled effect
+                    Divider                  = "rgba(255,255,255, 0.1)" , // Soft white divider
+                    Success                  = "#2E7D32" ,                // Green (for success messages)
+                    Info                     = "#0288D1" ,                // Strong Cyan
+                    Warning                  = "#F9A825" ,                // Yellowish Orange
+                    Error                    = "#D32F2F" ,                  // Dark Red
+                } ,
+                Typography = new Typography
+                {
+                    Default = new DefaultTypography()
+                    {
+                        FontFamily = new[] { "B Ziba" , "Tahoma" , "Arial" , "Helvetica" , "sans-serif" } ,
+                        FontSize   = "0.875rem"
+                    } ,
+                    H1        = new H1Typography() { FontFamily        = ["B Ziba"] , FontSize = "2.125rem" } ,
+                    H2        = new H2Typography() { FontFamily        = ["B Ziba"] , FontSize = "1.75rem" } ,
+                    H3        = new H3Typography() { FontFamily        = ["B Ziba"] , FontSize = "1.5rem" } ,
+                    H4        = new H4Typography() { FontFamily        = ["B Ziba"] , FontSize = "1.25rem" } ,
+                    H5        = new H5Typography() { FontFamily        = ["B Ziba"] , FontSize = "1.125rem" } ,
+                    H6        = new H6Typography() { FontFamily        = ["B Ziba"] , FontSize = "1rem" } ,
+                    Button    = new ButtonTypography() { FontFamily    = ["B Ziba"] , FontSize = "0.875rem" } ,
+                    Body1     = new Body1Typography() { FontFamily     = ["B Ziba"] } ,
+                    Body2     = new Body2Typography() { FontFamily     = ["B Ziba"] } ,
+                    Subtitle1 = new Subtitle1Typography() { FontFamily = ["B Ziba"] } ,
+                    Subtitle2 = new Subtitle2Typography() { FontFamily = ["B Ziba"] } ,
+                    Caption   = new CaptionTypography() { FontFamily   = ["B Ziba"] } ,
+                    Overline  = new OverlineTypography() { FontFamily  = ["B Ziba"] }
+                }
             };
 
-            // default
+            // Set default to Light theme
             _currentTheme = _darkTheme;
-            IsDarkMode = true;
+            IsDarkMode    = true;
         }
 
         public MudTheme CurrentTheme => _currentTheme;
 
-        public void ToggleDarkLightMode(bool isDarkMode, bool refresh = true)
+        public void ToggleDarkLightMode(bool isDarkMode , bool refresh = true)
         {
             if (isDarkMode)
                 SetDarkTheme(refresh);
@@ -86,15 +128,17 @@ namespace App.Common.Utilities.Theme
         public void SetLightTheme(bool refresh)
         {
             _currentTheme = _lightTheme;
-            IsDarkMode = false;
-            if (refresh) OnThemeChanged();
+            IsDarkMode    = false;
+            if (refresh)
+                OnThemeChanged();
         }
 
         public void SetDarkTheme(bool refresh)
         {
             _currentTheme = _darkTheme;
-            IsDarkMode = true;
-            if (refresh) OnThemeChanged();
+            IsDarkMode    = true;
+            if (refresh)
+                OnThemeChanged();
         }
 
         public Task OnSystemPreferenceChanged(bool theme)
@@ -105,38 +149,7 @@ namespace App.Common.Utilities.Theme
 
         protected virtual void OnThemeChanged()
         {
-            ThemeChanged?.Invoke(this, EventArgs.Empty);
+            ThemeChanged?.Invoke(this , EventArgs.Empty);
         }
-
-        private static Typography BuildTypography() =>
-            new Typography
-            {
-                Default = new DefaultTypography
-                {
-                    FontFamily = new[]
-                    {
-                        "B Ziba",
-                        "Poppins",
-                        "Tahoma",
-                        "Arial",
-                        "Helvetica",
-                        "sans-serif"
-                    },
-                    FontSize = "1rem"
-                },
-                H1 = new H1Typography { FontFamily = new[] { "B Ziba", "Poppins" }, FontSize = "2rem" },
-                H2 = new H2Typography { FontFamily = new[] { "B Ziba", "Poppins" }, FontSize = "1.75rem" },
-                H3 = new H3Typography { FontFamily = new[] { "B Ziba", "Poppins" }, FontSize = "1.5rem" },
-                H4 = new H4Typography { FontFamily = new[] { "B Ziba", "Poppins" }, FontSize = "1.25rem" },
-                H5 = new H5Typography { FontFamily = new[] { "B Ziba", "Poppins" }, FontSize = "1.125rem" },
-                H6 = new H6Typography { FontFamily = new[] { "B Ziba", "Poppins" }, FontSize = "1rem" },
-                Button = new ButtonTypography { FontFamily = new[] { "B Ziba", "Poppins" }, FontSize = "1rem" },
-                Body1 = new Body1Typography { FontFamily = new[] { "B Ziba", "Poppins" }, FontSize = "1.05rem" },
-                Body2 = new Body2Typography { FontFamily = new[] { "B Ziba", "Poppins" }, FontSize = "1rem" },
-                Subtitle1 = new Subtitle1Typography { FontFamily = new[] { "B Ziba", "Poppins" }, FontSize = "0.95rem" },
-                Subtitle2 = new Subtitle2Typography { FontFamily = new[] { "B Ziba", "Poppins" }, FontSize = "0.875rem" },
-                Caption = new CaptionTypography { FontFamily = new[] { "B Ziba", "Poppins" }, FontSize = "0.8rem" },
-                Overline = new OverlineTypography { FontFamily = new[] { "B Ziba", "Poppins" }, FontSize = "0.75rem" },
-            };
     }
 }

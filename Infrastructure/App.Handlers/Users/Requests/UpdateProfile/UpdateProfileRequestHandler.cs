@@ -32,7 +32,8 @@ namespace App.Handlers.Users.Requests.UpdateProfile
              
                 var apiResult = await Apis.UpdateProfile(request);
 
-                if (!apiResult.IsSuccessful)
+
+                if (!apiResult.IsSuccessStatusCode)
                 {
                     logger.LogWarning("UpdateProfile failed: StatusCode={Status}, Error={Error}",
                         apiResult.StatusCode, apiResult.Error?.Message);
@@ -40,16 +41,16 @@ namespace App.Handlers.Users.Requests.UpdateProfile
                     return ;
                 }
 
-                snackbarService.ShowSuccess(("اطلاعات پروفایل با موفقیت به‌روزرسانی شد."));
 
+                snackbarService.ShowSuccess("اطلاعات پروفایل با موفقیت به‌روزرسانی شد.");
                 // پس از موفقیت، اطلاعات کاربر را تازه بگیر و در LocalStorage ذخیره کن
                 var me = await Apis.Me();
 
-                if (!me.IsSuccessful || me.Content is null)
+
+                if (!me.IsSuccessStatusCode)
                     return;
 
-                var info = me.Content.Adapt<UserInfo>();
-                await repository.UpdateAsync(nameof(UserInfo), info);
+                Console.WriteLine("user updated");
             }
             catch (Exception ex)
             {

@@ -415,14 +415,17 @@ public class UsersController(
         var roles = await userManager.GetRolesAsync(user);
         return Ok(new UserInfoDto(
             user.Id,
-            user.PhoneNumber ?? user.UserName ?? "",
+            user.UserName! ,
             user.Email,
             user.FirstName,
             user.LastName,
             user.FullName ?? $"{user.FirstName} {user.LastName}".Trim(),
             user.Profile,
             user.Address,
-            roles.FirstOrDefault()
+            user.IsActive,
+            user.CreatedAtUtc,
+            user.LastLoginAtUtc,
+            roles
         ));
     }
 
