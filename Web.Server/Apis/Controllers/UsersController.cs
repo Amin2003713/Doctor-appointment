@@ -47,7 +47,6 @@ public class UsersController(
     [AllowAnonymous]
     public async Task<IActionResult> UploadAvatar([FromForm] IFormFile file)
     {
-
         if (file is null || file.Length == 0)
             return BadRequest("No file uploaded.");
 
@@ -62,7 +61,7 @@ public class UsersController(
 
         var id      = Guid.NewGuid().ToString();
         var root    = env.WebRootPath ?? Path.Combine(env.ContentRootPath, "wwwroot");
-        var userDir = Path.Combine(root, "uploads", "profiles",id);
+        var userDir = Path.Combine(root, "uploads", "profiles", id);
         Directory.CreateDirectory(userDir);
 
         // Unique file name
@@ -374,7 +373,7 @@ public class UsersController(
 
         var token = await GenerateJwtToken(user);
 
-        
+
         await userManager.UpdateAsync(user);
 
         return Ok(new LoginResponseDto
@@ -508,7 +507,7 @@ public class UsersController(
         {
             new(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new(ClaimTypes.Name, user.FullName ?? BuildFullName(user.FirstName, user.LastName) ?? user.UserName ?? ""),
+            new(ClaimTypes.Name,  user.UserName ?? ""),
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
             new("first_name", user.FirstName ?? string.Empty),

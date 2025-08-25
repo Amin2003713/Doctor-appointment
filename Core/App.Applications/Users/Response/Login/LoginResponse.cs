@@ -40,8 +40,7 @@
                 UserName = userName , Id                                                 = id , FirstName = firstName , LastName = lastName ,
                 Profile  = string.IsNullOrWhiteSpace(profile) ? null : profile , Address = (string.IsNullOrWhiteSpace(address) ? null : address)! ,
 
-                // Not present in your token (leave empty/null)
-                LastLoginDate = string.Empty , PhoneNumber = null , RolesList = roles , Token = Token
+                LastLoginDate = string.Empty , PhoneNumber = Get(ClaimTypes.MobilePhone) , RolesList = roles , Token = Token
             };
         }
     }

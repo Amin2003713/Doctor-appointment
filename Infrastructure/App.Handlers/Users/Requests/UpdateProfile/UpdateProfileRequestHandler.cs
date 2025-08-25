@@ -23,7 +23,7 @@ namespace App.Handlers.Users.Requests.UpdateProfile
     ) : IRequestHandler<UpdateProfileRequest>
     {
         // ساخت Refit API
-        public readonly IUserApis Apis = apiFactory.CreateApi<IUserApis>();
+        private readonly IUserApis Apis = apiFactory.CreateApi<IUserApis>();
 
         public async Task Handle(UpdateProfileRequest request, CancellationToken cancellationToken)
         {

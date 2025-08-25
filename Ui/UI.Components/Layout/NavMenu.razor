@@ -80,16 +80,23 @@
         <Authorized Context="auth">
             <MudDivider Class="my-2"/>
             <MudNavLink OnClick="OpenUserInfo" IconColor="Color.Primary">
-                <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.FlexStart">
+                <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
                     <MudAvatar>
                         <ServerImage Src="@StateProvider.User?.Profile"/>
                     </MudAvatar>
-                    <MudText>
-                        @(auth.User.Identity?.Name)
-                    </MudText>
-                    <MudText>
-                        (@GetRoleName(auth.User))
-                    </MudText>
+
+                    <!-- متن ها کنار آواتار، ولی خودشون عمودی -->
+                    <MudStack Spacing="0">
+                        <!-- نام کامل -->
+                        <MudText Typo="Typo.subtitle1" Bold="true">
+                            @($"{GetRoleName(auth.User)}: {StateProvider.User?.FirstName} {StateProvider.User?.LastName}")
+                        </MudText>
+
+                        <!-- نقش یا یوزرنیم به عنوان کپشن زیر نام -->
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">
+                            @StateProvider.User?.UserName
+                        </MudText>
+                    </MudStack>
                 </MudStack>
 
             </MudNavLink>

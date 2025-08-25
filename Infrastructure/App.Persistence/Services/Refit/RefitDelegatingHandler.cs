@@ -6,8 +6,6 @@
     using App.Common.Exceptions;
     using App.Common.General;
     using App.Common.Utilities.LifeTime;
-    using App.Common.Utilities.Storage;
-    using App.Domain.Users;
     using MediatR;
     using Microsoft.Extensions.DependencyInjection;
     using Microsoft.Extensions.Localization;
@@ -65,8 +63,8 @@
 
             {
                 using var scope    = _scopeFactory.CreateScope();
-                var       mediator = scope.ServiceProvider.GetRequiredService<ILocalStorage>();
-                var       user     = await mediator.GetAsync<UserInfo>(nameof(UserInfo));
+                var       mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+                var       user     = await mediator.Send(new GetUserInfoQuery());
 
 
                 if (!string.IsNullOrEmpty(user?.Token) && !IsTokenExpired(user.Token))
