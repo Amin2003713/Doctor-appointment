@@ -26,6 +26,8 @@ public class ClientStateProvider (
             // بار اول از سرور/استوریج بگیر (کاملاً async)
             User ??= await mediator.Send(new GetUserInfoQuery());
 
+
+
             // کاربر لاگین نیست
             if (User?.Token is null)
             {
