@@ -21,7 +21,6 @@
                           Adornment="Adornment.Start"
                           AdornmentIcon="@Icons.Filled.Search"
                           Variant="Variant.Outlined"
-                          Dense="true"
                           Immediate="true"
                           Clearable="true"
                           DebounceInterval="400"
@@ -51,7 +50,6 @@
                   Height="68vh"
                   CanCancelEdit
                   RowsPerPage="20"
-                  RowsPerPageOptions="new int[]{10,20,50}"
                   @ref="_table">
 
             <ToolBarContent>
@@ -198,7 +196,7 @@
             </NoRecordsContent>
 
             <PagerContent>
-                <MudTablePager InfoFormat="نمایش {first_item}-{last_item} از {all_items}"/>
+                <MudTablePager  InfoFormat="نمایش {first_item}-{last_item} از {all_items}"/>
             </PagerContent>
         </MudTable>
     </MudPaper>

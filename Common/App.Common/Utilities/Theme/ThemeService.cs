@@ -43,9 +43,22 @@ namespace App.Common.Utilities.Theme
                 {
                     Default = new DefaultTypography()
                     {
-                        FontFamily = ["B nazanin" , "Tahoma" , "Arial" , "Helvetica" , "sans-serif"] ,
+                        FontFamily = ["B taha" , "Tahoma" , "Arial" , "Helvetica" , "sans-serif"] ,
                         FontSize   = "0.875rem" ,
-                    } 
+                    } ,
+                    H1        = new H1Typography() { FontFamily        = ["B taha"] , FontSize = "2.125rem" } ,
+                    H2        = new H2Typography() { FontFamily        = ["B taha"] , FontSize = "1.75rem" } ,
+                    H3        = new H3Typography() { FontFamily        = ["B taha"] , FontSize = "1.5rem" } ,
+                    H4        = new H4Typography() { FontFamily        = ["B taha"] , FontSize = "1.25rem" } ,
+                    H5        = new H5Typography() { FontFamily        = ["B taha"] , FontSize = "1.125rem" } ,
+                    H6        = new H6Typography() { FontFamily        = ["B taha"] , FontSize = "1rem" } ,
+                    Button    = new ButtonTypography() { FontFamily    = ["B taha"] , FontSize = "0.875rem" } ,
+                    Body1     = new Body1Typography() { FontFamily     = ["B taha"] } ,
+                    Body2     = new Body2Typography() { FontFamily     = ["B taha"] } ,
+                    Subtitle1 = new Subtitle1Typography() { FontFamily = ["B taha"] } ,
+                    Subtitle2 = new Subtitle2Typography() { FontFamily = ["B taha"] } ,
+                    Caption   = new CaptionTypography() { FontFamily   = ["B taha"] } ,
+                    Overline  = new OverlineTypography() { FontFamily  = ["B taha"] }
                 }
             };
 
@@ -78,9 +91,22 @@ namespace App.Common.Utilities.Theme
                 {
                     Default = new DefaultTypography()
                     {
-                        FontFamily = new[] { "B nazanin" , "Tahoma" , "Arial" , "Helvetica" , "sans-serif" } ,
+                        FontFamily = new[] { "B taha" , "Tahoma" , "Arial" , "Helvetica" , "sans-serif" } ,
                         FontSize   = "0.875rem"
-                    } 
+                    } ,
+                    H1        = new H1Typography() { FontFamily        = ["B taha"] , FontSize = "2.125rem" } ,
+                    H2        = new H2Typography() { FontFamily        = ["B taha"] , FontSize = "1.75rem" } ,
+                    H3        = new H3Typography() { FontFamily        = ["B taha"] , FontSize = "1.5rem" } ,
+                    H4        = new H4Typography() { FontFamily        = ["B taha"] , FontSize = "1.25rem" } ,
+                    H5        = new H5Typography() { FontFamily        = ["B taha"] , FontSize = "1.125rem" } ,
+                    H6        = new H6Typography() { FontFamily        = ["B taha"] , FontSize = "1rem" } ,
+                    Button    = new ButtonTypography() { FontFamily    = ["B taha"] , FontSize = "0.875rem" } ,
+                    Body1     = new Body1Typography() { FontFamily     = ["B taha"] } ,
+                    Body2     = new Body2Typography() { FontFamily     = ["B taha"] } ,
+                    Subtitle1 = new Subtitle1Typography() { FontFamily = ["B taha"] } ,
+                    Subtitle2 = new Subtitle2Typography() { FontFamily = ["B taha"] } ,
+                    Caption   = new CaptionTypography() { FontFamily   = ["B taha"] } ,
+                    Overline  = new OverlineTypography() { FontFamily  = ["B taha"] }
                 }
             };
 
