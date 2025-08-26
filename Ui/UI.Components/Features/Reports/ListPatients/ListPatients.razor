@@ -6,12 +6,12 @@
 @using UI.Components.Common.BaseComponents.Dialogs
 @using UI.Components.Common.BaseComponents.Picture
 
-<MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="pt-8">
+<MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="pt-4">
 
     <!-- Toolbar -->
     <MudPaper Elevation="2" Class="p-3 mb-4 rounded-lg m-3">
-        <MudStack Row AlignItems="AlignItems.Center" Spacing="2" Class="m-5">
-            <MudText Typo="Typo.h5" Class="fw-bold" Style="padding: 12px">
+        <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+            <MudText Typo="Typo.h5" Class="fw-bold" Style="margin: 8px">
                 @_title
                 <MudText Typo="Typo.caption" Class="ms-2" Color="Color.Secondary">
                     (@_totalCount.ToString("N0"))
@@ -20,23 +20,24 @@
 
             <MudSpacer/>
 
-            <MudTextField @bind-Value="_search"
-                          Placeholder="جستجوی کاربر…"
-                          Adornment="Adornment.Start"
-                          AdornmentIcon="@MaterialIcons.Filled.Search"
-                          Variant="Variant.Outlined"
-                          Immediate="true"
-                          Clearable="true"
-                          DebounceInterval="400"
-                          OnBlur="RefreshTable"
-                          Style="padding: 12px"
-                          Class="w-72"/>
+            <MudTextField
+                @bind-Value="_search"
+                Placeholder="جستجوی کاربر…"
+                Adornment="Adornment.Start"
+                AdornmentIcon="@MaterialIcons.Filled.Search"
+                Variant="Variant.Outlined"
+                Immediate="true"
+                Clearable="true"
+                DebounceInterval="400"
+                Style="margin: 8px"
+                OnBlur="RefreshTable"/>
 
             <MudButton Variant="Variant.Filled"
                        Color="Color.Primary"
+                       Size="Size.Medium"
                        OnClick="RefreshTable"
-                       Style="padding: 12px"
-                       StartIcon="@MaterialIcons.Filled.Refresh">
+                       StartIcon="@MaterialIcons.Filled.Refresh"
+                       Style="margin: 8px">
                 بروزرسانی
             </MudButton>
         </MudStack>
@@ -49,7 +50,6 @@
                   Class="rounded-xl"
                   Dense
                   Hover
-                  Bordered
                   Virtualize
                   FixedHeader
                   Breakpoint="Breakpoint.Sm"
@@ -314,7 +314,7 @@
 
 
         var dialog = DialogService.ShowAsync<UserInfoDialog>($"اطلاعات کاربر({userInfo.Username})", parameters, options);
-        var result =await  dialog.Result.Result; // ⬅️ await the dialog to close
+        var result = await  dialog.Result.Result; // ⬅️ await the dialog to close
 
         if (!result!.Canceled) // ⬅️ optional: check if the user made changes (not cancelled)
         {
@@ -322,6 +322,7 @@
             StateHasChanged();
         }
     }
+
     private async Task Toggle(long userId)
     {
         await Mediator.Send(new ToggleUserRequest(userId));
