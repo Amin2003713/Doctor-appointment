@@ -1,3 +1,3 @@
 ﻿public record ToggleUserDto(
-    string UserId
+    long UserId
 );

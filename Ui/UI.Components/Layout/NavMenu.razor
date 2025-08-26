@@ -136,7 +136,7 @@
     }
 
     public void Navigate(string to , bool hard = true)
-        => NavigationManager.NavigateTo(to , hard);
+        => NavigationManager.NavigateTo(to , false, hard);
 
     private async Task OpenUserInfo()
     {
@@ -158,7 +158,7 @@
                 "Model", user
             },
             {
-                "AllowEdit", !StateProvider.User?.RolesList?.Contains("Patient") ?? false
+                "AllowEdit", !StateProvider.User?.Roles?.Contains("Patient") ?? false
             }
         };
 

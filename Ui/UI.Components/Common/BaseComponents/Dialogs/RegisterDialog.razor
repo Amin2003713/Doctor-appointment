@@ -112,14 +112,14 @@
 
     private string[] GetRoles()
     {
-        if (StateProvider.User!.RolesList!.Contains("Doctor"))
+        if (StateProvider.User!.Roles!.Contains("Doctor"))
             return
             [
                 "Secretary",
                 "Patient"
             ];
 
-        if (StateProvider.User!.RolesList!.Contains("Secretary"))
+        if (StateProvider.User!.Roles!.Contains("Secretary"))
             return ["Patient"];
 
         return [];

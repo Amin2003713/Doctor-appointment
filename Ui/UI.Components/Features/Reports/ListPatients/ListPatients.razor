@@ -2,6 +2,7 @@
 @using App.Applications.Users.Requests.ToggleUsers
 @using App.Applications.Users.Requests.UserInfos
 @using App.Applications.Users.Requests.UserQueries
+@using App.Domain.Users
 @using UI.Components.Common.BaseComponents.Dialogs
 @using UI.Components.Common.BaseComponents.Picture
 
@@ -9,7 +10,7 @@
 
     <!-- Toolbar -->
     <MudPaper Elevation="2" Class="p-3 mb-4 rounded-lg m-3">
-        <MudStack Row AlignItems="AlignItems.Center" Spacing="2" Class="p-2">
+        <MudStack Row AlignItems="AlignItems.Center" Spacing="2" Class="m-5">
             <MudText Typo="Typo.h5" Class="fw-bold">
                 @_title
                 <MudText Typo="Typo.caption" Class="ms-2" Color="Color.Secondary">
@@ -60,7 +61,7 @@
                 <MudText Align="Align.Center" Typo="Typo.subtitle1">@_title</MudText>
             </ToolBarContent>
 
-            <HeaderContent >
+            <HeaderContent>
                 <MudTh Class="whitespace-nowrap">شناسه</MudTh>
                 <MudTh>نام کاربری</MudTh>
                 <MudTh Class="whitespace-nowrap">نام و نام خانوادگی</MudTh>
@@ -74,7 +75,7 @@
             </HeaderContent>
 
             <RowTemplate>
-                <MudTd  DataLabel="شناسه">
+                <MudTd DataLabel="شناسه">
                     <MudText Typo="Typo.body2" Class="font-mono">@context.Id</MudText>
                 </MudTd>
 
@@ -98,7 +99,8 @@
                 <MudTd DataLabel="ایمیل">
                     <MudRTLProvider RightToLeft="false">
 
-                        <MudText Align="Align.Left">@(string.IsNullOrWhiteSpace(context.Email) ? "-" : context.Email)</MudText>
+                        <MudText
+                            Align="Align.Left">@(string.IsNullOrWhiteSpace(context.Email) ? "-" : context.Email)</MudText>
                     </MudRTLProvider>
 
                 </MudTd>
@@ -212,13 +214,21 @@
     private MudTable<UserListItemResponse>? _table;
     private string?                         _search;
 
-    [ Parameter][ SupplyParameterFromQuery] public bool Secretaries { get; set; }
+    [ Parameter] [ SupplyParameterFromQuery]
+    public bool Secretaries { get; set; }
+
     private string _title = "کاربران";
     private long   _totalCount;
 
     protected override void OnInitialized()
     {
         _title = Secretaries ? "منشی‌ها" : "بیماران";
+    }
+
+    protected override void OnParametersSet()
+    {
+        _title = Secretaries ? "منشی‌ها" : "بیماران";
+        _ = _table?.ReloadServerData();
     }
 
     private async Task<TableData<UserListItemResponse>> LoadServerData(TableState state, CancellationToken cancellationToken)
@@ -250,7 +260,7 @@
 
             return new TableData<UserListItemResponse>
             {
-                Items = resp.Items.ToList(),
+                Items = resp.Items.OrderBy(a => a.IsActive).ToList(),
                 TotalItems = (int)Math.Min(int.MaxValue, resp.TotalCount)
             };
         }
@@ -293,19 +303,23 @@
         var parameters = new DialogParameters
         {
             {
-                "Model", userInfo
+                "Model", userInfo.Adapt<UserInfo>()
             },
             {
-                "AllowEdit", !StateProvider.User?.RolesList?.Contains("Patient") ?? false
+                "AllowEdit", !StateProvider.User?.Roles?.Contains("Patient") ?? false
             }
         };
 
 
-        await DialogService.ShowAsync<ProfileInfoDialog>($"اطلاعات کاربر({userInfo.Username})", parameters, options);
-        await _table!.ReloadServerData();
-        StateHasChanged();
-    }
+        var dialog = DialogService.ShowAsync<UserInfoDialog>($"اطلاعات کاربر({userInfo.Username})", parameters, options);
+        var result =await  dialog.Result.Result; // ⬅️ await the dialog to close
 
+        if (!result!.Canceled) // ⬅️ optional: check if the user made changes (not cancelled)
+        {
+            await _table!.ReloadServerData();
+            StateHasChanged();
+        }
+    }
     private async Task Toggle(long userId)
     {
         await Mediator.Send(new ToggleUserRequest(userId));

@@ -4,6 +4,5 @@ using MediatR;
 namespace App.Applications.Users.Requests.ToggleUsers;
 
 public record ToggleUserRequest(
-    long userId
-) : IRequest<UserInfoResponse>,
-    IRequest;
+    long UserId 
+) : IRequest;

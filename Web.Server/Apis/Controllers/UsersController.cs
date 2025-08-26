@@ -464,9 +464,9 @@ public class UsersController(
     [Authorize(Roles = "Doctor")]
     public async Task<IActionResult> ToggleUser([FromBody] ToggleUserDto dto)
     {
-        if (!long.TryParse(dto.UserId, out _)) return BadRequest("Invalid user id");
+        
 
-        var user = await userManager.FindByIdAsync(dto.UserId);
+        var user = await userManager.FindByIdAsync(dto.UserId.ToString());
         if (user == null) return NotFound("User not found");
 
         user.IsActive = !user.IsActive;

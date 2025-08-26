@@ -13,5 +13,5 @@ public class UserInfo
     public string? Email { get; set; }
     public string? PhoneNumber { get; set; }
 
-    public List<string> RolesList { get; set; } = new ();
+    public List<string> Roles { get; set; } = new ();
 }

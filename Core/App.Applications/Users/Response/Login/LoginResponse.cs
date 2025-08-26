@@ -48,7 +48,7 @@
 
                 LastLoginDate = string.Empty ,
                 PhoneNumber = Get(ClaimTypes.MobilePhone) ,
-                RolesList = roles ,
+                Roles = roles ,
                 Token = Token
             };
         }

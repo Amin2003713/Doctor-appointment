@@ -44,7 +44,7 @@
                             T="string"
                             @bind-Value="_newRole"
                             Label="نقش"
-                            Disabled="@(!StateProvider.User!.RolesList.Contains("Doctor"))"
+                            Disabled="@(!StateProvider.User!.Roles.Contains("Doctor"))"
                             Variant="Variant.Outlined"
                             Margin="Margin.Normal"
                             HelperTextOnFocus>
@@ -65,7 +65,7 @@
     </DialogContent>
 
     <DialogActions>
-        <MudButton Color="Color.Info" OnClick="Cancel">انصراف</MudButton>
+        <MudButton Color="Color.Info" OnClick="@(() => MudDialog.Cancel())">انصراف</MudButton>
         <MudButton Color="@(_Editing ? Color.Success : Color.Warning)" OnClick="Submit">
             @(_Editing ? "ذخیره" : "تأیید") ؟
         </MudButton>
@@ -89,14 +89,14 @@
 
     private string[] GetRoles()
     {
-        if (StateProvider.User!.RolesList!.Contains("Doctor"))
+        if (StateProvider.User!.Roles!.Contains("Doctor"))
             return
             [
                 "Secretary",
                 "Patient"
             ];
 
-        if (StateProvider.User!.RolesList!.Contains("Secretary"))
+        if (StateProvider.User!.Roles!.Contains("Secretary"))
             return ["Patient"];
 
         return [];
@@ -114,10 +114,11 @@
 
                 Address = Model.Address,
 
-                Email = Model.Email
+                Email = Model.Email,
+                userId = long.Parse(Model.Id)
             };
 
-            _newRole = Model.RolesList[0];
+            _newRole = Model.Roles[0];
         }
     }
 
@@ -137,7 +138,7 @@
                 await _form.Validate();
                 if (!_form.IsValid) return;
 
-                if (Model!.RolesList.First() != _newRole)
+                if (Model!.Roles.First() != _newRole)
                     await Mediator.Send(new ChangeRoleRequest(Model.Id , _newRole));
 
 

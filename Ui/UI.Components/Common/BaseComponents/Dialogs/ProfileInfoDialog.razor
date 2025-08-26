@@ -44,7 +44,7 @@
                             T="string"
                             @bind-Value="_newRole"
                             Label="نقش"
-                            Disabled="@(StateProvider.User!.RolesList.Contains("Doctor"))"
+                            Disabled="@(StateProvider.User!.Roles.Contains("Doctor"))"
                             Variant="Variant.Outlined"
                             Margin="Margin.Normal"
                             HelperTextOnFocus>
@@ -109,14 +109,14 @@
 
     private string[] GetRoles()
     {
-        if (StateProvider.User!.RolesList!.Contains("Doctor"))
+        if (StateProvider.User!.Roles!.Contains("Doctor"))
             return
             [
                 "Secretary",
                 "Patient"
             ];
 
-        if (StateProvider.User!.RolesList!.Contains("Secretary"))
+        if (StateProvider.User!.Roles!.Contains("Secretary"))
             return ["Patient"];
 
         return [];
