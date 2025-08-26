@@ -1,11 +1,16 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Api.Endpoints.Constants;
+using Api.Endpoints.Dtos.Users;
+using Api.Endpoints.Models.User;
+using Api.Endpoints.Utilities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+
+namespace Api.Endpoints.Controllers;
 
 [ApiController]
 [Route("api/User")]
@@ -100,7 +105,9 @@ public class UsersController(
 
         // Save file
         await using (var stream = System.IO.File.Create(fullPath))
+        {
             await file.CopyToAsync(stream);
+        }
 
         // Persist relative/public URL
         var publicUrl = $"/uploads/profiles/{id}/{fileName}";
@@ -126,7 +133,11 @@ public class UsersController(
             if (!Directory.Exists(userDir)) return;
 
             var files = Directory.GetFiles(userDir);
-            foreach (var f in files) System.IO.File.Delete(f);
+
+            foreach (var f in files)
+            {
+                System.IO.File.Delete(f);
+            }
         }
         catch
         {
@@ -180,7 +191,7 @@ public class UsersController(
             user.IsActive,
             user.CreatedAtUtc,
             user.LastLoginAtUtc,
-            Roles: new[]
+            new[]
             {
                 "Patient"
             }
@@ -269,13 +280,13 @@ public class UsersController(
         {
             search = search.Trim();
             q = q.Where(u =>
-                (u.FullName     != null && u.FullName.Contains(search)) ||
-                (u.FirstName    != null && u.FirstName.Contains(search)) ||
-                (u.LastName     != null && u.LastName.Contains(search)) ||
-                (u.Address      != null && u.Address.Contains(search)) ||
-                (u.Email        != null && u.Email.Contains(search)) ||
-                (u.PhoneNumber  != null && u.PhoneNumber.Contains(search)) ||
-                (u.UserName     != null && u.UserName.Contains(search)));
+                u.FullName     != null && u.FullName.Contains(search) ||
+                u.FirstName    != null && u.FirstName.Contains(search) ||
+                u.LastName     != null && u.LastName.Contains(search) ||
+                u.Address      != null && u.Address.Contains(search) ||
+                u.Email        != null && u.Email.Contains(search) ||
+                u.PhoneNumber  != null && u.PhoneNumber.Contains(search) ||
+                u.UserName     != null && u.UserName.Contains(search));
         }
 
         var total = q.LongCount(); // use LongCountAsync with EF
@@ -328,13 +339,13 @@ public class UsersController(
         {
             search = search.Trim();
             filtered = filtered.Where(u =>
-                (u.FullName     != null && u.FullName.Contains(search)) ||
-                (u.FirstName    != null && u.FirstName.Contains(search)) ||
-                (u.LastName     != null && u.LastName.Contains(search)) ||
-                (u.Address      != null && u.Address.Contains(search)) ||
-                (u.Email        != null && u.Email.Contains(search)) ||
-                (u.PhoneNumber  != null && u.PhoneNumber.Contains(search)) ||
-                (u.UserName     != null && u.UserName.Contains(search)));
+                u.FullName     != null && u.FullName.Contains(search) ||
+                u.FirstName    != null && u.FirstName.Contains(search) ||
+                u.LastName     != null && u.LastName.Contains(search) ||
+                u.Address      != null && u.Address.Contains(search) ||
+                u.Email        != null && u.Email.Contains(search) ||
+                u.PhoneNumber  != null && u.PhoneNumber.Contains(search) ||
+                u.UserName     != null && u.UserName.Contains(search));
         }
 
         var total = filtered.LongCount();
@@ -394,7 +405,7 @@ public class UsersController(
         var user = await userManager.FindByNameAsync(username);
         if (user is not { IsActive: true }) return Unauthorized();
 
-        var pwd = await signInManager.CheckPasswordSignInAsync(user, dto.Password, lockoutOnFailure: true);
+        var pwd = await signInManager.CheckPasswordSignInAsync(user, dto.Password, true);
         if (!pwd.Succeeded) return Unauthorized();
 
         user.LastLoginAtUtc = DateTime.UtcNow;
@@ -406,7 +417,7 @@ public class UsersController(
 
         return Ok(new LoginResponseDto
         {
-            Token     = token,
+            Token     = token
         });
     }
 
@@ -464,8 +475,6 @@ public class UsersController(
     [Authorize(Roles = "Doctor")]
     public async Task<IActionResult> ToggleUser([FromBody] ToggleUserDto dto)
     {
-        
-
         var user = await userManager.FindByIdAsync(dto.UserId.ToString());
         if (user == null) return NotFound("User not found");
 
@@ -480,12 +489,14 @@ public class UsersController(
     // Helpers
     // ---------------------------
     private static string? BuildFullName(string? first, string? last)
-        => string.Join(" ",
+    {
+        return string.Join(" ",
             new[]
             {
                 first,
                 last
             }.Where(s => !string.IsNullOrWhiteSpace(s)));
+    }
 
     private async Task<(bool ok, string? error, AppUser? user)> RegisterWithRole(RegisterDto dto, string role)
     {
@@ -526,8 +537,10 @@ public class UsersController(
                      "Secretary",
                      "Patient"
                  })
+        {
             if (!await roleManager.RoleExistsAsync(r))
                 await roleManager.CreateAsync(new IdentityRole<long>(r));
+        }
     }
 
     private async Task<string> GenerateJwtToken(AppUser user)
@@ -548,10 +561,10 @@ public class UsersController(
         };
 
         if (!string.IsNullOrWhiteSpace(user.PhoneNumber))
-            claims.Add(new(ClaimTypes.MobilePhone, user.PhoneNumber));
+            claims.Add(new Claim(ClaimTypes.MobilePhone, user.PhoneNumber));
 
         if (!string.IsNullOrWhiteSpace(user.Email))
-            claims.Add(new(JwtRegisteredClaimNames.Email, user.Email));
+            claims.Add(new Claim(JwtRegisteredClaimNames.Email, user.Email));
 
         claims.AddRange(roles.Select(r => new Claim(ClaimTypes.Role, r)));
 
@@ -559,19 +572,20 @@ public class UsersController(
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer: JwtOptions.Issuer,
-            audience: JwtOptions.Audience,
-            claims: claims,
-            notBefore: DateTime.UtcNow,
-            expires: DateTime.UtcNow.Add(JwtOptions.AccessTokenLifetime),
-            signingCredentials: creds
+            JwtOptions.Issuer,
+            JwtOptions.Audience,
+            claims,
+            DateTime.UtcNow,
+            DateTime.UtcNow.Add(JwtOptions.AccessTokenLifetime),
+            creds
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }
 
     private static UserDetailDto ToDetail(AppUser u, IEnumerable<string> roles)
-        => new(
+    {
+        return new UserDetailDto(
             u.Id,
             u.PhoneNumber ?? u.UserName ?? "",
             u.Email,
@@ -585,4 +599,5 @@ public class UsersController(
             u.LastLoginAtUtc,
             roles.ToArray()
         );
+    }
 }

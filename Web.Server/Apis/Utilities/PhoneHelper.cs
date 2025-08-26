@@ -1,4 +1,6 @@
-﻿public static class PhoneHelper
+﻿namespace Api.Endpoints.Utilities;
+
+public static class PhoneHelper
 {
     // Convert to E.164 form (keeps +98 etc for PhoneNumber)
     public static string NormalizeToE164Guess(string raw, string defaultCountryCode = "+98")
@@ -41,5 +43,4 @@
 
         return phoneE164;
     }
-
 }

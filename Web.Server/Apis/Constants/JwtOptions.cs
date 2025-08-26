@@ -1,4 +1,6 @@
-﻿public static class JwtOptions
+﻿namespace Api.Endpoints.Constants;
+
+public static class JwtOptions
 {
     public static string   Issuer              = "Clinic Management API";
     public static string   Audience            = "Clinic Management Client";

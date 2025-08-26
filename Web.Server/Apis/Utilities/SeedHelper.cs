@@ -1,4 +1,7 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Api.Endpoints.Models.User;
+using Microsoft.AspNetCore.Identity;
+
+namespace Api.Endpoints.Utilities;
 
 public static class SeedHelper
 {
@@ -36,8 +39,14 @@ public static class SeedHelper
 
         var user = new AppUser
         {
-            UserName = username , PhoneNumber = e164 , Email            = string.IsNullOrWhiteSpace(email) ? null : email , FullName = fullName ,
-            IsActive = true , Address         = "somewhere" , FirstName = "doctor" , LastName                                        = "appointment" ,
+            UserName = username ,
+            PhoneNumber = e164 ,
+            Email            = string.IsNullOrWhiteSpace(email) ? null : email ,
+            FullName = fullName ,
+            IsActive = true ,
+            Address         = "somewhere" ,
+            FirstName = "doctor" ,
+            LastName                                        = "appointment"
         };
 
         var create = await userManager.CreateAsync(user , password);
