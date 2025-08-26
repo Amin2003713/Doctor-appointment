@@ -1,12 +1,15 @@
 ﻿@page "/users"
+@using App.Applications.Users.Requests.ToggleUsers
+@using App.Applications.Users.Requests.UserInfos
 @using App.Applications.Users.Requests.UserQueries
+@using UI.Components.Common.BaseComponents.Dialogs
 @using UI.Components.Common.BaseComponents.Picture
 
 <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="pt-8">
 
     <!-- Toolbar -->
-    <MudPaper Elevation="2" Class="p-3 mb-4 rounded-lg">
-        <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+    <MudPaper Elevation="2" Class="p-3 mb-4 rounded-lg m-3">
+        <MudStack Row AlignItems="AlignItems.Center" Spacing="2" Class="p-2">
             <MudText Typo="Typo.h5" Class="fw-bold">
                 @_title
                 <MudText Typo="Typo.caption" Class="ms-2" Color="Color.Secondary">
@@ -19,7 +22,7 @@
             <MudTextField @bind-Value="_search"
                           Placeholder="جستجوی کاربر…"
                           Adornment="Adornment.Start"
-                          AdornmentIcon="@Icons.Filled.Search"
+                          AdornmentIcon="@MaterialIcons.Filled.Search"
                           Variant="Variant.Outlined"
                           Immediate="true"
                           Clearable="true"
@@ -30,7 +33,7 @@
             <MudButton Variant="Variant.Filled"
                        Color="Color.Primary"
                        OnClick="RefreshTable"
-                       StartIcon="@Icons.Filled.Refresh">
+                       StartIcon="@MaterialIcons.Filled.Refresh">
                 بروزرسانی
             </MudButton>
         </MudStack>
@@ -41,11 +44,11 @@
         <MudTable T="UserListItemResponse"
                   ServerData="LoadServerData"
                   Class="rounded-xl"
-                  Dense="true"
-                  Hover="true"
-                  Bordered="false"
-                  Striped="true"
-                  FixedHeader="true"
+                  Dense
+                  Hover
+                  Bordered
+                  Virtualize
+                  FixedHeader
                   Breakpoint="Breakpoint.Sm"
                   Height="68vh"
                   CanCancelEdit
@@ -54,10 +57,10 @@
 
             <ToolBarContent>
                 <!-- keep for consistency if you use MudTable's own toolbar -->
-                <MudText Typo="Typo.subtitle2">@_title</MudText>
+                <MudText Align="Align.Center" Typo="Typo.subtitle1">@_title</MudText>
             </ToolBarContent>
 
-            <HeaderContent>
+            <HeaderContent >
                 <MudTh Class="whitespace-nowrap">شناسه</MudTh>
                 <MudTh>نام کاربری</MudTh>
                 <MudTh Class="whitespace-nowrap">نام و نام خانوادگی</MudTh>
@@ -71,14 +74,14 @@
             </HeaderContent>
 
             <RowTemplate>
-                <MudTd DataLabel="شناسه">
+                <MudTd  DataLabel="شناسه">
                     <MudText Typo="Typo.body2" Class="font-mono">@context.Id</MudText>
                 </MudTd>
 
 
                 <MudTd DataLabel="نام کاربری">
                     <MudRTLProvider RightToLeft="false">
-                        <MudText>@context.Username</MudText>
+                        <MudText Align="Align.Left">@context.Username.Replace("+98" , "0")</MudText>
                     </MudRTLProvider>
                 </MudTd>
 
@@ -95,7 +98,7 @@
                 <MudTd DataLabel="ایمیل">
                     <MudRTLProvider RightToLeft="false">
 
-                        <MudText>@(string.IsNullOrWhiteSpace(context.Email) ? "-" : context.Email)</MudText>
+                        <MudText Align="Align.Left">@(string.IsNullOrWhiteSpace(context.Email) ? "-" : context.Email)</MudText>
                     </MudRTLProvider>
 
                 </MudTd>
@@ -105,7 +108,9 @@
                              Color="@(context.IsActive ? Color.Success : Color.Error)"
                              Variant="Variant.Filled"
                              Size="Size.Small"
-                             StartIcon="@((context.IsActive ? Icons.Filled.CheckCircle : Icons.Filled.Block))">
+                             Icon="@(context.IsActive ? MaterialIcons.Filled.CheckCircle : MaterialIcons.Filled.Block)"
+                             OnClick="@(async () => await Toggle(context.Id))"
+                    >
                         @(context.IsActive ? "فعال" : "غیرفعال")
                     </MudChip>
                 </MudTd>
@@ -120,7 +125,7 @@
                             }
                             else
                             {
-                                <MudAvatar Icon="@Icons.Filled.Person" Color="Color.Default"/>
+                                <MudAvatar Icon="@MaterialIcons.Filled.Person" Color="Color.Default"/>
                             }
                         </MudAvatar>
                     </MudTooltip>
@@ -139,7 +144,7 @@
                         @if (lastLogin is not null)
                         {
                             <MudTooltip Text="@lastLogin.Value.ToString("yyyy-MM-dd HH:mm")">
-                                <MudText>@lastLogin.Value.ToString("yyyy/MM/dd HH:mm")</MudText>
+                                <MudText Align="Align.Left">@lastLogin.Value.ToString("yyyy/MM/dd HH:mm")</MudText>
                             </MudTooltip>
                         }
                         else
@@ -164,17 +169,18 @@
                 </MudTd>
 
                 <MudTd>
-                    <MudIconButton Icon="@Icons.Filled.Visibility"
+                    <MudIconButton Icon="@MaterialIcons.Filled.Visibility"
                                    Color="Color.Primary"
-                                   Title="مشاهده"
-                                   OnClick="() => ViewUser(context)"/>
+                                   OnClick="() => ViewUser(context)">
+                        مشاهده
+                    </MudIconButton>
                 </MudTd>
             </RowTemplate>
 
             <!-- Loading state -->
             <LoadingContent>
                 <MudStack Spacing="1" Class="p-4">
-                    @for (int i = 0; i < 6; i++)
+                    @for (var i = 0; i < 6; i++)
                     {
                         <MudSkeleton Height="38px" Width="100%" Animation="Animation.Wave"/>
                     }
@@ -184,7 +190,7 @@
             <!-- Empty state -->
             <NoRecordsContent>
                 <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Spacing="2" Class="py-14">
-                    <MudIcon Icon="@Icons.Outlined.SearchOff" Size="Size.Large" Color="Color.Default"/>
+                    <MudIcon Icon="@MaterialIcons.Outlined.SearchOff" Size="Size.Large" Color="Color.Default"/>
                     <MudText Typo="Typo.h6">موردی یافت نشد</MudText>
                     <MudText Typo="Typo.body2" Color="Color.Secondary">
                         عبارت جستجو را تغییر دهید یا فیلترها را بازنشانی کنید.
@@ -196,7 +202,7 @@
             </NoRecordsContent>
 
             <PagerContent>
-                <MudTablePager  InfoFormat="نمایش {first_item}-{last_item} از {all_items}"/>
+                <MudTablePager InfoFormat="نمایش {first_item}-{last_item} از {all_items}"/>
             </PagerContent>
         </MudTable>
     </MudPaper>
@@ -206,7 +212,7 @@
     private MudTable<UserListItemResponse>? _table;
     private string?                         _search;
 
-    [Parameter, SupplyParameterFromQuery] public bool Secretaries { get; set; }
+    [ Parameter][ SupplyParameterFromQuery] public bool Secretaries { get; set; }
     private string _title = "کاربران";
     private long   _totalCount;
 
@@ -222,10 +228,10 @@
             var pageNumber = state.Page + 1;
 
             var req = new UsersQueryRequest(
-                Page: pageNumber,
-                PageSize: state.PageSize,
-                Search: string.IsNullOrWhiteSpace(_search) ? null : _search,
-                IsSecretaries: Secretaries
+                pageNumber,
+                state.PageSize,
+                string.IsNullOrWhiteSpace(_search) ? null : _search,
+                Secretaries
             );
 
             var resp = await Mediator.Send(req, cancellationToken);
@@ -260,7 +266,9 @@
     }
 
     private void RefreshTable()
-        => _ = _table?.ReloadServerData();
+    {
+        _ = _table?.ReloadServerData();
+    }
 
     private void ClearSearch()
     {
@@ -268,9 +276,41 @@
         RefreshTable();
     }
 
-    private void ViewUser(UserListItemResponse user)
+    private async Task ViewUser(UserListItemResponse user)
     {
-        
+        var userInfo = await Mediator.Send(new UserInfoByIdRequest(user.Id));
+
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            MaxWidth         = MaxWidth.Medium,
+            FullWidth        = true,
+            CloseButton      = true,
+            Position         = DialogPosition.Center
+        };
+
+
+        var parameters = new DialogParameters
+        {
+            {
+                "Model", userInfo
+            },
+            {
+                "AllowEdit", !StateProvider.User?.RolesList?.Contains("Patient") ?? false
+            }
+        };
+
+
+        await DialogService.ShowAsync<ProfileInfoDialog>($"اطلاعات کاربر({userInfo.Username})", parameters, options);
+        await _table!.ReloadServerData();
+        StateHasChanged();
+    }
+
+    private async Task Toggle(long userId)
+    {
+        await Mediator.Send(new ToggleUserRequest(userId));
+        await _table!.ReloadServerData();
+        StateHasChanged();
     }
 
 }

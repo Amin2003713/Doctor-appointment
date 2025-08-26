@@ -1,2 +1,1 @@
 namespace App.Common.General.BaseCommandQuery;
-

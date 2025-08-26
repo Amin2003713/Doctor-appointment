@@ -1,8 +1,6 @@
-using MediatR;
-
 namespace App.Common.General.ApiResult;
 
-public class ApiProblemDetails : Exception 
+public class ApiProblemDetails : Exception
 {
     public string Title { get; set; }
     public int Status { get; set; }

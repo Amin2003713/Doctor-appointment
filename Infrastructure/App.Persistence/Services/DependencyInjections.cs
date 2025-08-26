@@ -3,7 +3,6 @@
     using App.Applications.Services;
     using App.Persistence.Services.AuthState;
     using Blazored.LocalStorage;
-    using MediatR;
     using Microsoft.AspNetCore.Components.Authorization;
     using Microsoft.Extensions.DependencyInjection;
 

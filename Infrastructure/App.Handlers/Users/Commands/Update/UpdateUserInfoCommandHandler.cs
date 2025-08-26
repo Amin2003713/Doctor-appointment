@@ -7,7 +7,10 @@ using MediatR;
 
 namespace App.Handlers.Users.Commands.Update;
 
-public class UpdateUserInfoCommandHandler(ILocalStorage repository  , ClientStateProvider provider)
+public class UpdateUserInfoCommandHandler(
+    ILocalStorage repository  ,
+    ClientStateProvider provider
+)
     : IRequestHandler<UpdateUserInfoCommand>
 {
     public async Task Handle(UpdateUserInfoCommand request , CancellationToken cancellationToken)

@@ -7,41 +7,32 @@ using Microsoft.Extensions.Logging;
 
 namespace App.Handlers.Users.Requests.UpdateProfile;
 
-public class UpdateProfileRequestHandler(
-    ILogger<UpdateProfileRequestHandler> logger,
+public class UpdateUserRequestHandler(
+    ILogger<UpdateUserRequestHandler> logger,
     ApiFactory apiFactory,
     ISnackbarService snackbarService
-) : IRequestHandler<UpdateProfileRequest>
+) : IRequestHandler<UpdateUserRequest>
 {
     // ساخت Refit API
     private readonly IUserApis Apis = apiFactory.CreateApi<IUserApis>();
 
-    public async Task Handle(UpdateProfileRequest request, CancellationToken cancellationToken)
+    public async Task Handle(UpdateUserRequest request, CancellationToken cancellationToken)
     {
         try
         {
-            var apiResult = await Apis.UpdateProfile(request);
+            var apiResult = await Apis.UpdateUser(request , request.userId );
 
 
             if (!apiResult.IsSuccessStatusCode)
             {
-                logger.LogWarning("UpdateProfile failed: StatusCode={Status}, Error={Error}",
+                logger.LogWarning("UpdateUser failed: StatusCode={Status}, Error={Error}",
                     apiResult.StatusCode,
                     apiResult.Error?.Message);
 
                 return ;
             }
 
-
-            snackbarService.ShowSuccess("اطلاعات پروفایل با موفقیت به‌روزرسانی شد.");
-            // پس از موفقیت، اطلاعات کاربر را تازه بگیر و در LocalStorage ذخیره کن
-            var me = await Apis.Me();
-
-
-            if (!me.IsSuccessStatusCode)
-                return;
-
-            Console.WriteLine("user updated");
+            snackbarService.ShowSuccess($"اطلاعات پروفایل {request.LastName} موفقیت به‌روزرسانی شد.");
         }
         catch (Exception ex)
         {

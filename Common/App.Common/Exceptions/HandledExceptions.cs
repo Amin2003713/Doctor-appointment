@@ -1,5 +1,3 @@
 namespace App.Common.Exceptions;
 
-public class HandledExceptions : Exception
-{
-}
+public class HandledExceptions : Exception { }

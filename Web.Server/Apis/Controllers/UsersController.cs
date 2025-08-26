@@ -43,6 +43,32 @@ public class UsersController(
         return Ok();
     }
 
+// PUT api/User/profile
+    [HttpPut("profile/{id:long}")]
+    [Authorize]
+    public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto dto , long id)
+    {
+        var user = await userManager.FindByIdAsync(id.ToString());
+        if (user is null) return Unauthorized();
+
+        // Update allowed fields
+        if (dto.FirstName is not null) user.FirstName = dto.FirstName.Trim();
+        if (dto.LastName  is not null) user.LastName  = dto.LastName.Trim();
+        if (dto.Address   is not null) user.Address   = dto.Address.Trim();
+        if (dto.Profile   is not null) user.Profile   = dto.Profile.Trim();
+
+        // Optional: allow email change (add confirmation flow if needed)
+        if (!string.IsNullOrWhiteSpace(dto.Email))
+            user.Email = dto.Email.Trim();
+
+        // Keep FullName in sync
+        user.FullName = BuildFullName(user.FirstName, user.LastName);
+
+        var result = await userManager.UpdateAsync(user);
+        if (!result.Succeeded) return BadRequest(result.Errors);
+
+        return Ok();
+    }
 
     [HttpPost("profile/avatar")]
     [AllowAnonymous]

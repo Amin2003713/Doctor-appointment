@@ -1,6 +1,5 @@
 #region
 
-    using App.Applications.Users.Requests;
     using App.Applications.Users.Requests.ChangeRoles;
     using App.Applications.Users.Requests.ForgotPassword;
     using App.Applications.Users.Requests.Login;
@@ -10,9 +9,6 @@
     using App.Applications.Users.Requests.UserInfos;
     using App.Applications.Users.Requests.UserQueries;
     using App.Applications.Users.Response.Login;
-    using App.Applications.Users.Response.SendActivationCode;
-    using App.Applications.Users.Response.Verify;
-    using App.Common.General;
     using App.Common.General.ApiResult;
     using Refit;
 
@@ -71,4 +67,7 @@
 
         [Put("/api/user/profile")]
         Task<ApiResponse<object>> UpdateProfile(UpdateProfileRequest body);
+
+        [Put("/api/user/profile/{id}")]
+        Task<ApiResponse<object>> UpdateUser(UpdateUserRequest body , long id);
     }

@@ -37,7 +37,7 @@
                               Label="رمز عبور"
                               InputType="@_passwordInput"
                               Adornment="Adornment.End"
-                              AdornmentIcon="@(_passwordInput == InputType.Password ? Icons.Filled.Visibility : Icons.Filled.VisibilityOff)"
+                              AdornmentIcon="@(_passwordInput == InputType.Password ? MaterialIcons.Filled.Visibility : MaterialIcons.Filled.VisibilityOff)"
                               OnAdornmentClick="TogglePassword"
                               Variant="Variant.Outlined"
                               FullWidth="true"
@@ -104,7 +104,7 @@
                         <MudButton Variant="Variant.Filled"
                                    Color="Color.Primary"
                                    FullWidth
-                                   StartIcon="@Icons.Filled.CloudUpload">
+                                   StartIcon="@MaterialIcons.Filled.CloudUpload">
                             @if (string.IsNullOrEmpty(Request.Profile?.Name ?? null))
                             {
                                 @("تصویر پروفایل(اختیاری)")
@@ -152,7 +152,7 @@
 
 @code {
 
-    private RegisterRequest Request { get; set; } = new();
+    private RegisterRequest Request { get;  } = new();
 
     private bool ApiCalling { get; set; }
     private InputType _passwordInput = InputType.Password;
@@ -166,7 +166,9 @@
 
 
     private void TogglePassword()
-        => _passwordInput = _passwordInput == InputType.Password ? InputType.Text : InputType.Password;
+    {
+        _passwordInput = _passwordInput == InputType.Password ? InputType.Text : InputType.Password;
+    }
 
 
     private Task OnFilesSelected(IBrowserFile file)
@@ -189,7 +191,7 @@
 
             Snackbar.ShowSuccess("ثبت‌نام با موفقیت انجام شد.\nدرحال ورود ...");
 
-            await Mediator.Send(new LoginRequest()
+            await Mediator.Send(new LoginRequest
             {
                 Password = Request.Password ,
                 PhoneNumber = Request.PhoneNumber
@@ -207,6 +209,8 @@
     }
 
     private void GoToLogin()
-        => NavigationManager.NavigateTo("/Login");
+    {
+        NavigationManager.NavigateTo("/Login");
+    }
 
 }

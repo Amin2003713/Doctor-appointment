@@ -23,5 +23,5 @@ public static class ApiRoutes
 
     // (Optional)
     public const string UploadAvatar = $"{Base}/profile/avatar";
-    public const string UpdateUser = $"{Base}/profile";
+    public const string UpdateUser   = $"{Base}/profile";
 }

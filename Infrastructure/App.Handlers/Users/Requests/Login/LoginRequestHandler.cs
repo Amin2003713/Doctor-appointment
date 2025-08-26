@@ -2,14 +2,12 @@ using App.Applications.Users.Apis;
 using App.Applications.Users.Commands.Update;
 using App.Applications.Users.Requests.Login;
 using App.Applications.Users.Response.Login;
-using App.Common.General.ApiResult;
 using App.Common.Utilities.Converter;
 using App.Persistence.Services.AuthState;
 using App.Persistence.Services.Refit;
 using Mapster;
 using MediatR;
 using Microsoft.AspNetCore.Components;
-using Refit;
 
 namespace App.Handlers.Users.Requests.Login;
 
@@ -43,7 +41,7 @@ public class LoginRequestHandler(
             await mediator.Send(user.Adapt<UpdateUserInfoCommand>(), cancellationToken);
 
             await stateProvider.GetAuthenticationStateAsync();
-            navigationManager.NavigateTo("/", forceLoad: true);
+            navigationManager.NavigateTo("/", true);
             return result?.Content!;
         }
         catch (Exception e)

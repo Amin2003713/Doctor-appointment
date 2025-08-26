@@ -1,5 +1,3 @@
 namespace App.Common.Utilities.LifeTime;
 
-public interface IScopedDependency
-{
-}
+public interface IScopedDependency { }

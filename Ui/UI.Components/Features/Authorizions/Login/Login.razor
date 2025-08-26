@@ -42,7 +42,7 @@
                     Label="رمز عبور"
                     InputType="@_passwordInput"
                     Adornment="Adornment.End"
-                    AdornmentIcon="@(_passwordInput == InputType.Password ? Icons.Filled.Visibility : Icons.Filled.VisibilityOff)"
+                    AdornmentIcon="@(_passwordInput == InputType.Password ? MaterialIcons.Filled.Visibility : MaterialIcons.Filled.VisibilityOff)"
                     OnAdornmentClick="ShowPassword"
                     Variant="Variant.Outlined"
                     Margin="Margin.Normal"
@@ -96,8 +96,8 @@
 </MudContainer>
 
 @code {
-    private LoginRequest Request { get; set; } = new LoginRequest();
-    private bool ApiCalling { get; set; } = false;
+    private LoginRequest Request { get;  } = new ();
+    private bool ApiCalling { get; set; }
     private InputType _passwordInput = InputType.Password;
 
     private void ShowPassword()
@@ -127,9 +127,13 @@
     }
 
     private void GoToForgotPassword()
-        => NavigationManager.NavigateTo($"/forgot-password?Username={Request.PhoneNumber}");
+    {
+        NavigationManager.NavigateTo($"/forgot-password?Username={Request.PhoneNumber}");
+    }
 
     private void GoToRegister()
-        => NavigationManager.NavigateTo($"/register");
+    {
+        NavigationManager.NavigateTo("/register");
+    }
 
 }

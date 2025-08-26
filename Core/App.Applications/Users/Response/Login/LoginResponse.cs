@@ -19,7 +19,9 @@
             var jwtToken = handler.ReadJwtToken(Token);
 
             string Get(params string[] types)
-                => jwtToken.Claims.FirstOrDefault(c => types.Contains(c.Type))?.Value ?? string.Empty;
+            {
+                return jwtToken.Claims.FirstOrDefault(c => types.Contains(c.Type))?.Value ?? string.Empty;
+            }
 
             // ID: prefer sub, then nameidentifier
             var id = Get(JwtRegisteredClaimNames.Sub , ClaimTypes.NameIdentifier);
@@ -37,10 +39,17 @@
 
             return new UserInfo
             {
-                UserName = userName , Id                                                 = id , FirstName = firstName , LastName = lastName ,
-                Profile  = string.IsNullOrWhiteSpace(profile) ? null : profile , Address = (string.IsNullOrWhiteSpace(address) ? null : address)! ,
+                UserName = userName ,
+                Id                                                 = id ,
+                FirstName = firstName ,
+                LastName = lastName ,
+                Profile  = string.IsNullOrWhiteSpace(profile) ? null : profile ,
+                Address = (string.IsNullOrWhiteSpace(address) ? null : address)! ,
 
-                LastLoginDate = string.Empty , PhoneNumber = Get(ClaimTypes.MobilePhone) , RolesList = roles , Token = Token
+                LastLoginDate = string.Empty ,
+                PhoneNumber = Get(ClaimTypes.MobilePhone) ,
+                RolesList = roles ,
+                Token = Token
             };
         }
     }

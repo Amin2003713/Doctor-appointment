@@ -7,7 +7,10 @@ using MediatR;
 
 namespace App.Handlers.ClientPreferences.Queries.Read;
 
-public class LoadSettingsQueryHandler(ILocalStorage repository , IMediator mediator) : IRequestHandler<LoadSettingsQuery , Settings>
+public class LoadSettingsQueryHandler(
+    ILocalStorage repository ,
+    IMediator mediator
+) : IRequestHandler<LoadSettingsQuery , Settings>
 {
     public async Task<Settings> Handle(LoadSettingsQuery request , CancellationToken cancellationToken)
     {

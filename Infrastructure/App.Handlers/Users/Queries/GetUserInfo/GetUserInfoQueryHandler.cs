@@ -1,18 +1,17 @@
-using App.Applications.Users.Apis;
 using App.Applications.Users.Queries.GetUserInfo;
 using App.Common.Utilities.Storage;
 using App.Domain.Users;
-using App.Persistence.Services.Refit;
-using Mapster;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace App.Handlers.Users.Queries.GetUserInfo;
 
-public class GetUserInfoQueryHandler(ILocalStorage repository, ILogger<GetUserInfoQueryHandler> logger)
+public class GetUserInfoQueryHandler(
+    ILocalStorage repository,
+    ILogger<GetUserInfoQueryHandler> logger
+)
     : IRequestHandler<GetUserInfoQuery, UserInfo?>
 {
-
     public async Task<UserInfo?> Handle(GetUserInfoQuery request, CancellationToken cancellationToken)
     {
         try

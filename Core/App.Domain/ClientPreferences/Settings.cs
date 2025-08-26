@@ -1,7 +1,4 @@
-
-
 namespace App.Domain.ClientPreferences;
-
 
 public class Settings
 {

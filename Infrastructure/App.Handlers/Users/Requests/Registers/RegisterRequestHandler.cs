@@ -43,7 +43,7 @@ public record RegisterRequestHandler(
                 }
             }
 
-            var apiRequest = new RegisterApiRequest()
+            var apiRequest = new RegisterApiRequest
             {
                 Profile     = profile,
                 FirstName   = request.FirstName,
@@ -52,14 +52,14 @@ public record RegisterRequestHandler(
                 Email       = request.Email,
                 PhoneNumber = request.PhoneNumber,
                 FullName    = request.FullName,
-                Password    = request.Password,
+                Password    = request.Password
             };
 
 
             var result = request.Role switch
                          {
                              "Secretary" => await Apis.RegisterSecretary(apiRequest),
-                             "Patient"   => stateProvider.User != null ? await Apis.RegisterPatient(apiRequest) :await Apis.Register(apiRequest),
+                             "Patient"   => stateProvider.User != null ? await Apis.RegisterPatient(apiRequest) : await Apis.Register(apiRequest),
                              _           => throw new ArgumentOutOfRangeException()
                          };
 

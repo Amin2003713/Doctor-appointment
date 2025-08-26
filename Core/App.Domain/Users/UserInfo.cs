@@ -1,6 +1,3 @@
-
-
-
 namespace App.Domain.Users;
 
 public class UserInfo
@@ -16,5 +13,5 @@ public class UserInfo
     public string? Email { get; set; }
     public string? PhoneNumber { get; set; }
 
-  public List<string> RolesList { get; set; } = new List<string>();
+    public List<string> RolesList { get; set; } = new ();
 }

@@ -15,7 +15,7 @@ public class UpdateSettingCommand : IRequest
         {
             LanguageCode = "fa-IR" ,
             IsDarkMode   = true ,
-            IsRtl        = true ,
+            IsRtl        = true
         };
     }
 }

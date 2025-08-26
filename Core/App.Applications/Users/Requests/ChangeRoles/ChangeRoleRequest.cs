@@ -2,8 +2,7 @@
 
 namespace App.Applications.Users.Requests.ChangeRoles;
 
-public class ChangeRoleRequest : IRequest
-{
-    public string UserId { get; set; }
-    public string NewRole { get; set; }
-}
+public record ChangeRoleRequest(
+    string UserId,
+    string NewRole
+) : IRequest;

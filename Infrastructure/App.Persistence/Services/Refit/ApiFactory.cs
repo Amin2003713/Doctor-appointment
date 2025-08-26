@@ -1,18 +1,13 @@
-using System;
-using System.Linq;
-using System.Net.Http;
 using System.Reflection;
-using Refit;
 using App.Applications.Users.Apis;
 using App.Common.General;
 using App.Common.Utilities.LifeTime;
+using Refit;
 
 namespace App.Persistence.Services.Refit;
 
 public class ApiFactory : ISingletonDependency
 {
-    private HttpClient HttpClient { get; }
-
     public ApiFactory(RefitDelegatingHandler refitHttpExceptionHandler)
     {
         ArgumentNullException.ThrowIfNull(refitHttpExceptionHandler);
@@ -20,11 +15,14 @@ public class ApiFactory : ISingletonDependency
         HttpClient = new HttpClient(refitHttpExceptionHandler)
         {
             BaseAddress = new Uri(ApplicationConstants.Server.BaseUrl) ,
-            Timeout     = TimeSpan.FromSeconds(60) ,
+            Timeout     = TimeSpan.FromSeconds(60)
         };
     }
 
-    public T CreateApi<T>() where T : class
+    private HttpClient HttpClient { get; }
+
+    public T CreateApi<T>()
+        where T : class
     {
         return RestService.For<T>(HttpClient , ApplicationConstants.Server.RefitSettings);
     }

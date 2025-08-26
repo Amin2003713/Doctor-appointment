@@ -6,7 +6,9 @@ using MediatR;
 
 namespace App.Handlers.Users.Commands.Logout;
 
-public class LogoutCommandHandler(IMediator mediator) : IRequestHandler<LogoutCommand>
+public class LogoutCommandHandler(
+    IMediator mediator
+) : IRequestHandler<LogoutCommand>
 {
     public async Task Handle(LogoutCommand request , CancellationToken cancellationToken)
     {

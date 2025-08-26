@@ -1,27 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-	<PropertyGroup>
-		<TargetFramework>net9.0</TargetFramework>
-		<ImplicitUsings>enable</ImplicitUsings>
+    <PropertyGroup>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
 
 
-		<Nullable>enable</Nullable>
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<EmccExtraLDFlags>-s WARN_ON_UNDEFINED_SYMBOLS=0</EmccExtraLDFlags>
-	</PropertyGroup>
+        <Nullable>enable</Nullable>
+        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+        <EmccExtraLDFlags>-s WARN_ON_UNDEFINED_SYMBOLS=0</EmccExtraLDFlags>
+    </PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="Blazored.LocalStorage" Version="4.5.0"/>
-		<PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="9.0.8" />
-		<PackageReference Include="Microsoft.Extensions.Http" Version="9.0.8" />
-		<PackageReference Include="Refit" Version="8.0.0"/>
-		<PackageReference Include="Refit.HttpClientFactory" Version="8.0.0"/>
-		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0" />
+    <ItemGroup>
+        <PackageReference Include="Blazored.LocalStorage" Version="4.5.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Authentication" Version="9.0.8"/>
+        <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.8"/>
+        <PackageReference Include="Refit" Version="8.0.0"/>
+        <PackageReference Include="Refit.HttpClientFactory" Version="8.0.0"/>
+        <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.14.0"/>
 
-	</ItemGroup>
+    </ItemGroup>
 
-	<ItemGroup>
-		<ProjectReference Include="..\..\Core\App.Applications\App.Applications.csproj"/>
-	</ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\Core\App.Applications\App.Applications.csproj"/>
+    </ItemGroup>
 
 </Project>

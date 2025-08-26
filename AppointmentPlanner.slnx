@@ -1,17 +1,17 @@
 ﻿<Solution>
-  <Folder Name="/Common/">
-    <Project Path="Common\App.Common\App.Common.csproj" Type="Classic C#" />
-  </Folder>
-  <Folder Name="/Core/">
-    <Project Path="Core\App.Applications\App.Applications.csproj" Type="Classic C#" />
-    <Project Path="Core\App.Domain\App.Domain.csproj" Type="Classic C#" />
-  </Folder>
-  <Folder Name="/Infrastructure/">
-    <Project Path="Infrastructure\App.Handlers\App.Handlers.csproj" Type="Classic C#" />
-    <Project Path="Infrastructure\App.Persistence\App.Persistence.csproj" Type="Classic C#" />
-  </Folder>
-  <Folder Name="/Ui/">
-    <Project Path="Ui\UI.Components\UI.Components.csproj" Type="Classic C#" />
-    <Project Path="Ui\UI.Web\UI.Web.csproj" Type="Classic C#" />
-  </Folder>
+    <Folder Name="/Common/">
+        <Project Path="Common\App.Common\App.Common.csproj" Type="Classic C#"/>
+    </Folder>
+    <Folder Name="/Core/">
+        <Project Path="Core\App.Applications\App.Applications.csproj" Type="Classic C#"/>
+        <Project Path="Core\App.Domain\App.Domain.csproj" Type="Classic C#"/>
+    </Folder>
+    <Folder Name="/Infrastructure/">
+        <Project Path="Infrastructure\App.Handlers\App.Handlers.csproj" Type="Classic C#"/>
+        <Project Path="Infrastructure\App.Persistence\App.Persistence.csproj" Type="Classic C#"/>
+    </Folder>
+    <Folder Name="/Ui/">
+        <Project Path="Ui\UI.Components\UI.Components.csproj" Type="Classic C#"/>
+        <Project Path="Ui\UI.Web\UI.Web.csproj" Type="Classic C#"/>
+    </Folder>
 </Solution>

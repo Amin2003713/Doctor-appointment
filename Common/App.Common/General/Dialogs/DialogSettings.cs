@@ -8,12 +8,14 @@ public static class DialogSettings
         bool closeButton = true ,
         DialogPosition? position = DialogPosition.Center ,
         MaxWidth? maxWidth = MaxWidth.Small)
-        => new DialogOptions
     {
-        CloseOnEscapeKey = false ,
-        Position         = position ,
-        CloseButton      = closeButton ,
-        BackgroundClass  = "back-ground-blur" ,
-        MaxWidth         = maxWidth,
-    };
+        return new DialogOptions
+        {
+            CloseOnEscapeKey = false ,
+            Position         = position ,
+            CloseButton      = closeButton ,
+            BackgroundClass  = "back-ground-blur" ,
+            MaxWidth         = maxWidth
+        };
+    }
 }

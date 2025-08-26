@@ -5,7 +5,7 @@ namespace App.Applications.Users.Validators.ChangeRoles;
 
 public class ChangeRoleRequestValidator : AbstractValidator<ChangeRoleRequest>
 {
-    private static readonly string[] AllowedRoles =
+    private readonly static string[] AllowedRoles =
     {
         "Doctor",
         "Secretary",

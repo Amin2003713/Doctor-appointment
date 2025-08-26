@@ -2,7 +2,8 @@ using App.Common.Utilities.LifeTime;
 
 namespace App.Common.General.States;
 
-public class ApplicationDomain : BaseState , ISingletonDependency
+public class ApplicationDomain : BaseState ,
+    ISingletonDependency
 {
     private string? _domain;
 
@@ -25,17 +26,18 @@ public class ApplicationDomain : BaseState , ISingletonDependency
                 _isDialogShowing = true;
 
                 // Fire-and-forget the dialog invocation.
-                _ = InvokeSelectCompanyDialog().
-                    ContinueWith(t =>
-                                 {
-                                     // Reset the flag regardless of success or failure.
-                                     _isDialogShowing = false;
-                                     // Optionally handle exceptions here:
-                                     if (t.IsFaulted)
-                                     {
-                                         // Log the error or take additional actions as needed.
-                                     }
-                                 });
+                _ = InvokeSelectCompanyDialog()
+                    .ContinueWith(t =>
+                    {
+                        // Reset the flag regardless of success or failure.
+                        _isDialogShowing = false;
+
+                        // Optionally handle exceptions here:
+                        if (t.IsFaulted)
+                        {
+                            // Log the error or take additional actions as needed.
+                        }
+                    });
             }
 
             return null;

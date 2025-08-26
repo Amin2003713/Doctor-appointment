@@ -1,5 +1,4 @@
 ﻿using App.Applications.Users.Apis;
-using App.Applications.Users.Requests;
 using App.Domain.Services;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;

@@ -15,10 +15,10 @@
     namespace App.Persistence.Services.Refit;
 
     public class RefitDelegatingHandler : DelegatingHandler,
-                                          ITransientDependency
+        ITransientDependency
     {
-        private readonly IServiceScopeFactory                     _scopeFactory;
         private readonly IStringLocalizer<RefitDelegatingHandler> _localizer;
+        private readonly IServiceScopeFactory                     _scopeFactory;
 
         public RefitDelegatingHandler(
             IStringLocalizer<RefitDelegatingHandler> localizer,
@@ -27,9 +27,9 @@
             _localizer         = localizer;
             _scopeFactory = scopeFactory;
 
-            InnerHandler = new HttpClientHandler()
+            InnerHandler = new HttpClientHandler
             {
-                AllowAutoRedirect = false,
+                AllowAutoRedirect = false
             };
         }
 

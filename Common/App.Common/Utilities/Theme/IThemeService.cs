@@ -6,29 +6,29 @@ namespace App.Common.Utilities.Theme;
 public interface IThemeService : IScopedDependency
 {
     /// <summary>
-    /// Currently active MudTheme.
+    ///     Currently active MudTheme.
     /// </summary>
     MudTheme CurrentTheme { get; }
 
     /// <summary>
-    /// Indicates whether dark mode is currently active.
+    ///     Indicates whether dark mode is currently active.
     /// </summary>
     bool IsDarkMode { get; }
 
     /// <summary>
-    /// Event raised whenever the theme changes.
+    ///     Event raised whenever the theme changes.
     /// </summary>
     event EventHandler ThemeChanged;
 
     /// <summary>
-    /// Switch between Dark and Light modes.
+    ///     Switch between Dark and Light modes.
     /// </summary>
     /// <param name="isDarkMode"></param>
     /// <param name="refresh"></param>
     void ToggleDarkLightMode(bool isDarkMode , bool refresh = true);
 
     /// <summary>
-    /// Optionally, set the theme to Light or Dark specifically.
+    ///     Optionally, set the theme to Light or Dark specifically.
     /// </summary>
     void SetLightTheme(bool refresh);
 

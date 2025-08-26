@@ -1,5 +1,3 @@
 namespace App.Common.Utilities.LifeTime;
 
-public interface ISingletonDependency
-{
-}
+public interface ISingletonDependency { }

@@ -2,7 +2,6 @@
 using System.Security.Claims;
 using App.Applications.Users.Commands.Logout;
 using App.Applications.Users.Queries.GetUserInfo;
-using App.Applications.Users.Requests.Login;
 using App.Common.Utilities.LifeTime;
 using App.Domain.Users;
 using MediatR;
@@ -25,7 +24,6 @@ public class ClientStateProvider (
         {
             // بار اول از سرور/استوریج بگیر (کاملاً async)
             User ??= await mediator.Send(new GetUserInfoQuery());
-
 
 
             // کاربر لاگین نیست
@@ -55,7 +53,9 @@ public class ClientStateProvider (
     }
 
     private static AuthenticationState Anonymous()
-        => new(new ClaimsPrincipal(new ClaimsIdentity()));
+    {
+        return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+    }
 
     private static bool IsTokenExpired(string token)
     {
@@ -67,8 +67,8 @@ public class ClientStateProvider (
 
     private static ClaimsPrincipal CreatePrincipal(string jwtToken)
     {
-        var jwt = new JwtSecurityTokenHandler().ReadJwtToken(jwtToken);
-        var identity = new ClaimsIdentity(jwt.Claims, authenticationType: "jwt");
+        var jwt      = new JwtSecurityTokenHandler().ReadJwtToken(jwtToken);
+        var identity = new ClaimsIdentity(jwt.Claims, "jwt");
         return new ClaimsPrincipal(identity);
     }
 
@@ -76,7 +76,11 @@ public class ClientStateProvider (
     {
         if (User?.Token is not null)
         {
-            try { await mediator.Send(new LogoutCommand(User.Token)); } catch { /* ignore */ }
+            try { await mediator.Send(new LogoutCommand(User.Token)); }
+            catch
+            {
+                /* ignore */
+            }
         }
 
         User = null;

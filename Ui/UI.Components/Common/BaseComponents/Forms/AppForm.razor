@@ -1,5 +1,5 @@
-@using FluentValidation
 @using Blazored.FluentValidation
+@using FluentValidation
 @typeparam TModel
 @inject IValidator<TModel> Validator
 
@@ -57,7 +57,7 @@
     [Parameter(CaptureUnmatchedValues = true)]
     public IReadOnlyDictionary<string , object>? AdditionalAttributes { get; set; }
 
-    private List<string> ValidationErrors { get; set; } = new List<string>();
+    private List<string> ValidationErrors { get; set; } = new ();
 
 
     /// <summary>

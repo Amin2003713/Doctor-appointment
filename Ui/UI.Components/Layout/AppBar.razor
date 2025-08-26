@@ -1,14 +1,11 @@
-﻿@using UI.Components.Common.BaseComponents.Picture
-@using Microsoft.AspNetCore.Components.Web
-@using UI.Components.Common.BaseComponents.Dialogs
-@inject IDialogService DialogService
+﻿@inject IDialogService DialogService
 
 <MudAppBar Elevation="3"
            Fixed
            Gutters>
 
     <!-- Left cluster -->
-    <MudIconButton Icon="@Icons.Filled.Menu"
+    <MudIconButton Icon="@MaterialIcons.Filled.Menu"
                    Color="Color.Default"
                    OnClick="@(e => DrawerToggle.InvokeAsync())"/>
 
@@ -17,12 +14,12 @@
     <MudSpacer/>
 
     <MudBadge Dot="true" Color="Color.Error" Overlap="true">
-        <MudIconButton Icon="@Icons.Filled.Notifications"
+        <MudIconButton Icon="@MaterialIcons.Filled.Notifications"
                        Color="Color.Default"/>
     </MudBadge>
 
     <!-- Notifications -->
-    <MudIconButton Edge="Edge.Start" OnClick="@Logout" Icon="@Icons.Filled.Logout">
+    <MudIconButton Edge="Edge.Start" OnClick="@Logout" Icon="@MaterialIcons.Filled.Logout">
         خروج
     </MudIconButton>
 
@@ -33,11 +30,18 @@
     [Parameter] public EventCallback DrawerToggle { get; set; }
 
     private void GoToProfile()
-        => NavigationManager.NavigateTo("/profile");
+    {
+        NavigationManager.NavigateTo("/profile");
+    }
 
     private void GoToSettings()
-        => NavigationManager.NavigateTo("/settings");
+    {
+        NavigationManager.NavigateTo("/settings");
+    }
 
     private async Task Logout()
-        => await StateProvider.Logout();
+    {
+        await StateProvider.Logout();
+    }
+
 }
