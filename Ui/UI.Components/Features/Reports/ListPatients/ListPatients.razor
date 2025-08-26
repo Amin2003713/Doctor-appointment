@@ -11,7 +11,7 @@
     <!-- Toolbar -->
     <MudPaper Elevation="2" Class="p-3 mb-4 rounded-lg m-3">
         <MudStack Row AlignItems="AlignItems.Center" Spacing="2" Class="m-5">
-            <MudText Typo="Typo.h5" Class="fw-bold">
+            <MudText Typo="Typo.h5" Class="fw-bold" Style="padding: 12px">
                 @_title
                 <MudText Typo="Typo.caption" Class="ms-2" Color="Color.Secondary">
                     (@_totalCount.ToString("N0"))
@@ -29,11 +29,13 @@
                           Clearable="true"
                           DebounceInterval="400"
                           OnBlur="RefreshTable"
+                          Style="padding: 12px"
                           Class="w-72"/>
 
             <MudButton Variant="Variant.Filled"
                        Color="Color.Primary"
                        OnClick="RefreshTable"
+                       Style="padding: 12px"
                        StartIcon="@MaterialIcons.Filled.Refresh">
                 بروزرسانی
             </MudButton>
