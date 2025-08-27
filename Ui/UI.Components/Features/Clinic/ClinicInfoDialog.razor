@@ -1,0 +1,232 @@
+﻿@using App.Applications.Clinic.Apis
+@using System.ComponentModel.DataAnnotations
+@using App.Applications.Clinic
+@using App.Applications.Clinic.Requests.Get
+@using App.Persistence.Services.Refit
+@using App.Domain.ValueObjects
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <MudContainer MaxWidth="MaxWidth.Medium" Gutters Style="padding: 8px;">
+            <MudStack Row="true" AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                <MudText Typo="Typo.h6">تنظیمات کلینیک (@Model?.Name)</MudText>
+                <MudButton Variant="Variant.Filled"
+                           Color="@(_Editing ? Color.Secondary : Color.Primary)"
+                           OnClick="ToggleEdit"
+                           Disabled="@(!AllowEdit)">
+                    @(_Editing ? "بازگشت به نمایش" : "ویرایش")
+                </MudButton>
+            </MudStack>
+
+            <AppForm TModel="UpdateClinicSettingsRequest" Model="_editModel" OnValidSubmit="Submit">
+                <FormProps>
+                    <MudGrid>
+                        <MudItem xs="12" sm="6">
+                            <MudTextField Disabled="!_Editing" For="() => _editModel.Name"
+                                          @bind-Value="_editModel.Name"
+                                          Label="نام کلینیک"
+                                          Variant="Variant.Outlined"
+                                          Required="true"/>
+                        </MudItem>
+
+                        <MudItem xs="12" sm="6">
+                            <MudTextField Disabled="!_Editing" For="() => _editModel.Email"
+                                          @bind-Value="_editModel.Email"
+                                          Label="ایمیل"
+                                          Variant="Variant.Outlined"/>
+                        </MudItem>
+
+                        <MudItem xs="12">
+                            <MudTextField Disabled="!_Editing" For="() => _editModel.Address"
+                                          @bind-Value="_editModel.Address"
+                                          Label="آدرس"
+                                          Variant="Variant.Outlined"
+                                          Lines="2"/>
+                        </MudItem>
+
+                        <MudItem xs="12" sm="6">
+                            <MudTextField Disabled="!_Editing" For="() => _editModel.PhoneNumber"
+                                          @bind-Value="_editModel.PhoneNumber"
+                                          Label="شماره تماس"
+                                          Variant="Variant.Outlined"/>
+                        </MudItem>
+
+                        <MudItem xs="12" sm="3">
+                            <MudNumericField Disabled="!_Editing" T="double?"
+                                             For="() => _editModel.Latitude"
+                                             @bind-Value="_editModel.Latitude"
+                                             Label="عرض جغرافیایی"
+                                             Variant="Variant.Outlined"/>
+                        </MudItem>
+
+                        <MudItem xs="12" sm="3">
+                            <MudNumericField Disabled="!_Editing" T="double?"
+                                             For="() => _editModel.Longitude"
+                                             @bind-Value="_editModel.Longitude"
+                                             Label="طول جغرافیایی"
+                                             Variant="Variant.Outlined"/>
+                        </MudItem>
+
+                        <MudItem xs="12" sm="6">
+                            <MudNumericField Disabled="!_Editing" T="int"
+                                             For="() => _editModel.DefaultVisitMinutes"
+                                             @bind-Value="_editModel.DefaultVisitMinutes"
+                                             Label="مدت ویزیت (دقیقه)"
+                                             Min="1" Max="240"
+                                             Variant="Variant.Outlined"/>
+                        </MudItem>
+
+                        <MudItem xs="12" sm="6">
+                            <MudNumericField Disabled="!_Editing" T="int"
+                                             For="() => _editModel.BufferBetweenVisitsMinutes"
+                                             @bind-Value="_editModel.BufferBetweenVisitsMinutes"
+                                             Label="فاصله بین ویزیت‌ها (دقیقه)"
+                                             Min="0" Max="120"
+                                             Variant="Variant.Outlined"/>
+                        </MudItem>
+
+                        <MudItem xs="12">
+                            <MudTextField Disabled="!_Editing" For="() => _editModel.Notes"
+                                          @bind-Value="_editModel.Notes"
+                                          Label="یادداشت"
+                                          Variant="Variant.Outlined"
+                                          Lines="3"/>
+                        </MudItem>
+
+                        <!-- روش‌های پرداخت (چندانتخابی) -->
+                        <MudItem xs="12">
+                            <MudSelect Disabled="!_Editing"
+                                       Label="روش‌های پرداخت"
+                                       Variant="Variant.Outlined"
+                                       MultiSelection="true"
+                                       @bind-SelectedValues="_acceptedPaymentItems">
+                                @foreach (var pm in _allPaymentValues)
+                                {
+                                    <MudSelectItem Value="@pm">@ToPersian(pm)</MudSelectItem>
+                                }
+                            </MudSelect>
+                        </MudItem>
+                    </MudGrid>
+                </FormProps>
+            </AppForm>
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudPaper Elevation="6">
+            <MudStack Row AlignItems="AlignItems.End" Justify="Justify.FlexEnd">
+                <MudButton OnClick="Submit" Color="@(_Editing ? Color.Success : Color.Warning)">
+                    @(_Editing ? "ذخیره" : "تأیید")
+                </MudButton>
+
+                <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="@Cancel">انصراف</MudButton>
+
+            </MudStack>
+        </MudPaper>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public ClinicSettingsResponse? Model { get; set; }
+    [Parameter] public bool AllowEdit { get; set; } = true;
+
+
+    public  bool     _Editing { get; set; }
+
+    private UpdateClinicSettingsRequest _editModel = new();
+
+    // مدیریت فلگ‌های پرداخت در UI
+    private IEnumerable<PaymentMethods> _acceptedPaymentItems = [];
+
+    private readonly IEnumerable<PaymentMethods> _allPaymentValues =
+        Enum.GetValues<PaymentMethods>(); // نیاز به using System
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        Model ??=  await Mediator.Send(new GetClinicSettingsInfo());
+
+
+        if (Model is not null)
+        {
+            _editModel = new UpdateClinicSettingsRequest
+            {
+                Name = Model.Name,
+                Address = Model.Address,
+                PhoneNumber = Model.PhoneNumber,
+                Email = Model.Email,
+                Latitude = Model.Latitude,
+                Longitude = Model.Longitude,
+                Notes = Model.Notes,
+                AcceptedPayments = Model.AcceptedPayments,
+                DefaultVisitMinutes = Model.DefaultVisitMinutes,
+                BufferBetweenVisitsMinutes = Model.BufferBetweenVisitsMinutes
+            };
+
+            // تبدیل فلگ‌ها به مجموعهٔ انتخاب‌ها
+            _acceptedPaymentItems = FlagsToSet(_editModel.AcceptedPayments);
+        }
+    }
+
+    private void ToggleEdit()
+    {
+        if (!AllowEdit) return;
+
+        _Editing = !_Editing;
+    }
+
+
+    private void Cancel()
+        => MudDialog.Cancel();
+
+    // ---- Helpers ----
+    private static HashSet<PaymentMethods> FlagsToSet(PaymentMethods flags)
+    {
+        var set = new HashSet<PaymentMethods>();
+        foreach (var v in Enum.GetValues<PaymentMethods>())
+            if (flags.HasFlag(v))
+                set.Add(v);
+
+        return set;
+    }
+
+    private static PaymentMethods SetToFlags(IEnumerable<PaymentMethods> items)
+    {
+        var result = default(PaymentMethods);
+        foreach (var v in items)
+            result |= v;
+
+        return result;
+    }
+
+    private static string ToPersian(PaymentMethods value)
+        => value switch
+           {
+               PaymentMethods.Cash          => "نقدی",
+               PaymentMethods.Card          => "کارت‌به‌کارت/کارتخوان",
+               PaymentMethods.OnlineGateway => "آنلاین",
+               PaymentMethods.Insurance     => "بیمه",
+               PaymentMethods.BankTransfer  => "انتقال پول",
+               _                            => value.ToString()
+           };
+
+    private async Task Submit()
+    {
+        if (_Editing)
+        {
+            _editModel.AcceptedPayments = SetToFlags(_acceptedPaymentItems);
+
+            await Mediator.Send(_editModel);
+            Model = await Mediator.Send(new GetClinicSettingsInfo());
+            _Editing = false;
+            StateHasChanged();
+        }
+        else
+        {
+            MudDialog.Close();
+        }
+    }
+
+}

@@ -1,17 +1,45 @@
 @page "/"
 
+<MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="px-4 py-4">
+    <MudGrid GutterSize="GutterSize.Small">
 
+        <!-- Row 1 -->
+        <MudItem xs="12" md="6">
+            <MudCard Class="dashboard-card">
+                <MudCardHeader>کارت ۱</MudCardHeader>
+                <MudCardContent>محتوا…</MudCardContent>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudCard Class="dashboard-card">
+                <MudCardHeader>کارت ۲</MudCardHeader>
+                <MudCardContent>محتوا…</MudCardContent>
+            </MudCard>
+        </MudItem>
 
+        <!-- Row 2 -->
+        <MudItem xs="12" md="6">
+            <MudCard Class="dashboard-card">
+                <MudCardHeader>کارت ۳</MudCardHeader>
+                <MudCardContent>محتوا…</MudCardContent>
+            </MudCard>
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <MudCard Class="dashboard-card">
+                <MudCardHeader>کارت ۴</MudCardHeader>
+                <MudCardContent>محتوا…</MudCardContent>
+            </MudCard>
+        </MudItem>
 
-<PageTitle>Home</PageTitle>
+        <!-- Bottom full-width panel -->
+        <MudItem xs="12">
+            <MudCard Class="bottom-panel">
+                <MudCardHeader>پنل پایینی</MudCardHeader>
+                <MudCardContent>گزارش/جدول/لیست …</MudCardContent>
+            </MudCard>
+        </MudItem>
 
-<h1>Hello, world!</h1>
+    </MudGrid>
+</MudContainer>
 
-<MudCard>
-    <MudCardHeader>hello brother</MudCardHeader>
-</MudCard>
-
-<MudButton OnClick="@(() => NavigationManager.NavigateTo("/company-info"))" Color="Color.Dark" Variant="Variant.Filled">
-    co Info
-</MudButton>
-<MudButton OnClick="@(() => StateProvider.Logout())" Color="Color.Info" Variant="Variant.Filled">logout</MudButton>
+@code { }

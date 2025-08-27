@@ -1,8 +1,9 @@
 ﻿using App.Domain.ValueObjects;
+using MediatR;
 
 namespace App.Applications.Clinic;
 
-public class UpdateClinicSettingsRequest
+public class UpdateClinicSettingsRequest : IRequest
 {
     public string Name { get; set; } = default!;
     public string Address { get; set; } = default!;

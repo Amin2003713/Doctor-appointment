@@ -29,7 +29,6 @@ public class ClinicController (
     AppDbContext db
 ) : ControllerBase
 {
-
     [HttpGet("settings")]
     public async Task<ActionResult<ClinicSettingsResponse>> GetSettings(CancellationToken ct)
     {
@@ -54,11 +53,8 @@ public class ClinicController (
     [HttpPut("settings")]
     public async Task<IActionResult> UpdateSettings([FromBody] UpdateClinicSettingsRequest body, CancellationToken ct)
     {
-
-        var s = await db.ClinicSettings.FirstOrDefaultAsync(ct);
-
-        if (s is null)
-            return Ok();
+        var any = await db.ClinicSettings.AnyAsync(ct);
+        var s   = await db.ClinicSettings.FirstOrDefaultAsync(ct) ?? new ClinicSettings();
 
         s.Name = body.Name;
         s.Address = body.Address;
@@ -71,14 +67,17 @@ public class ClinicController (
         s.DefaultVisitMinutes = body.DefaultVisitMinutes;
         s.BufferBetweenVisitsMinutes = body.BufferBetweenVisitsMinutes;
 
+        switch (!any)
+        {
+            case true:
+                db.ClinicSettings.Add(s);
+                break;
+            case false:
+                db.Entry(s).State = EntityState.Modified;
+                break;
+        }
+
         await db.SaveChangesAsync(ct);
         return NoContent();
     }
-
-   
-
-   
-
-
-   
 }

@@ -4,21 +4,21 @@ public static class ApiRoutes
 {
     public static class Clinic
     {
-        private const string Base           = "api/clinic";
+        private const string Base           = "/api/clinic";
         public const  string GetSettings    = $"{Base}/settings";
         public const  string UpdateSettings = $"{Base}/settings";
     }
 
     public static class Doctor
     {
-        private const string Base          = "api/doctor";
+        private const string Base          = "/api/doctor";
         public const  string GetProfile    = $"{Base}/profile";
         public const  string UpsertProfile = $"{Base}/profile";
     }
 
     public static class Services
     {
-        private const string Base   = "api/services";
+        private const string Base   = "/api/services";
         public const  string List   = $"{Base}";
         public const  string Get    = $"{Base}/{{id:guid}}";
         public const  string Create = $"{Base}";
@@ -28,7 +28,7 @@ public static class ApiRoutes
 
     public static class Appointments
     {
-        private const string Base       = "api/appointments";
+        private const string Base       = "/api/appointments";
         public const  string List       = $"{Base}";
         public const  string GetById    = $"{Base}/{{id:guid}}";
         public const  string Create     = $"{Base}";
@@ -39,7 +39,7 @@ public static class ApiRoutes
 
     public static class Schedule
     {
-        private const string Base   = "api/schedule";
+        private const string Base   = "/api/schedule";
         public const  string Get    = $"{Base}";
         public const  string Update = $"{Base}";
         public const  string Slots  = $"{Base}/slots";

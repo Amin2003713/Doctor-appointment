@@ -1,8 +1,6 @@
-﻿// Application/Services/Dto.cs
+﻿namespace App.Applications.ClinicServices;
 
-namespace App.Applications.ClinicServices;
-
-public class ServiceResponse
+public class ClinicServiceResponse
 {
     public Guid Id { get; set; }
     public string Code { get; set; } = default!;

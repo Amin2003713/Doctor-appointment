@@ -1,6 +1,8 @@
-﻿namespace App.Applications.ClinicServices;
+﻿using MediatR;
 
-public class UpsertServiceRequest
+namespace App.Applications.ClinicServices;
+
+public class UpsertServiceRequest : IRequest
 {
     public string Code { get; set; } = default!;
     public string Title { get; set; } = default!;

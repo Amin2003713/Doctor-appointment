@@ -23,4 +23,8 @@
         </EmbeddedResource>
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="Clinic\Requests\" />
+    </ItemGroup>
+
 </Project>

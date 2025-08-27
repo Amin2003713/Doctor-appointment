@@ -3,7 +3,7 @@
 
 using App.Domain.ValueObjects;
 
-namespace App.Applications.Clinic;
+namespace App.Applications.Clinic.Requests.Get;
 
 public class ClinicSettingsResponse
 {
