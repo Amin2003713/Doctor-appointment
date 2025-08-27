@@ -1,11 +1,10 @@
 ﻿using Api.Endpoints.Models.Clinic;
 
-namespace Api.Endpoints.Models.Payments;
+namespace Api.Endpoints.Dtos.doctor;
 
-public class Payment
+public class PaymentResponse
 {
     public Guid Id { get; set; }
-    public Guid AppointmentId { get; set; }
     public decimal Amount { get; set; }
     public string Currency { get; set; } = "ريال";
     public DateTime PaidAt { get; set; }

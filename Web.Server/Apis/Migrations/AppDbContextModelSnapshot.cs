@@ -22,7 +22,7 @@ namespace Api.Endpoints.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Api.Endpoints.Models.Apointments.Appointment", b =>
+            modelBuilder.Entity("Api.Endpoints.Models.Appointments.Appointment", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
