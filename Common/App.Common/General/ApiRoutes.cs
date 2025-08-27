@@ -20,21 +20,21 @@ public static class ApiRoutes
     {
         private const string Base   = "/api/services";
         public const  string List   = $"{Base}";
-        public const  string Get    = $"{Base}/{{id:guid}}";
+        public const  string Get    = $"{Base}/{{id}}";
         public const  string Create = $"{Base}";
-        public const  string Update = $"{Base}/{{id:guid}}";
-        public const  string Delete = $"{Base}/{{id:guid}}";
+        public const  string Update = $"{Base}/{{id}}";
+        public const  string Delete = $"{Base}/{{id}}";
     }
 
     public static class Appointments
     {
         private const string Base       = "/api/appointments";
         public const  string List       = $"{Base}";
-        public const  string GetById    = $"{Base}/{{id:guid}}";
+        public const  string GetById    = $"{Base}/{{id}}";
         public const  string Create     = $"{Base}";
-        public const  string Cancel     = $"{Base}/{{id:guid}}/cancel";
-        public const  string Complete   = $"{Base}/{{id:guid}}/complete";
-        public const  string Reschedule = $"{Base}/{{id:guid}}/reschedule";
+        public const  string Cancel     = $"{Base}/{{id}}/cancel";
+        public const  string Complete   = $"{Base}/{{id}}/complete";
+        public const  string Reschedule = $"{Base}/{{id}}/reschedule";
     }
 
     public static class Schedule

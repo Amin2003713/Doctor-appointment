@@ -28,6 +28,7 @@
 @using Icons = MudBlazor.FontIcons.MaterialIcons
 @using App.Applications.ClientPreferences.Queries.Read
 @using App.Common.General.Dialogs
+@using App.Common.Utilities.Snackbar
 @using App.Domain.ClientPreferences
 @using UI.Components.Common.BaseComponents.Progresses
 
@@ -36,3 +37,4 @@
 @inject IMediator Mediator
 @inject IDialogService DialogService
 @inject IThemeService ThemeService
+@inject ISnackbarService Snackbar

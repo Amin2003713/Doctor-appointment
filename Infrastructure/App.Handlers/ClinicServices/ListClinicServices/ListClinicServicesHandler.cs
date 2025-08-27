@@ -17,7 +17,7 @@ public class ListClinicServicesHandler(
     public async Task<List<ClinicServiceResponse>> Handle(ListClinicServicesRequest request, CancellationToken ct)
     {
         var resp = await _api.List(ct);
-        if (resp.IsSuccessStatusCode && resp.Content is not null)
+        if (resp is { IsSuccessStatusCode: true, Content: not null })
             return resp.Content;
 
         snackbar.ShowApiResult(resp.StatusCode);

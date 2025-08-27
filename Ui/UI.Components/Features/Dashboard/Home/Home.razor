@@ -1,13 +1,15 @@
 @page "/"
+@using UI.Components.Features.ClinicServices
 
-<MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="px-4 py-4">
-    <MudGrid GutterSize="GutterSize.Small">
+<MudContainer Class="px-4 py-4">
+    <MudGrid>
 
         <!-- Row 1 -->
         <MudItem xs="12" md="6">
             <MudCard Class="dashboard-card">
-                <MudCardHeader>کارت ۱</MudCardHeader>
-                <MudCardContent>محتوا…</MudCardContent>
+                <MudCardContent>
+                    <ServiceInfoCard/>
+                </MudCardContent>
             </MudCard>
         </MudItem>
         <MudItem xs="12" md="6">
