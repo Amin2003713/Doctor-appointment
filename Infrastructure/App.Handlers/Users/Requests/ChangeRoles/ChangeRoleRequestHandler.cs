@@ -1,9 +1,10 @@
 ﻿using App.Applications.Users.Apis;
+using App.Applications.Users.Requests.ChangeRoles;
 using App.Common.Utilities.Snackbar;
 using App.Persistence.Services.Refit;
 using MediatR;
 
-namespace App.Applications.Users.Requests.ChangeRoles;
+namespace App.Handlers.Users.Requests.ChangeRoles;
 
 public class ChangeRoleRequestHandler(
     ApiFactory apiFactory,

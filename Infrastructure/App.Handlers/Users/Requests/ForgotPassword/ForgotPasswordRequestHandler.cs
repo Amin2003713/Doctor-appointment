@@ -23,7 +23,7 @@ public class ForgotPasswordRequestHandler(
         {
             var resetPass = await _apis.ForgotPassword(request);
             if (resetPass.IsSuccessStatusCode)
-                await mediator.Send(new LoginRequest()
+                await mediator.Send(new LoginRequest
                     {
                         Password = request.Password,
                         PhoneNumber = request.PhoneNumber

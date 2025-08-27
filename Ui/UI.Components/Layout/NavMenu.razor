@@ -18,7 +18,8 @@
                             IconColor="Color.Success">
                     @(auth.User.IsInRole("Doctor") ? "ثبت‌نام (بیمار,منشی)" : "ثبت‌نام بیمار")
                 </MudNavLink>
-                <MudNavLink OnClick="@(() => Navigate("/appointments"))" Icon="@MaterialIcons.Filled.CalendarMonth" IconColor="Color.Info">
+                <MudNavLink OnClick="@(() => Navigate("/appointments"))" Icon="@MaterialIcons.Filled.CalendarMonth"
+                            IconColor="Color.Info">
                     @(auth.User.IsInRole("Doctor") ? "رزرو نوبت" : "رزرو نوبت")
                 </MudNavLink>
             </MudNavGroup>
@@ -32,16 +33,19 @@
                                 auth.User.IsInRole("Secretary") ? "پنل بیمار (دستیار)" :
                                                                   "پنل بیمار")">
 
-                <MudNavLink OnClick="@(() => Navigate("/patient/appointments"))"   Icon="@MaterialIcons.Filled.EventAvailable"
+                <MudNavLink OnClick="@(() => Navigate("/patient/appointments"))"
+                            Icon="@MaterialIcons.Filled.EventAvailable"
                             IconColor="Color.Success">
                     @(auth.User.IsInRole("Patient") ? "نوبت‌های من" : "نوبت‌های بیماران")
                 </MudNavLink>
 
-                <MudNavLink OnClick="@(() => Navigate("/patient/history"))"  Icon="@MaterialIcons.Filled.History" IconColor="Color.Info">
+                <MudNavLink OnClick="@(() => Navigate("/patient/history"))" Icon="@MaterialIcons.Filled.History"
+                            IconColor="Color.Info">
                     @(auth.User.IsInRole("Patient") ? "سوابق نوبت من" : "سوابق نوبت بیماران")
                 </MudNavLink>
 
-                <MudNavLink OnClick="@(() => Navigate("/patient/cancel"))"  Icon="@MaterialIcons.Filled.Cancel" IconColor="Color.Error">
+                <MudNavLink OnClick="@(() => Navigate("/patient/cancel"))" Icon="@MaterialIcons.Filled.Cancel"
+                            IconColor="Color.Error">
                     @(auth.User.IsInRole("Patient") ? "لغو نوبت من" : "لغو نوبت بیماران")
                 </MudNavLink>
             </MudNavGroup>
@@ -51,10 +55,12 @@
     <!-- Secretary -->
     <AuthorizeView Roles="Secretary,Doctor">
         <Authorized Context="auth">
-            <MudNavLink OnClick="@(() => Navigate("/secretary/book"))" Icon="@MaterialIcons.Filled.PersonAddAlt1" IconColor="Color.Success">
+            <MudNavLink OnClick="@(() => Navigate("/secretary/book"))" Icon="@MaterialIcons.Filled.PersonAddAlt1"
+                        IconColor="Color.Success">
                 @(auth.User.IsInRole("Secretary") ? "رزرو برای بیمار" : "رزرو برای بیمار")
             </MudNavLink>
-            <MudNavLink OnClick="@(() => Navigate("/users?Secretaries=false"))" Icon="@MaterialIcons.Filled.Group" IconColor="Color.Info">
+            <MudNavLink OnClick="@(() => Navigate("/users?Secretaries=false"))" Icon="@MaterialIcons.Filled.Group"
+                        IconColor="Color.Info">
                 @("لیست بیماران")
             </MudNavLink>
         </Authorized>
@@ -63,7 +69,8 @@
     <!-- Doctor (super admin only) -->
     <AuthorizeView Roles="Doctor">
         <Authorized>
-            <MudNavLink OnClick="@(() => Navigate("/users?Secretaries=true"))"  Icon="@MaterialIcons.Filled.Group" IconColor="Color.Info">
+            <MudNavLink OnClick="@(() => Navigate("/users?Secretaries=true"))" Icon="@MaterialIcons.Filled.Group"
+                        IconColor="Color.Info">
                 @("لیست منشی ها")
             </MudNavLink>
             <MudNavLink Href="/doctor/schedule" Icon="@MaterialIcons.Filled.Schedule" IconColor="Color.Info">
@@ -136,7 +143,9 @@
     }
 
     public void Navigate(string to , bool hard = true)
-        => NavigationManager.NavigateTo(to , false, hard);
+    {
+        NavigationManager.NavigateTo(to , false, hard);
+    }
 
     private async Task OpenUserInfo()
     {
