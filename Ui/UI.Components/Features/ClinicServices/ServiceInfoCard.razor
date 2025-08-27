@@ -4,7 +4,7 @@
 @using Microsoft.AspNetCore.Components.Authorization
 
 
-<MudPaper Class="pa-4" RightToLeft="true">
+<MudPaper Class="pa-4" MaxHeight="400" MaxWidth="400">
     <MudText Typo="Typo.h5" GutterBottom="true">لیست خدمات کلینیک</MudText>
 
     <MudTextField @bind-Value="_searchString"
@@ -18,9 +18,12 @@
               Filter="FilterFunc"
               Hover="true"
               Dense="true"
+              ItemSize="10"
+              Height="250"
+Virtualize="true"
               Bordered="true"
               Striped="true"
-              Breakpoint="Breakpoint.Xs"              
+              Breakpoint="Breakpoint.Xs"
               SortLabel="مرتب‌سازی بر اساس"
               RowsPerPage="5"
     >
@@ -75,7 +78,7 @@
         </RowTemplate>
 
         <PagerContent>
-            <MudTablePager  HideRowsPerPage  RowsPerPageString="تعداد در هر صفحه:" AllItemsText="همه"/>
+            <MudTablePager HideRowsPerPage RowsPerPageString="تعداد در هر صفحه:" AllItemsText="همه"/>
         </PagerContent>
     </MudTable>
 </MudPaper>
