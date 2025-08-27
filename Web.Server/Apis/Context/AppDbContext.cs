@@ -46,7 +46,6 @@ public class AppDbContext (
             e.Property(x => x.Name).HasMaxLength(200).IsRequired();
             e.Property(x => x.Address).HasMaxLength(500).IsRequired();
             e.Property(x => x.PhoneNumber).HasMaxLength(50).IsRequired();
-            e.OwnsOne(x => x, nb => { }); // noop; keeps owned types tidy
         });
 
         // Money owned on MedicalService

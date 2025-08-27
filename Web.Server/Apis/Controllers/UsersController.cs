@@ -152,7 +152,7 @@ public class UsersController(
     [AllowAnonymous]
     public async Task<IActionResult> Register([FromBody] RegisterDto dto)
     {
-        var e164     = PhoneHelper.NormalizeToE164Guess(dto.PhoneNumber);
+        var e164     = (dto.PhoneNumber);
         var username = PhoneHelper.NormalizeUsername(e164);
 
         var existing = await userManager.FindByNameAsync(username);
@@ -399,7 +399,7 @@ public class UsersController(
     [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginDto dto)
     {
-        var e164     = PhoneHelper.NormalizeToE164Guess(dto.PhoneNumber);
+        var e164     = (dto.PhoneNumber);
         var username = PhoneHelper.NormalizeUsername(e164);
 
         var user = await userManager.FindByNameAsync(username);
@@ -428,7 +428,7 @@ public class UsersController(
     [AllowAnonymous]
     public async Task<IActionResult> ForgotPassword([FromBody] ResetPasswordDto dto)
     {
-        var e164     = PhoneHelper.NormalizeToE164Guess(dto.PhoneNumber);
+        var e164     = (dto.PhoneNumber);
         var username = PhoneHelper.NormalizeUsername(e164);
 
         var user = await userManager.FindByNameAsync(username);
@@ -500,7 +500,7 @@ public class UsersController(
 
     private async Task<(bool ok, string? error, AppUser? user)> RegisterWithRole(RegisterDto dto, string role)
     {
-        var e164     = PhoneHelper.NormalizeToE164Guess(dto.PhoneNumber);
+        var e164     = (dto.PhoneNumber);
         var username = PhoneHelper.NormalizeUsername(e164);
 
         var existing = await userManager.FindByNameAsync(username);

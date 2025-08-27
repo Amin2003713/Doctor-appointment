@@ -7,7 +7,7 @@ public class ResetPasswordRequest : IRequest
     /// <summary>
     ///     The phone number associated with the user account.
     /// </summary>
-    public string UserName { get; set; }
+    public string PhoneNumber { get; set; }
 
     /// <summary>
     ///     The new password to be set for the user account.

@@ -14,7 +14,7 @@ public static class SeedHelper
         string               role)
     {
         // Normalize phone like your controller does
-        var e164     = PhoneHelper.NormalizeToE164Guess(phone);
+        var e164     = (phone);
         var username = PhoneHelper.NormalizeUsername(e164);
 
         var existing = await userManager.FindByNameAsync(username);
