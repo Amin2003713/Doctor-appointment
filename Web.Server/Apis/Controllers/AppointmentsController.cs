@@ -18,9 +18,7 @@ public class AppointmentsController(
     AppDbContext db
 ) : ControllerBase
 {
-    // ---------------------------
-    // Create
-    // ---------------------------
+    // CREATE — prevent patient double-booking across any service
     [Authorize(Roles = "Doctor,Secretary,Patient")]
     [HttpPost]
     public async Task<ActionResult<Guid>> Create([FromBody] UpsertAppointmentRequest body, CancellationToken ct)
@@ -37,7 +35,7 @@ public class AppointmentsController(
 
         var (userId, role) = GetUserIdAndRole();
 
-        // who is the patient?
+        // determine patient identity
         string patientName;
         string patientPhone;
         Guid?  patientUserId = null;
@@ -47,14 +45,13 @@ public class AppointmentsController(
             if (string.IsNullOrWhiteSpace(body.PatientFullName) || string.IsNullOrWhiteSpace(body.PatientPhone))
                 return BadRequest("PatientFullName and PatientPhone are required when booking as Secretary/Doctor.");
 
-            patientName = body.PatientFullName.Trim();
+            patientName  = body.PatientFullName.Trim();
             patientPhone = body.PatientPhone.Trim();
         }
         else
         {
-            // Patient booking for self
             patientUserId = userId;
-            patientName = string.IsNullOrWhiteSpace(body.PatientFullName) ? "Patient" : body.PatientFullName.Trim();
+            patientName  = string.IsNullOrWhiteSpace(body.PatientFullName) ? "Patient" : body.PatientFullName.Trim();
             patientPhone = string.IsNullOrWhiteSpace(body.PatientPhone) ? "-" : body.PatientPhone.Trim();
         }
 
@@ -74,27 +71,40 @@ public class AppointmentsController(
         var insideWorkingHours = intervals.Any(tr => start >= tr.From && end <= tr.To);
         if (!insideWorkingHours) return BadRequest("Selected time is outside working hours.");
 
-        // conflict (Booked only)
-        var conflict = await db.Appointments.AsNoTracking()
+        // conflict with other appointments of the SAME SERVICE (existing rule)
+        var serviceOverlap = await db.Appointments.AsNoTracking()
             .Where(a => a.Date == body.Date && a.ServiceId == body.ServiceId && a.Status == AppointmentStatus.Booked)
             .AnyAsync(a => Overlaps(start.ToTimeSpan(), end.ToTimeSpan(), a.Start.ToTimeSpan(), a.End.ToTimeSpan()), ct);
 
-        if (conflict) return Conflict("Selected time overlaps another appointment.");
+        if (serviceOverlap) return Conflict("Selected time overlaps another appointment for this service.");
 
+        // NEW RULE: prevent the same patient from double-booking overlapping time across ANY service
+        var patientOverlap = await db.Appointments.AsNoTracking()
+            .Where(a => a.Date == body.Date &&
+                        a.Status == AppointmentStatus.Booked &&
+                        (
+                            (patientUserId.HasValue && a.PatientUserId == patientUserId) ||
+                            (!patientUserId.HasValue && a.PatientUserId == null && a.PatientPhone == patientPhone)
+                        ))
+            .AnyAsync(a => Overlaps(start.ToTimeSpan(), end.ToTimeSpan(), a.Start.ToTimeSpan(), a.End.ToTimeSpan()), ct);
+
+        if (patientOverlap) return Conflict("This patient already has an appointment that overlaps this time.");
+
+        // snapshot price & save
         var ap = new Appointment
         {
-            ServiceId = body.ServiceId,
-            PatientUserId = patientUserId,
-            PatientFullName = patientName,
-            PatientPhone = patientPhone,
-            Date = body.Date,
-            Start = start,
-            End = end,
-            PriceAmount = service.Price.Amount,
-            PriceCurrency = string.IsNullOrWhiteSpace(service.Price.Currency) ? "IRR" : service.Price.Currency,
-            Notes = body.Notes,
-            Status = AppointmentStatus.Booked,
-            CreatedByUserId = userId
+            ServiceId        = body.ServiceId,
+            PatientUserId    = patientUserId,
+            PatientFullName  = patientName,
+            PatientPhone     = patientPhone,
+            Date             = body.Date,
+            Start            = start,
+            End              = end,
+            PriceAmount      = service.Price.Amount,
+            PriceCurrency    = string.IsNullOrWhiteSpace(service.Price.Currency) ? "IRR" : service.Price.Currency,
+            Notes            = body.Notes,
+            Status           = AppointmentStatus.Booked,
+            CreatedByUserId  = userId
         };
 
         db.Appointments.Add(ap);
@@ -227,9 +237,6 @@ public class AppointmentsController(
         return NoContent();
     }
 
-    // ---------------------------
-    // Reschedule (same service)
-    // ---------------------------
     [Authorize(Roles = "Doctor,Secretary")]
     [HttpPut("{id:guid}/reschedule")]
     public async Task<IActionResult> Reschedule(Guid id, [FromBody] UpsertAppointmentRequest body, CancellationToken ct)
@@ -253,15 +260,29 @@ public class AppointmentsController(
         var inside = intervals.Any(tr => newStart >= tr.From && newEnd <= tr.To);
         if (!inside) return BadRequest("Selected time is outside working hours.");
 
-        var conflict = await db.Appointments.AsNoTracking()
+        // keep service-level conflict guard (exclude current ap)
+        var svcConflict = await db.Appointments.AsNoTracking()
             .Where(a => a.Date == body.Date && a.ServiceId == ap.ServiceId && a.Status == AppointmentStatus.Booked && a.Id != ap.Id)
             .AnyAsync(a => Overlaps(newStart.ToTimeSpan(), newEnd.ToTimeSpan(), a.Start.ToTimeSpan(), a.End.ToTimeSpan()), ct);
 
-        if (conflict) return Conflict("Selected time overlaps another appointment.");
+        if (svcConflict) return Conflict("Selected time overlaps another appointment for this service.");
 
-        ap.Date = body.Date;
+        // NEW RULE: patient-level overlap across ANY service (exclude current ap)
+        var patientConflict = await db.Appointments.AsNoTracking()
+            .Where(a => a.Date == body.Date &&
+                        a.Status == AppointmentStatus.Booked &&
+                        a.Id != ap.Id &&
+                        (
+                            (ap.PatientUserId.HasValue && a.PatientUserId == ap.PatientUserId) ||
+                            (!ap.PatientUserId.HasValue && a.PatientUserId == null && a.PatientPhone == ap.PatientPhone)
+                        ))
+            .AnyAsync(a => Overlaps(newStart.ToTimeSpan(), newEnd.ToTimeSpan(), a.Start.ToTimeSpan(), a.End.ToTimeSpan()), ct);
+
+        if (patientConflict) return Conflict("This patient already has an appointment that overlaps this time.");
+
+        ap.Date  = body.Date;
         ap.Start = newStart;
-        ap.End = newEnd;
+        ap.End   = newEnd;
         ap.Notes = body.Notes;
 
         await db.SaveChangesAsync(ct);
