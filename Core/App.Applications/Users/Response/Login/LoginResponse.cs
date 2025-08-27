@@ -23,13 +23,13 @@
                 return jwtToken.Claims.FirstOrDefault(c => types.Contains(c.Type))?.Value ?? string.Empty;
             }
 
-            // ID: prefer sub, then nameidentifier
+            
             var id = Get(JwtRegisteredClaimNames.Sub , ClaimTypes.NameIdentifier);
 
-            // Full display name comes from ClaimTypes.Name (you issued it as FullName or fallback)
+            
             var userName = Get(ClaimTypes.Name);
 
-            // Custom claims you added
+            
             var firstName = Get("first_name");
             var lastName  = Get("last_name");
             var profile   = Get("profile");

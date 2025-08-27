@@ -10,7 +10,7 @@ namespace App.Persistence.Services.Exceptions;
 
 public class ExceptionHandlerService : IExceptionNotifier
 {
-    // How many milliseconds to “cool down” repeated exceptions
+    
     private const    int                                   ExceptionCooldownMilliseconds = 500;
     private readonly IDictionary<Type , Action<Exception>> _exceptionHandlers;
     private readonly ILogger<ExceptionHandlerService>      _logger;
@@ -65,7 +65,7 @@ public class ExceptionHandlerService : IExceptionNotifier
         };
     }
 
-    // Methods from IExceptionNotifier
+    
     public void Notify(object sender , UnhandledExceptionEventArgs e)
     {
         HandleException(sender , (e.ExceptionObject as Exception)!);
@@ -78,7 +78,7 @@ public class ExceptionHandlerService : IExceptionNotifier
 
     public void Notify(Exception e)
     {
-        // If e.Source is null or empty, just pass in a fallback string
+        
         var source = string.IsNullOrEmpty(e.Source) ? "Unknown" : e.Source;
         HandleException(source , e);
     }
@@ -174,17 +174,17 @@ public class ExceptionHandlerService : IExceptionNotifier
 
     private void HandleException(object sender , Exception exception)
     {
-        // 1. Determine if we should skip because the same exception “key” was handled too recently
+        
         if (ShouldSkipException(exception))
         {
-            // Don’t do anything if it’s within the cooldown
+            
             return;
         }
 
-        // 2. Mark as handled (store in cache)
+        
         MarkExceptionHandled(exception);
 
-        // 3. Run the main handler logic
+        
         var exceptionType = exception.GetType();
 
         if (_exceptionHandlers.TryGetValue(exceptionType , out var handler))
@@ -197,20 +197,20 @@ public class ExceptionHandlerService : IExceptionNotifier
         HandleUnknownException(exception);
     }
 
-    /// <summary>
-    ///     Returns true if the same exception (by type + message) was recently handled
-    ///     within the last ExceptionCooldownMilliseconds. Otherwise false.
-    /// </summary>
+    
+    
+    
+    
     private bool ShouldSkipException(Exception ex)
     {
         var key = BuildExceptionKey(ex);
 
-        // If the cache contains this key, skip it
+        
         return _memoryCache.TryGetValue(key , out _);
     }
 
-    /// <summary>
-    ///     Store the exception key with a short expiration (500 ms by default).
+    
+    
     /// </summary>
     private void MarkExceptionHandled(Exception ex)
     {

@@ -13,7 +13,7 @@ public class UpdateProfileRequestHandler(
     ISnackbarService snackbarService
 ) : IRequestHandler<UpdateProfileRequest>
 {
-    // ساخت Refit API
+    
     private readonly IUserApis Apis = apiFactory.CreateApi<IUserApis>();
 
     public async Task Handle(UpdateProfileRequest request, CancellationToken cancellationToken)
@@ -34,7 +34,7 @@ public class UpdateProfileRequestHandler(
 
 
             snackbarService.ShowSuccess("اطلاعات پروفایل با موفقیت به‌روزرسانی شد.");
-            // پس از موفقیت، اطلاعات کاربر را تازه بگیر و در LocalStorage ذخیره کن
+            
             var me = await Apis.Me();
 
 

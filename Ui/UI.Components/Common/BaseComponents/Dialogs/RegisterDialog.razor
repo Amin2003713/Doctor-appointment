@@ -129,7 +129,7 @@
     {
         try
         {
-            // ensure fullname is set before sending
+            
             Request.FullName = $"{Request.FirstName} {Request.LastName}".Trim();
             Console.WriteLine(Request);
             await Mediator.Send(Request);

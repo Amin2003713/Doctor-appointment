@@ -1,5 +1,6 @@
-﻿using App.Applications.ClinicServices;
+﻿using App.Applications.ClinicServices.Requests.Get;
 using MediatR;
 
-public record ListClinicServicesRequest() : IRequest<List<ClinicServiceResponse>>;
+namespace App.Applications.ClinicServices.Requests.ListClinicServices;
 
+public record ListClinicServicesRequest() : IRequest<List<ClinicServiceResponse>>;

@@ -21,48 +21,48 @@
 
 @code {
 
-    /// <summary>
-    ///     The form model to be validated.
-    /// </summary>
+    
+    
+    
     [Parameter] public TModel Model { get; set; } = default!;
 
-    /// <summary>
-    ///     Event triggered when the form is successfully submitted.
-    /// </summary>
+    
+    
+    
     [Parameter] public EventCallback<TModel> OnValidSubmit { get; set; }
 
-    /// <summary>
-    ///     The form content including input fields.
-    /// </summary>
+    
+    
+    
     [Parameter] public RenderFragment FormProps { get; set; } = default!;
 
-    /// <summary>
-    ///     User-defined submit button that replaces the default one.
-    /// </summary>
+    
+    
+    
     [Parameter] public RenderFragment? SubmitButton { get; set; }
 
-    /// <summary>
-    ///     Enables form enhancement for additional functionalities.
-    /// </summary>
+    
+    
+    
     [Parameter] public bool Enhance { get; set; } = true;
 
-    /// <summary>
-    ///     Specifies a custom form name.
-    /// </summary>
+    
+    
+    
     [Parameter] public string? FormName { get; set; }
 
-    /// <summary>
-    ///     Captures any additional attributes that are not explicitly defined.
-    /// </summary>
+    
+    
+    
     [Parameter(CaptureUnmatchedValues = true)]
     public IReadOnlyDictionary<string , object>? AdditionalAttributes { get; set; }
 
     private List<string> ValidationErrors { get; set; } = new ();
 
 
-    /// <summary>
-    ///     Handles valid form submission by performing validation.
-    /// </summary>
+    
+    
+    
     private async Task HandleValidSubmit()
     {
         ValidationErrors.Clear();

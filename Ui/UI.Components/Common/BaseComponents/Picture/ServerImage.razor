@@ -29,7 +29,7 @@
 
     private string _src => ApplicationConstants.Server.BaseUrl + Src;
 
-    // Allow passing arbitrary extra attributes (e.g. id, aria-*)
+    
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string , object>? AdditionalAttributes { get; set; }
 

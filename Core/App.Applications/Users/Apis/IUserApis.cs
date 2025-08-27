@@ -19,7 +19,7 @@
 
     public interface IUserApis
     {
-        // ----------- Auth / Register -----------
+        
 
         [Post(ApiRoutes.User.Register)]
         Task<ApiResponse<object>> Register([Body] RegisterApiRequest body);
@@ -30,7 +30,7 @@
         [Post(ApiRoutes.User.RegisterSecretary)]
         Task<ApiResponse<object>> RegisterSecretary([Body] RegisterApiRequest body);
 
-        // ----------- Role mgmt / Toggle -----------
+        
 
         [Post(ApiRoutes.User.ChangeRole)]
         Task<ApiResponse<object>> ChangeRole([Body] ChangeRoleRequest body);
@@ -38,7 +38,7 @@
         [Post(ApiRoutes.User.ToggleTemplate)]
         Task<ApiResponse<UserInfoResponse>> Toggle([Body] ToggleUserRequest body);
 
-        // ----------- Login / Forgot -----------
+        
 
         [Post(ApiRoutes.User.Login)]
         Task<ApiResponse<LoginResponse>> Login([Body] LoginRequest body);
@@ -50,11 +50,11 @@
         [Get(ApiRoutes.User.Me)]
         Task<ApiResponse<UserInfoResponse>> Me();
 
-        // /api/auth/user/{id:long}
+        
         [Get(ApiRoutes.User.UserByIdTemplate)]
         Task<ApiResponse<UserInfoResponse>> GetUser(long id);
 
-        // /api/auth/users?page=1&pageSize=20&search=...
+        
         [Get(ApiRoutes.User.Users)]
         Task<ApiResponse<PagedResult<UserListItemResponse>>> GetUsers([Query] UsersQueryRequest queryRequest);
 

@@ -6,7 +6,7 @@ namespace App.Applications.Users.Validators.Registers;
 
 public class RegisterRequestValidator : AbstractValidator<RegisterRequest>
 {
-    // الگوی رایج موبایل ایران: (+98|0098|0)?9xxxxxxxxx  یا حالت لوکال 9xxxxxxxxx
+    
     private readonly static Regex IranMobileRegex =
         new(@"^(\+98|0098|0)?9\d{9}$", RegexOptions.Compiled);
 

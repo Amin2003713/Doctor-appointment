@@ -1,7 +1,10 @@
-﻿using App.Applications.ClinicServices;
+﻿using App.Applications.ClinicServices.Apis;
+using App.Applications.ClinicServices.Requests.Update;
 using App.Common.Utilities.Snackbar;
 using App.Persistence.Services.Refit;
 using MediatR;
+
+namespace App.Handlers.ClinicServices.Update;
 
 public class UpdateClinicServiceHandler(
     ApiFactory factory,

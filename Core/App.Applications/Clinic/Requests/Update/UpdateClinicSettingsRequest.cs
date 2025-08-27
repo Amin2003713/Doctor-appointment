@@ -1,7 +1,7 @@
 ﻿using App.Domain.ValueObjects;
 using MediatR;
 
-namespace App.Applications.Clinic;
+namespace App.Applications.Clinic.Requests.Update;
 
 public class UpdateClinicSettingsRequest : IRequest
 {

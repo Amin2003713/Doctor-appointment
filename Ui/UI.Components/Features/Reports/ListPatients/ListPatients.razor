@@ -314,9 +314,9 @@
 
 
         var dialog = DialogService.ShowAsync<UserInfoDialog>($"اطلاعات کاربر({userInfo.Username})", parameters, options);
-        var result = await  dialog.Result.Result; // ⬅️ await the dialog to close
+        var result = await  dialog.Result.Result; 
 
-        if (!result!.Canceled) // ⬅️ optional: check if the user made changes (not cancelled)
+        if (!result!.Canceled) 
         {
             await _table!.ReloadServerData();
             StateHasChanged();

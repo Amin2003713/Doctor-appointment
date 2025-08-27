@@ -1,4 +1,6 @@
-﻿using App.Common.Utilities.Snackbar;
+﻿using App.Applications.ClinicServices.Apis;
+using App.Applications.ClinicServices.Requests.Delete;
+using App.Common.Utilities.Snackbar;
 using App.Persistence.Services.Refit;
 using MediatR;
 

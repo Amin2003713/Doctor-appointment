@@ -28,17 +28,17 @@
     protected override async Task OnInitializedAsync()
     {
         Settings = await Mediator.Send(new LoadSettingsQuery());
-        // Subscribe to theme changes.
+        
         ThemeService.ThemeChanged += HandleThemeChanged!;
 
-        // Subscribe to domain-missing event.
+        
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            // Watch for system preference changes and sync theme.
+            
             await _mudThemeProvider.WatchSystemPreference(ThemeService.OnSystemPreferenceChanged);
             var systemPreference = await _mudThemeProvider.GetSystemPreference();
             ThemeService.ToggleDarkLightMode(systemPreference , false);

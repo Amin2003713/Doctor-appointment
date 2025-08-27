@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using App.Applications.Clinic.Apis;
-using App.Applications.Clinic.Requests.Get; // GetClinicSettingsInfo, ClinicSettingsResponse
+using App.Applications.Clinic.Requests.Get; 
 using App.Common.Utilities.Snackbar;
 using App.Persistence.Services.Refit;
 using MediatR;

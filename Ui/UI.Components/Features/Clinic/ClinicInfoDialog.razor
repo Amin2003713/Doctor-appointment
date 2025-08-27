@@ -2,6 +2,7 @@
 @using System.ComponentModel.DataAnnotations
 @using App.Applications.Clinic
 @using App.Applications.Clinic.Requests.Get
+@using App.Applications.Clinic.Requests.Update
 @using App.Persistence.Services.Refit
 @using App.Domain.ValueObjects
 @inject ISnackbar Snackbar
@@ -137,7 +138,7 @@
 
     private UpdateClinicSettingsRequest _editModel = new();
 
-    // مدیریت فلگ‌های پرداخت در UI
+    
     private IEnumerable<PaymentMethods> _acceptedPaymentItems = [];
 
     private readonly IEnumerable<PaymentMethods> _allPaymentValues =

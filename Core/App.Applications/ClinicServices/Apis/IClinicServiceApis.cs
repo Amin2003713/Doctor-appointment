@@ -1,6 +1,9 @@
-﻿using App.Applications.ClinicServices;
+﻿using App.Applications.ClinicServices.Requests.Get;
+using App.Applications.ClinicServices.Requests.Update;
 using App.Common.General;
 using Refit;
+
+namespace App.Applications.ClinicServices.Apis;
 
 public interface IClinicServiceApis
 {

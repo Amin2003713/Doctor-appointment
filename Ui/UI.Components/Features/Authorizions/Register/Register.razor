@@ -187,7 +187,7 @@
 
         try
         {
-            await Mediator.Send(Request); // Handler شما مپ و ارسال را انجام می‌دهد
+            await Mediator.Send(Request); 
 
             Snackbar.ShowSuccess("ثبت‌نام با موفقیت انجام شد.\nدرحال ورود ...");
 
@@ -199,7 +199,7 @@
         }
         catch (Exception e)
         {
-            // Snackbar.Add("خطا در ثبت‌نام. لطفاً دوباره تلاش کنید.", Severity.Error);
+            
         }
         finally
         {

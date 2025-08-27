@@ -12,7 +12,7 @@ public static class ConfigureDependencyInjectionExtensions
 {
     public static void ConfigureDependencyInjection(this IServiceCollection services)
     {
-        // Auto Register Services with Scrutor
+        
         services.Scan(scan => scan.FromAssemblies(
                 typeof(ApplicationConstants).Assembly ,
                 typeof(UserInfo).Assembly ,

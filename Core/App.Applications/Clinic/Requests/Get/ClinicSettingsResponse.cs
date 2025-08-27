@@ -1,4 +1,4 @@
-﻿// Application/Clinic/Dto.cs
+﻿
 
 
 using App.Domain.ValueObjects;

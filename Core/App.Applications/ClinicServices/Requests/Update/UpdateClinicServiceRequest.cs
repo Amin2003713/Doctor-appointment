@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-namespace App.Applications.ClinicServices;
+namespace App.Applications.ClinicServices.Requests.Update;
 
 public class UpdateClinicServiceRequest : UpsertServiceRequest,
     IRequest

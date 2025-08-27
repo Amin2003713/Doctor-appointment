@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using App.Applications.Clinic.Requests.Update;
+using FluentValidation;
 
 namespace App.Applications.Clinic.Validators.Update;
 

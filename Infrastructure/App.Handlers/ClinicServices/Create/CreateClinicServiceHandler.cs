@@ -1,6 +1,10 @@
-﻿using App.Common.Utilities.Snackbar;
+﻿using App.Applications.ClinicServices.Apis;
+using App.Applications.ClinicServices.Requests.Create;
+using App.Common.Utilities.Snackbar;
 using App.Persistence.Services.Refit;
 using MediatR;
+
+namespace App.Handlers.ClinicServices.Create;
 
 public class CreateClinicServiceHandler(
     ApiFactory factory,

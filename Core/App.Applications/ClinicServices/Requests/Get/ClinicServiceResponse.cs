@@ -1,4 +1,4 @@
-﻿namespace App.Applications.ClinicServices;
+﻿namespace App.Applications.ClinicServices.Requests.Get;
 
 public class ClinicServiceResponse
 {

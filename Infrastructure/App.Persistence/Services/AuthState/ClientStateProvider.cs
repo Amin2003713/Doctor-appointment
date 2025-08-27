@@ -22,18 +22,18 @@ public class ClientStateProvider (
     {
         try
         {
-            // بار اول از سرور/استوریج بگیر (کاملاً async)
+            
             User ??= await mediator.Send(new GetUserInfoQuery());
 
 
-            // کاربر لاگین نیست
+            
             if (User?.Token is null)
             {
                 navigationManager.NavigateTo("/login");
                 return Anonymous();
             }
 
-            // اگر توکن هنوز معتبر است
+            
             if (!IsTokenExpired(User.Token))
             {
                 var principal = CreatePrincipal(User.Token);
@@ -41,7 +41,7 @@ public class ClientStateProvider (
             }
 
 
-            // رفرش ناموفق
+            
             navigationManager.NavigateTo("/login");
             return Anonymous();
         }
@@ -60,7 +60,7 @@ public class ClientStateProvider (
     private static bool IsTokenExpired(string token)
     {
         var jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
-        // همیشه با UTC مقایسه کن
+        
         return jwt.ValidTo <= DateTime.UtcNow;
     }
 
@@ -89,7 +89,7 @@ public class ClientStateProvider (
         navigationManager.NavigateTo("/login");
     }
 
-    // اختیاری: وقتی از بیرون (مثلاً بعد از Login) توکن گرفتی، صدا بزن
+    
     public Task SetUserAsync(UserInfo? user)
     {
         User = user;
