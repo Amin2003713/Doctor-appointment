@@ -49,7 +49,8 @@
                 LastLoginDate = string.Empty ,
                 PhoneNumber = Get(ClaimTypes.MobilePhone) ,
                 Roles = roles ,
-                Token = Token
+                Token = Token,
+                Email = Get(JwtRegisteredClaimNames.Email) ?? null
             };
         }
     }

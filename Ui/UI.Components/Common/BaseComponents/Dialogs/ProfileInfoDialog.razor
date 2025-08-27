@@ -39,24 +39,7 @@
                         <MudTextField @bind-Value="StateProvider.User!.PhoneNumber" ReadOnly Disabled
                                       Variant="Variant.Outlined" Label="شماره تماس"/>
                     </MudItem>
-                    <MudItem xs="12" sm="6">
-                        <MudSelect
-                            T="string"
-                            @bind-Value="_newRole"
-                            Label="نقش"
-                            Disabled="@(StateProvider.User!.Roles.Contains("Doctor"))"
-                            Variant="Variant.Outlined"
-                            Margin="Margin.Normal"
-                            HelperTextOnFocus>
-                            @foreach (var value in Roles)
-                            {
-                                <MudSelectItem T="string" Value="value">@ToPersian(value)</MudSelectItem>
-                            }
-                        </MudSelect>
-                    </MudItem>
-                    <MudItem xs="12" sm="6">
-                        <MudTextField Variant="Variant.Outlined" @bind-Value="_editModel.Address" Label="آدرس"/>
-                    </MudItem>
+
                     <MudItem xs="12" sm="6">
                         <MudFileUpload T="IBrowserFile" FilesChanged="OnFilesSelected!">
                             <ActivatorContent>
@@ -75,6 +58,9 @@
                                 </MudButton>
                             </ActivatorContent>
                         </MudFileUpload>
+                    </MudItem>
+                    <MudItem xs="12" sm="12">
+                        <MudTextField Variant="Variant.Outlined" @bind-Value="_editModel.Address" Label="آدرس"/>
                     </MudItem>
                 </MudGrid>
             </MudForm>
