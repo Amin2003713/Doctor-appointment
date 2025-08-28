@@ -7,6 +7,6 @@ public class MedicalRecord
     public string Notes { get; set; } = default!;
     public string? Diagnosis { get; set; }
     public string? Prescription { get; set; }
-    public string? AttachmentsUrl { get; set; } // lab reports, files
+    public string? AttachmentsUrl { get; set; } 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

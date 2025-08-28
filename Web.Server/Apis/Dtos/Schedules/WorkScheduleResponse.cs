@@ -1,4 +1,4 @@
-﻿// Application/Schedule/Dto.cs
+﻿
 
 namespace Api.Endpoints.Dtos.Schedules;
 

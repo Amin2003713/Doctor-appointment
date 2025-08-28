@@ -15,10 +15,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 
-// NOTE: assumes you already have these domain models & DbContext from earlier:
-// - ClinicSettings, PaymentMethods
-// - MedicalService (with Money Price), WorkSchedule, WorkingDay, SpecialDateOverride, TimeRange
-// - AppDbContext configured with TimeOnly<->TimeSpan converters for TimeRange
+
+
+
+
 
 namespace Api.Endpoints.Controllers;
 
@@ -32,7 +32,7 @@ public class ClinicController (
     [HttpGet("settings")]
     public async Task<ActionResult<ClinicSettingsResponse>> GetSettings(CancellationToken ct)
     {
-        var s = await db.ClinicSettings.AsNoTracking().FirstOrDefaultAsync(ct) ?? new ClinicSettings(); // default empty if not set yet
+        var s = await db.ClinicSettings.AsNoTracking().FirstOrDefaultAsync(ct) ?? new ClinicSettings(); 
 
         return Ok(new ClinicSettingsResponse
         {

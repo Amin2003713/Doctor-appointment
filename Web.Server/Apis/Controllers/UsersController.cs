@@ -21,7 +21,7 @@ public class UsersController(
     IWebHostEnvironment env
 ) : ControllerBase
 {
-// PUT api/User/profile
+
     [HttpPut("profile")]
     [Authorize]
     public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto dto)
@@ -29,17 +29,17 @@ public class UsersController(
         var user = await userManager.GetUserAsync(User);
         if (user is null) return Unauthorized();
 
-        // Update allowed fields
+        
         if (dto.FirstName is not null) user.FirstName = dto.FirstName.Trim();
         if (dto.LastName  is not null) user.LastName  = dto.LastName.Trim();
         if (dto.Address   is not null) user.Address   = dto.Address.Trim();
         if (dto.Profile   is not null) user.Profile   = dto.Profile.Trim();
 
-        // Optional: allow email change (add confirmation flow if needed)
+        
         if (!string.IsNullOrWhiteSpace(dto.Email))
             user.Email = dto.Email.Trim();
 
-        // Keep FullName in sync
+        
         user.FullName = BuildFullName(user.FirstName, user.LastName);
 
         var result = await userManager.UpdateAsync(user);
@@ -48,7 +48,7 @@ public class UsersController(
         return Ok();
     }
 
-// PUT api/User/profile
+
     [HttpPut("profile/{id:long}")]
     [Authorize]
     public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileDto dto , long id)
@@ -56,17 +56,17 @@ public class UsersController(
         var user = await userManager.FindByIdAsync(id.ToString());
         if (user is null) return Unauthorized();
 
-        // Update allowed fields
+        
         if (dto.FirstName is not null) user.FirstName = dto.FirstName.Trim();
         if (dto.LastName  is not null) user.LastName  = dto.LastName.Trim();
         if (dto.Address   is not null) user.Address   = dto.Address.Trim();
         if (dto.Profile   is not null) user.Profile   = dto.Profile.Trim();
 
-        // Optional: allow email change (add confirmation flow if needed)
+        
         if (!string.IsNullOrWhiteSpace(dto.Email))
             user.Email = dto.Email.Trim();
 
-        // Keep FullName in sync
+        
         user.FullName = BuildFullName(user.FirstName, user.LastName);
 
         var result = await userManager.UpdateAsync(user);
@@ -82,11 +82,11 @@ public class UsersController(
         if (file is null || file.Length == 0)
             return BadRequest("No file uploaded.");
 
-        // Validate content type
+        
         if (!IsAllowedImageContentType(file.ContentType))
             return BadRequest("Only PNG, JPEG or WebP images are allowed.");
 
-        // Validate extension
+        
         var ext = Path.GetExtension(file.FileName).ToLowerInvariant();
         if (!IsAllowedImageExtension(ext))
             return BadRequest("Only .png, .jpg/.jpeg, or .webp files are allowed.");
@@ -96,20 +96,20 @@ public class UsersController(
         var userDir = Path.Combine(root, "uploads", "profiles", id);
         Directory.CreateDirectory(userDir);
 
-        // Unique file name
+        
         var fileName = $"{Guid.NewGuid():N}{ext}";
         var fullPath = Path.Combine(userDir, fileName);
 
-        // OPTIONAL: purge previous avatar files to keep only one
+        
         TryDeleteExistingAvatarFiles(userDir);
 
-        // Save file
+        
         await using (var stream = System.IO.File.Create(fullPath))
         {
             await file.CopyToAsync(stream);
         }
 
-        // Persist relative/public URL
+        
         var publicUrl = $"/uploads/profiles/{id}/{fileName}";
 
         return Ok(publicUrl);
@@ -117,7 +117,7 @@ public class UsersController(
 
     private static bool IsAllowedImageContentType(string? contentType)
     {
-        // Common browser values
+        
         return contentType is "image/png" or "image/jpeg" or "image/webp";
     }
 
@@ -145,9 +145,9 @@ public class UsersController(
         }
     }
 
-    // ---------------------------
-    // Register (self) => Patient
-    // ---------------------------
+    
+    
+    
     [HttpPost("register")]
     [AllowAnonymous]
     public async Task<IActionResult> Register([FromBody] RegisterDto dto)
@@ -198,9 +198,9 @@ public class UsersController(
         ));
     }
 
-    // ---------------------------
-    // Doctor/Secretary create Patient
-    // ---------------------------
+    
+    
+    
     [HttpPost("register/patient")]
     [Authorize(Roles = "Doctor,Secretary")]
     public async Task<IActionResult> RegisterPatient([FromBody] RegisterDto dto)
@@ -215,9 +215,9 @@ public class UsersController(
             : BadRequest(msg);
     }
 
-    // ---------------------------
-    // Doctor create Secretary
-    // ---------------------------
+    
+    
+    
     [HttpPost("register/secretary")]
     [Authorize(Roles = "Doctor")]
     public async Task<IActionResult> RegisterSecretary([FromBody] RegisterDto dto)
@@ -232,9 +232,9 @@ public class UsersController(
             : BadRequest(msg);
     }
 
-    // ---------------------------
-    // Change role (Doctor only)
-    // ---------------------------
+    
+    
+    
     [HttpPost("change-role")]
     [Authorize(Roles = "Doctor")]
     public async Task<IActionResult> ChangeRole([FromBody] ChangeRoleDto dto)
@@ -260,9 +260,9 @@ public class UsersController(
         return Ok(ToDetail(user, roles));
     }
 
-    // ---------------------------
-    // Users list (Doctor only)
-    // ---------------------------
+    
+    
+    
     [HttpGet("users")]
     [Authorize(Roles = "Doctor,Secretary")]
     public async Task<ActionResult<PagedResult<UserListItemDto>>> GetUsers(
@@ -289,7 +289,7 @@ public class UsersController(
                 u.UserName     != null && u.UserName.Contains(search));
         }
 
-        var total = q.LongCount(); // use LongCountAsync with EF
+        var total = q.LongCount(); 
         var users = q.OrderByDescending(u => u.CreatedAtUtc)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
@@ -319,9 +319,9 @@ public class UsersController(
         return Ok(new PagedResult<UserListItemDto>(list, page, pageSize, total));
     }
 
-    // ---------------------------
-    // Secretaries list (Doctor only)
-    // ---------------------------
+    
+    
+    
     [HttpGet("users/secretaries")]
     [Authorize(Roles = "Doctor")]
     public async Task<ActionResult<PagedResult<UserListItemDto>>> GetSecretaries(
@@ -378,9 +378,9 @@ public class UsersController(
         return Ok(new PagedResult<UserListItemDto>(list, page, pageSize, total));
     }
 
-    // ---------------------------
-    // Single user (Doctor only)
-    // ---------------------------
+    
+    
+    
     [HttpGet("user/{id:long}")]
     [Authorize(Roles = "Doctor")]
     public async Task<ActionResult<UserDetailDto>> GetUser(long id)
@@ -392,9 +392,9 @@ public class UsersController(
         return Ok(ToDetail(user, roles));
     }
 
-    // ---------------------------
-    // Login
-    // ---------------------------
+    
+    
+    
     [HttpPost("login")]
     [AllowAnonymous]
     public async Task<IActionResult> Login([FromBody] LoginDto dto)
@@ -421,9 +421,9 @@ public class UsersController(
         });
     }
 
-    // ---------------------------
-    // Forgot password (reset)
-    // ---------------------------
+    
+    
+    
     [HttpPost("forgot-password")]
     [AllowAnonymous]
     public async Task<IActionResult> ForgotPassword([FromBody] ResetPasswordDto dto)
@@ -441,9 +441,9 @@ public class UsersController(
         return Ok();
     }
 
-    // ---------------------------
-    // Me
-    // ---------------------------
+    
+    
+    
     [HttpGet("me")]
     [Authorize]
     public async Task<ActionResult<UserInfoDto>> Me()
@@ -468,8 +468,8 @@ public class UsersController(
         ));
     }
 
-    // ---------------------------
-    // Toggle active (Doctor only)
+    
+    
     // ---------------------------
     [HttpPost("toggle")]
     [Authorize(Roles = "Doctor")]

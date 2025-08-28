@@ -1,4 +1,4 @@
-﻿// Application/Clinic/Dto.cs
+﻿
 
 using Api.Endpoints.Models.Clinic;
 

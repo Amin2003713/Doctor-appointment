@@ -3,7 +3,7 @@
 public class PatientProfile
 {
     public Guid Id { get; set; }
-    public Guid UserId { get; set; } // link to User table
+    public Guid UserId { get; set; } 
     public string FullName { get; set; } = default!;
     public string PhoneNumber { get; set; } = default!;
     public DateOnly? DateOfBirth { get; set; }

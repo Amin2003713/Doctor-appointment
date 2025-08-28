@@ -10,7 +10,7 @@ public class Payment
     public string Currency { get; set; } = "ريال";
     public DateTime PaidAt { get; set; }
     public PaymentMethods Method { get; set; }
-    public string? TransactionReference { get; set; } // bank ref / gateway id
+    public string? TransactionReference { get; set; } 
     public bool IsRefunded { get; set; }
     public bool Payed { get; set; } = false;
 }

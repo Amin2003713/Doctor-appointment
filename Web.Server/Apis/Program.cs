@@ -36,29 +36,29 @@ builder.Services.AddAuthentication(options =>
     {
         options.TokenValidationParameters = new TokenValidationParameters
         {
-            // 🔒 Standard checks
+            
             ValidateIssuer = true ,
             ValidateAudience = true ,
             ValidateLifetime = true ,
             ValidateIssuerSigningKey = true ,
 
-            // 👇 from your config (IOptions<JwtOptions>)
+            
             ValidIssuer      = JwtOptions.Issuer ,
             ValidAudience = JwtOptions.Audience ,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(JwtOptions.SigningKey)) ,
 
-            // ⏰ Ensure token expires exactly as intended
-            ClockSkew = TimeSpan.Zero , // default = 5 minutes; set to 0 for strict expiration
+            
+            ClockSkew = TimeSpan.Zero , 
 
-            // ✅ Extra safety
-            RequireExpirationTime = true ,  // token *must* have exp claim
-            RequireSignedTokens   = true ,  // token must be signed
-            ValidateActor         = false , // only needed if you use "act" claim
-            ValidateTokenReplay   = false , // enable if you track jti in DB/Redis for replay protection
-            SaveSigninToken       = false   // don't keep token instance in memory
+            
+            RequireExpirationTime = true ,  
+            RequireSignedTokens   = true ,  
+            ValidateActor         = false , 
+            ValidateTokenReplay   = false , 
+            SaveSigninToken       = false   
         };
 
-// Debug why it's 401
+
         options.Events = new JwtBearerEvents
         {
             OnAuthenticationFailed = ctx =>
@@ -72,7 +72,7 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddControllers();
 
-// 🔹 OpenAPI + Bearer security in the document
+
 builder.Services.AddOpenApi(options =>
 {
     options.AddDocumentTransformer<BearerSecuritySchemeTransformer>();
@@ -96,11 +96,11 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
 
-    // 1) Apply migrations
+    
     var db = services.GetRequiredService<AppDbContext>();
     await db.Database.MigrateAsync();
 
-    // 2) Seed roles
+    
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<long>>>();
 
     var roles = new[]
@@ -116,12 +116,12 @@ using (var scope = app.Services.CreateScope())
             await roleManager.CreateAsync(new IdentityRole<long>(role));
     }
 
-    // 3) Seed users (Doctor, Secretary, Patient)
+    
     var userManager = services.GetRequiredService<UserManager<AppUser>>();
 
     await SeedHelper.SeedUserAsync(
         userManager ,
-        "0911000001" , // will normalize to PhoneNumber +98911000001
+        "0911000001" , 
         "Dr. Example" ,
         "doctor@example.com" ,
         "Doctor#1234" ,
@@ -153,8 +153,8 @@ app.MapScalarApiReference("/docs" ,
             .WithSidebar()
             .WithDarkMode()
             .WithDefaultOpenAllTags(false)
-            .WithOpenApiRoutePattern("/openapi/{documentName}.json") // where Scalar fetches docs
-            .AddDocument("v1" , "Production API");                   // documentName = "v1"
+            .WithOpenApiRoutePattern("/openapi/{documentName}.json") 
+            .AddDocument("v1" , "Production API");                   
     });
 
 app.MapGet("/" , () => Results.Redirect("/docs"));

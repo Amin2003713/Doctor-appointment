@@ -12,13 +12,13 @@ using Microsoft.EntityFrameworkCore;
 namespace Api.Endpoints.Controllers;
 
 [ApiController]
-[Route("api/appointments")] // ✅ keep route clean: /api/appointments
+[Route("api/appointments")] 
 [Authorize]
 public class AppointmentsController(
     AppDbContext db
 ) : ControllerBase
 {
-    // CREATE — prevent patient double-booking across any service
+    
     [Authorize(Roles = "Doctor,Secretary,Patient")]
     [HttpPost]
     public async Task<ActionResult<Guid>> Create([FromBody] UpsertAppointmentRequest body, CancellationToken ct)
@@ -35,7 +35,7 @@ public class AppointmentsController(
 
         var (userId, role) = GetUserIdAndRole();
 
-        // determine patient identity
+        
         string patientName;
         string patientPhone;
         Guid?  patientUserId = null;
@@ -55,7 +55,7 @@ public class AppointmentsController(
             patientPhone = string.IsNullOrWhiteSpace(body.PatientPhone) ? "-" : body.PatientPhone.Trim();
         }
 
-        // schedule checks
+        
         var schedule = await db.WorkSchedules.AsNoTracking()
                            .Include(x => x.Overrides)
                            .FirstOrDefaultAsync(ct) ??
@@ -71,14 +71,14 @@ public class AppointmentsController(
         var insideWorkingHours = intervals.Any(tr => start >= tr.From && end <= tr.To);
         if (!insideWorkingHours) return BadRequest("Selected time is outside working hours.");
 
-        // conflict with other appointments of the SAME SERVICE (existing rule)
+        
         var serviceOverlap = await db.Appointments.AsNoTracking()
             .Where(a => a.Date == body.Date && a.ServiceId == body.ServiceId && a.Status == AppointmentStatus.Booked)
             .AnyAsync(a => Overlaps(start.ToTimeSpan(), end.ToTimeSpan(), a.Start.ToTimeSpan(), a.End.ToTimeSpan()), ct);
 
         if (serviceOverlap) return Conflict("Selected time overlaps another appointment for this service.");
 
-        // NEW RULE: prevent the same patient from double-booking overlapping time across ANY service
+        
         var patientOverlap = await db.Appointments.AsNoTracking()
             .Where(a => a.Date == body.Date &&
                         a.Status == AppointmentStatus.Booked &&
@@ -90,7 +90,7 @@ public class AppointmentsController(
 
         if (patientOverlap) return Conflict("This patient already has an appointment that overlaps this time.");
 
-        // snapshot price & save
+        
         var ap = new Appointment
         {
             ServiceId        = body.ServiceId,
@@ -112,9 +112,9 @@ public class AppointmentsController(
         return Ok(ap.Id);
     }
 
-    // ---------------------------
-    // List (with filters)
-    // ---------------------------
+    
+    
+    
     [Authorize(Roles = "Doctor,Secretary,Patient")]
     [HttpGet]
     public async Task<ActionResult<List<AppointmentResponse>>> List(
@@ -139,9 +139,9 @@ public class AppointmentsController(
         if (from.HasValue) q = q.Where(a => a.Date >= from.Value);
         if (to.HasValue) q = q.Where(a => a.Date <= to.Value);
 
-        // pull service names in one go
+        
         var services = await db.MedicalServices.AsNoTracking()
-            .ToDictionaryAsync(s => s.Id, s => s.Title, ct); // ✅ Name (your model uses Name, not Title)
+            .ToDictionaryAsync(s => s.Id, s => s.Title, ct); 
 
         var list = await q.OrderBy(a => a.Date)
             .ThenBy(a => a.Start)
@@ -149,7 +149,7 @@ public class AppointmentsController(
             {
                 Id = a.Id,
                 ServiceId = a.ServiceId,
-                ServiceTitle = "", // fill below
+                ServiceTitle = "", 
                 Date = a.Date,
                 Start = a.Start.ToString("HH:mm"),
                 End = a.End.ToString("HH:mm"),
@@ -169,7 +169,7 @@ public class AppointmentsController(
         return Ok(list);
     }
 
-    // ---------------------------
+    
     // Get by id
     // ---------------------------
     [Authorize(Roles = "Doctor,Secretary,Patient")]

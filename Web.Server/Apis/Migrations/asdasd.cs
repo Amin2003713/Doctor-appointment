@@ -4,10 +4,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Api.Endpoints.Migrations;
 
-/// <inheritdoc />
+
 public partial class asdasd : Migration
 {
-    /// <inheritdoc />
+    
     protected override void Up(MigrationBuilder migrationBuilder)
     {
         migrationBuilder.DropColumn(
@@ -15,7 +15,7 @@ public partial class asdasd : Migration
             "AspNetUsers");
     }
 
-    /// <inheritdoc />
+    
     protected override void Down(MigrationBuilder migrationBuilder)
     {
         migrationBuilder.AddColumn<string>(

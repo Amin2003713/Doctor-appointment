@@ -39,7 +39,7 @@ public class AppDbContext (
             b.HasIndex(r => r.NormalizedName).IsUnique();
         });
 
-        // ClinicSettings (single row)
+        
         builder.Entity<ClinicSettings>(e =>
         {
             e.HasKey(x => x.Id);
@@ -48,7 +48,7 @@ public class AppDbContext (
             e.Property(x => x.PhoneNumber).HasMaxLength(50).IsRequired();
         });
 
-        // Money owned on MedicalService
+        
         builder.Entity<MedicalService>(e =>
         {
             e.HasKey(x => x.Id);
@@ -62,7 +62,7 @@ public class AppDbContext (
                 });
         });
 
-        // WorkSchedule
+        
         var timeOnlyToTimeSpan = new ValueConverter<TimeOnly, TimeSpan>(
             t => t.ToTimeSpan(),
             ts => TimeOnly.FromTimeSpan(ts)

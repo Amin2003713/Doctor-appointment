@@ -13,7 +13,7 @@ public static class SeedHelper
         string               password ,
         string               role)
     {
-        // Normalize phone like your controller does
+        
         var e164     = (phone);
         var username = PhoneHelper.NormalizeUsername(e164);
 
@@ -21,13 +21,13 @@ public static class SeedHelper
 
         if (existing != null)
         {
-            // Ensure role assignment (in case the user exists but lacks role)
+            
             var rolesForUser = await userManager.GetRolesAsync(existing);
 
             if (!rolesForUser.Contains(role))
                 await userManager.AddToRoleAsync(existing , role);
 
-            // Make sure it’s active
+            
             if (!existing.IsActive)
             {
                 existing.IsActive = true;

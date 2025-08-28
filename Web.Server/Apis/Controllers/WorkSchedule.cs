@@ -15,9 +15,9 @@ namespace Api.Endpoints.Controllers;
 [Authorize]
 public class WorkScheduleController(AppDbContext db) : ControllerBase
 {
-    // -----------------------
-    // Utilities
-    // -----------------------
+    
+    
+    
     private async Task<WorkSchedule> EnsureScheduleAsync(CancellationToken ct)
     {
         var ws = await db.WorkSchedules
@@ -54,7 +54,7 @@ public class WorkScheduleController(AppDbContext db) : ControllerBase
             var cur  = list[i];
             if (cur.From <= last.To)
             {
-                // extend
+                
                 merged[^1] = new TimeRange(last.From, cur.To > last.To ? cur.To : last.To);
             }
             else
@@ -67,7 +67,7 @@ public class WorkScheduleController(AppDbContext db) : ControllerBase
 
     private static List<TimeRange> SubtractRanges(List<TimeRange> sources, List<TimeRange> subtracts)
     {
-        // subtract each break from each interval
+        
         var result = new List<TimeRange>(sources);
         foreach (var b in subtracts.Where(ValidRange))
         {
@@ -76,10 +76,10 @@ public class WorkScheduleController(AppDbContext db) : ControllerBase
             {
                 if (b.To <= s.From || b.From >= s.To)
                 {
-                    next.Add(s); // no overlap
+                    next.Add(s); 
                     continue;
                 }
-                // overlap segments
+                
                 if (b.From > s.From)
                     next.Add(new TimeRange(s.From, TimeOnly.MinValue.Add(s.From.ToTimeSpan().Add((b.From - s.From)))));
 
@@ -99,7 +99,7 @@ public class WorkScheduleController(AppDbContext db) : ControllerBase
         var day = ws.Days.FirstOrDefault(d => d.Day == date.DayOfWeek);
         if (day is null || day.Closed) return new List<TimeRange>();
 
-        // effective = intervals − breaks
+        
         return SubtractRanges(MergeRanges(day.Intervals), MergeRanges(day.Breaks));
     }
 
@@ -109,8 +109,8 @@ public class WorkScheduleController(AppDbContext db) : ControllerBase
     private static TimeRangeDto ToDto(TimeRange r) => new(r.From.ToString("HH:mm"), r.To.ToString("HH:mm"));
     private static TimeRange ParseRange(TimeRangeDto dto) => new(TimeOnly.Parse(dto.From), TimeOnly.Parse(dto.To));
 
-    // -----------------------
-    // GET /api/schedule
+    
+    
     // -----------------------
     [HttpGet]
     public async Task<ActionResult<WorkScheduleResponse>> GetSchedule(CancellationToken ct)

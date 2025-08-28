@@ -4,10 +4,10 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Api.Endpoints.Migrations;
 
-/// <inheritdoc />
+
 public partial class Initial : Migration
 {
-    /// <inheritdoc />
+    
     protected override void Up(MigrationBuilder migrationBuilder)
     {
         migrationBuilder.CreateTable(
@@ -221,7 +221,7 @@ public partial class Initial : Migration
             filter: "[NormalizedUserName] IS NOT NULL");
     }
 
-    /// <inheritdoc />
+    
     protected override void Down(MigrationBuilder migrationBuilder)
     {
         migrationBuilder.DropTable(

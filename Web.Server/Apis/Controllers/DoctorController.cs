@@ -12,7 +12,7 @@ namespace Api.Endpoints.Controllers;
 [Authorize]
 public sealed class DoctorController(AppDbContext db) : ControllerBase
 {
-    // optional fixed ID to guarantee singleton
+    
     private static readonly Guid SingletonId = Guid.Parse("22222222-2222-2222-2222-222222222222");
 
     private async Task<DoctorProfile> EnsureProfileAsync(CancellationToken ct)
@@ -27,7 +27,7 @@ public sealed class DoctorController(AppDbContext db) : ControllerBase
     }
 
     [HttpGet("profile")]
-    [AllowAnonymous] // let patients/public see the intro
+    [AllowAnonymous] 
     public async Task<ActionResult<DoctorProfileResponse>> GetDoctorProfile(CancellationToken ct)
     {
         var p = await db.DoctorProfiles.AsNoTracking().FirstOrDefaultAsync(ct)

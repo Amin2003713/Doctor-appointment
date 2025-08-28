@@ -1,4 +1,4 @@
-﻿// Application/Services/Dto.cs
+﻿
 
 namespace Api.Endpoints.Dtos.Services;
 

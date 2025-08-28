@@ -66,7 +66,7 @@ public class MedicalServicesController(AppDbContext db) : ControllerBase
         var code = body.Code.Trim();
         var title = body.Title.Trim();
 
-        // case-insensitive uniqueness on Code
+        
         var exists = await db.MedicalServices
             .AnyAsync(x => x.Code.ToLower() == code.ToLower(), ct);
         if (exists) return Conflict(new { message = "Service code already exists." });
@@ -125,7 +125,7 @@ public class MedicalServicesController(AppDbContext db) : ControllerBase
         var entity = await db.MedicalServices.FirstOrDefaultAsync(x => x.Id == id, ct);
         if (entity is null) return NotFound();
 
-        // prevent deletion if referenced by appointments
+        
         var inUse = await db.Appointments.AsNoTracking()
             .AnyAsync(a => a.ServiceId == id && a.Status != AppointmentStatus.Cancelled, ct);
         if (inUse) return Conflict(new { message = "Cannot delete: service is used by existing appointments." });
