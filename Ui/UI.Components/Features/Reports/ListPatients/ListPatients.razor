@@ -8,40 +8,6 @@
 
 <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="pt-4">
 
-    <!-- Toolbar -->
-    <MudPaper Elevation="2" Class="p-3 mb-4 rounded-lg m-3">
-        <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
-            <MudText Typo="Typo.h5" Class="fw-bold" Style="margin: 8px">
-                @_title
-                <MudText Typo="Typo.caption" Class="ms-2" Color="Color.Secondary">
-                    (@_totalCount.ToString("N0"))
-                </MudText>
-            </MudText>
-
-            <MudSpacer/>
-
-            <MudTextField
-                @bind-Value="_search"
-                Placeholder="جستجوی کاربر…"
-                Adornment="Adornment.Start"
-                AdornmentIcon="@MaterialIcons.Filled.Search"
-                Variant="Variant.Outlined"
-                Immediate="true"
-                Clearable="true"
-                DebounceInterval="400"
-                Style="margin: 8px"
-                OnBlur="RefreshTable"/>
-
-            <MudButton Variant="Variant.Filled"
-                       Color="Color.Primary"
-                       Size="Size.Medium"
-                       OnClick="RefreshTable"
-                       StartIcon="@MaterialIcons.Filled.Refresh"
-                       Style="margin: 8px">
-                بروزرسانی
-            </MudButton>
-        </MudStack>
-    </MudPaper>
 
     <!-- Table -->
     <MudPaper Elevation="2" Class="rounded-xl overflow-hidden">
@@ -52,15 +18,33 @@
                   Hover
                   Virtualize
                   FixedHeader
-                  Breakpoint="Breakpoint.Sm"
+                  Breakpoint="Breakpoint.MdAndDown"
                   Height="68vh"
                   CanCancelEdit
                   RowsPerPage="20"
                   @ref="_table">
 
             <ToolBarContent>
-                <!-- keep for consistency if you use MudTable's own toolbar -->
-                <MudText Align="Align.Center" Typo="Typo.subtitle1">@_title</MudText>
+                    <MudText Typo="Typo.h5" Class="fw-bold" Style="margin: 8px">
+                        @_title
+                        <MudText Typo="Typo.caption" Class="ms-2" Color="Color.Secondary">
+                            (@_totalCount.ToString("N0"))
+                        </MudText>
+                    </MudText>
+
+                    <MudSpacer/>
+
+                    <MudTextField
+                        @bind-Value="_search"
+                        Placeholder="جستجوی کاربر…"
+                        Adornment="Adornment.Start"
+                        AdornmentIcon="@MaterialIcons.Filled.Search"
+                        Variant="Variant.Text"
+                        Immediate="true"
+                        Clearable="true"
+                        DebounceInterval="400"
+                        OnBlur="RefreshTable"/>
+
             </ToolBarContent>
 
             <HeaderContent>
@@ -98,7 +82,7 @@
                     <MudText>@(string.IsNullOrWhiteSpace(full) ? "-" : full)</MudText>
                 </MudTd>
 
-                <MudTd DataLabel="ایمیل">
+                <MudTd HideSmall DataLabel="ایمیل">
                     <MudRTLProvider RightToLeft="false">
 
                         <MudText
@@ -135,11 +119,11 @@
                     </MudTooltip>
                 </MudTd>
 
-                <MudTd DataLabel="آدرس">
+                <MudTd HideSmall DataLabel="آدرس">
                     <MudText>@(string.IsNullOrWhiteSpace(context.Address) ? "-" : context.Address)</MudText>
                 </MudTd>
 
-                <MudTd DataLabel="آخرین ورود">
+                <MudTd HideSmall DataLabel="آخرین ورود">
                     <MudRTLProvider RightToLeft="false">
 
                         @{
@@ -160,7 +144,7 @@
                 </MudTd>
 
 
-                <MudTd DataLabel="تاریخ ایجاد">
+                <MudTd HideSmall DataLabel="تاریخ ایجاد">
                     <MudRTLProvider RightToLeft="false">
 
                         @{
@@ -172,7 +156,7 @@
                     </MudRTLProvider>
                 </MudTd>
 
-                <MudTd>
+                <MudTd HideSmall>
                     <MudIconButton Icon="@MaterialIcons.Filled.Visibility"
                                    Color="Color.Primary"
                                    OnClick="() => ViewUser(context)">
@@ -314,9 +298,9 @@
 
 
         var dialog = DialogService.ShowAsync<UserInfoDialog>($"اطلاعات کاربر({userInfo.Username})", parameters, options);
-        var result = await  dialog.Result.Result; 
+        var result = await  dialog.Result.Result;
 
-        if (!result!.Canceled) 
+        if (!result!.Canceled)
         {
             await _table!.ReloadServerData();
             StateHasChanged();

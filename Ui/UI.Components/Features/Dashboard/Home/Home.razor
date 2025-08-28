@@ -1,14 +1,15 @@
 @page "/"
 @using UI.Components.Features.ClinicServices
 
-<MudContainer >
+<MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Gutters Style="padding: 24px">
     <MudGrid>
 
         <!-- Row 1 -->
-        <MudItem xs="12" md="6">
-                    <ServiceInfoCard/>
+        <MudItem md="12" lg="4">
+            <ServiceInfoCard _canEdit="false"/>
         </MudItem>
-        <MudItem xs="12" md="3">
+
+        <MudItem md="12" lg="4">
             <MudCard>
                 <MudCardHeader>کارت ۲</MudCardHeader>
                 <MudCardContent>محتوا…</MudCardContent>
@@ -16,13 +17,13 @@
         </MudItem>
 
         <!-- Row 2 -->
-        <MudItem xs="12" md="3">
+        <MudItem md="12" lg="4">
             <MudCard>
                 <MudCardHeader>کارت ۳</MudCardHeader>
                 <MudCardContent>محتوا…</MudCardContent>
             </MudCard>
         </MudItem>
-        <MudItem xs="12" md="3">
+        <MudItem md="12" lg="4">
             <MudCard>
                 <MudCardHeader>کارت ۴</MudCardHeader>
                 <MudCardContent>محتوا…</MudCardContent>
@@ -30,7 +31,7 @@
         </MudItem>
 
         <!-- Bottom full-width panel -->
-        <MudItem xs="12">
+        <MudItem md="12" lg="4">
             <MudCard Class="bottom-panel">
                 <MudCardHeader>پنل پایینی</MudCardHeader>
                 <MudCardContent>گزارش/جدول/لیست …</MudCardContent>

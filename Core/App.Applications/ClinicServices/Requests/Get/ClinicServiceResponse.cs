@@ -10,4 +10,6 @@ public class ClinicServiceResponse
     public string PriceCurrency { get; set; } = "ريال";
     public int VisitMinutes { get; set; }
     public bool IsActive { get; set; }
+
+    public bool IsEditing { get; set; } = false;
 }

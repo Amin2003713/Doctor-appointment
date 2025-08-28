@@ -53,6 +53,17 @@
         </Authorized>
     </AuthorizeView>
 
+
+    <AuthorizeView Roles="Patient,Secretary,Doctor">
+        <Authorized Context="auth">
+            <MudNavLink OnClick="@(() => Navigate("/clinic-services"))"
+                        Icon="@MaterialIcons.Filled.EventAvailable"
+                        IconColor="Color.Success">
+               خدمات
+            </MudNavLink>
+        </Authorized>
+    </AuthorizeView>
+
     <!-- Secretary -->
     <AuthorizeView Roles="Secretary,Doctor">
         <Authorized Context="auth">
