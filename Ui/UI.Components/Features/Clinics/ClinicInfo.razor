@@ -1,0 +1,287 @@
+﻿@page "/clinic"
+@using App.Applications.Clinic.Requests.Get
+@using App.Domain.ValueObjects
+
+<MudPaper Class="pa-4">
+    @if (_loading)
+    {
+        <MudSkeleton Height="220px" Width="100%"/>
+
+        <MudSkeleton Height="28px" Width="60%" Class="mt-3"/>
+
+        <MudSkeleton Height="18px" Width="80%" Class="mt-2"/>
+
+        <MudSkeleton Height="18px" Width="70%" Class="mt-2"/>
+    }
+    else if (_clinic is null)
+    {
+        <MudAlert Severity="Severity.Warning" Variant="Variant.Filled" Dense>
+            اطلاعات کلینیک در دسترس نیست.
+        </MudAlert>
+    }
+    else
+    {
+        <MudCard Class="clinic-card">
+            <MudCardHeader Class="clinic-card__header">
+                <MudText class="clinic-card__title">
+                    <MudAvatar Class="mr-2" Variant="Variant.Filled" Size="Size.Large"
+                               Color="Color.Primary">
+                        <MudIcon Icon="@MaterialIcons.Filled.LocalHospital"/>
+                    </MudAvatar>
+                    <MudStack>
+                        <MudText Typo="Typo.h3" Class="mb-n1">@_clinic.Name</MudText>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">
+                            کلینیک تخصصی
+                        </MudText>
+                    </MudStack>
+                </MudText>
+
+                <MudItem>
+                    <MudChip T="string" Color="Color.Success" Variant="Variant.Filled" Class="ml-2 chip-multiline"
+                             StartIcon="@MaterialIcons.Filled.Schedule">
+                        <span>زمان هر ویزیت: @_clinic.DefaultVisitMinutes دقیقه</span>
+                    </MudChip>
+                    <MudChip T="string" Color="Color.Warning" Variant="Variant.Filled" Class="ml-2 chip-multiline"
+                             StartIcon="@MaterialIcons.Filled.Schedule">
+                        <span>فاصله بین نوبت‌ها: @_clinic.BufferBetweenVisitsMinutes دقیقه</span>
+                    </MudChip>
+                </MudItem>
+            </MudCardHeader>
+
+
+            <MudCardContent Class="pt-0">
+                <MudGrid Class="mt-2">
+                    <MudItem xs="12" md="6">
+                        <MudList Dense T="string">
+
+                            <MudListItem T="string" Dense="true" Icon="@MaterialIcons.Filled.Place">
+                                <MudStack Row="true">
+                                    <MudTooltip Text="رفتن به نقشه">
+                                        <MudText>@_clinic.Address</MudText>
+                                    </MudTooltip>
+                                </MudStack>
+
+
+                                <MudButton Variant="Variant.Text" Color="Color.Primary" Size="Size.Small"
+                                           StartIcon="@MaterialIcons.Filled.Directions"
+                                           OnClick="@OpenDirections">
+                                    مسیریابی
+                                </MudButton>
+
+                            </MudListItem>
+
+                            <MudListItem T="string" Icon="@MaterialIcons.Filled.Call">
+
+
+                                    <MudLink Href="@($"tel:{_clinic.PhoneNumber}")">@_clinic.PhoneNumber</MudLink>
+
+                            </MudListItem>
+
+                            <MudListItem T="string" Icon="@MaterialIcons.Filled.Email">
+                                <MudLink Href="@($"mailto:{_clinic.Email}")">@_clinic.Email</MudLink>
+                            </MudListItem>
+
+                            <MudListItem T="string" Icon="@MaterialIcons.Filled.Payments">
+                                <MudText Typo="Typo.subtitle2" Class="mb-1">روش‌های پرداخت</MudText>
+                                <MudChipSet T="string">
+                                    @foreach (var chip in PaymentChips)
+                                    {
+                                        <MudChip T="string" Color="@chip.color" Variant="Variant.Outlined"
+                                                 StartIcon="@chip.icon">
+                                            @chip.text
+                                        </MudChip>
+                                    }
+                                </MudChipSet>
+                            </MudListItem>
+
+                        </MudList>
+                    </MudItem>
+                    <!-- Map -->
+                    <MudItem xs="12" md="6">
+                        <div class="clinic-card__map">
+                            @if (_clinic.Latitude is not null && _clinic.Longitude is not null)
+                            {
+                                <iframe class="clinic-card__map-iframe"
+                                        src="@($"https://maps.google.com/maps?q={_clinic.Latitude},{_clinic.Longitude}&hl=fa&z=16&output=embed")"
+                                        loading="lazy"
+                                        title="Clinic Map">
+                                </iframe>
+                            }
+                            else
+                            {
+                                <div class="clinic-card__map-placeholder">
+                                    <MudIcon Icon="@MaterialIcons.Filled.Map" Size="Size.Large"/>
+                                    <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mt-1">
+                                        موقعیت جغرافیایی ثبت نشده است
+                                    </MudText>
+                                </div>
+                            }
+                        </div>
+                    </MudItem>
+
+                    <MudItem xs="12" md="12">
+                    @if (!string.IsNullOrWhiteSpace(_clinic.Notes))
+                        {
+                            <MudListItem T="string" Icon="@MaterialIcons.Filled.Info">
+                                <MudText>@_clinic.Notes</MudText>
+                            </MudListItem>
+                        }
+                    </MudItem>
+                </MudGrid>
+            </MudCardContent>
+
+            <MudCardActions>
+                <MudStack Justify="Justify.SpaceAround" Spacing="4" Row="true">
+                    <MudButton Color="Color.Primary" Variant="Variant.Filled"
+                               StartIcon="@MaterialIcons.Filled.EventAvailable"
+                               OnClick="@GoToReservation">
+                        رزرو نوبت
+                    </MudButton>
+
+                    <MudButton Color="Color.Secondary" Variant="Variant.Outlined"
+                               StartIcon="@MaterialIcons.Filled.Directions"
+                               OnClick="@OpenDirections">
+                        مسیریابی
+                    </MudButton>
+
+                    <MudButton Color="Color.Tertiary" Variant="Variant.Filled"
+                               StartIcon="@MaterialIcons.Filled.Call"
+                               Href="@($"tel:{_clinic.PhoneNumber}")">
+                        تماس
+                    </MudButton>
+                </MudStack>
+            </MudCardActions>
+        </MudCard>
+    }
+</MudPaper>
+
+@code {
+    private ClinicSettingsResponse? _clinic;
+    private bool                    _loading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // If your request type name differs, adjust here
+            _clinic = await Mediator.Send(new GetClinicSettingsInfo());
+        }
+        catch (Exception ex)
+        {
+            Snackbar.ShowError($"خطا در دریافت اطلاعات کلینیک: {ex.Message}");
+        }
+        finally
+        {
+            _loading = false;
+        }
+    }
+
+    private IEnumerable<(string text, Color color, string icon)> PaymentChips
+    {
+        get
+        {
+            if (_clinic is null) yield break;
+
+            foreach (var flag in Enum.GetValues<PaymentMethods>())
+            {
+                if (flag == PaymentMethods.None) continue;
+                if (!_clinic.AcceptedPayments.HasFlag(flag)) continue;
+
+                yield return (
+                    text: ToPersian(flag),
+                    color: flag switch
+                           {
+                               PaymentMethods.Cash          => Color.Warning,
+                               PaymentMethods.Card          => Color.Primary,
+                               PaymentMethods.BankTransfer  => Color.Info,
+                               PaymentMethods.OnlineGateway => Color.Success,
+                               PaymentMethods.Insurance     => Color.Secondary,
+                               _                            => Color.Default
+                           },
+                    icon: flag switch
+                          {
+                              PaymentMethods.Cash          => MaterialIcons.Filled.AttachMoney,
+                              PaymentMethods.Card          => MaterialIcons.Filled.CreditCard,
+                              PaymentMethods.BankTransfer  => MaterialIcons.Filled.AccountBalance,
+                              PaymentMethods.OnlineGateway => MaterialIcons.Filled.Payments,
+                              PaymentMethods.Insurance     => MaterialIcons.Filled.HealthAndSafety,
+                              _                            => MaterialIcons.Filled.Payment
+                          }
+                );
+            }
+        }
+    }
+
+    private static string ToPersian(PaymentMethods value)
+        => value switch
+           {
+               PaymentMethods.Cash          => "نقدی",
+               PaymentMethods.Card          => "کارت‌به‌کارت/کارتخوان",
+               PaymentMethods.OnlineGateway => "آنلاین",
+               PaymentMethods.Insurance     => "بیمه",
+               PaymentMethods.BankTransfer  => "انتقال بانکی",
+               _                            => "نامشخص"
+           };
+
+    private void GoToReservation()
+        => NavigationManager.NavigateTo("/appointments", forceLoad: false);
+
+
+    private void OpenDirections()
+    {
+        if (_clinic is null) return;
+
+        var url = (_clinic.Latitude is not null && _clinic.Longitude is not null)
+            ? $"https://maps.google.com/?q={_clinic.Latitude},{_clinic.Longitude}"
+            : $"https://maps.google.com/?q={Uri.EscapeDataString(_clinic.Address)}";
+
+        NavigationManager.NavigateTo(url, forceLoad: true);
+    }
+
+}
+
+<style>
+    .clinic-card {
+        overflow: hidden;
+        border-radius: 14px;
+    }
+
+    .clinic-card__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .75rem;
+        padding: 16px;
+        background: linear-gradient(135deg, rgba(99, 102, 241, .12), rgba(16, 185, 129, .12));
+        border-bottom: 1px solid rgba(255, 255, 255, .06);
+    }
+
+    .clinic-card__title {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+    }
+
+    .clinic-card__map {
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--mud-palette-lines-default);
+        background: var(--mud-palette-surface);
+    }
+
+    .clinic-card__map-iframe {
+        width: 100%;
+        height: 220px;
+        border: 0;
+    }
+
+    .clinic-card__map-placeholder {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 220px;
+        opacity: .8;
+    }
+    
+</style>

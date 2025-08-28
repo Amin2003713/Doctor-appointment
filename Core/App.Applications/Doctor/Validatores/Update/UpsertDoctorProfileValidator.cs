@@ -7,9 +7,7 @@ public class UpsertDoctorProfileValidator : AbstractValidator<UpsertDoctorProfil
 {
     public UpsertDoctorProfileValidator()
     {
-        RuleFor(x => x.Id)
-            .NotEmpty()
-            .WithMessage("شناسه پروفایل معتبر نیست.");
+        
 
         RuleFor(x => x.FullName)
             .NotEmpty()

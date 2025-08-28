@@ -1,0 +1,322 @@
+﻿@using App.Applications.Doctor.Requests.Get
+@using App.Applications.Doctor.Requests.Update
+@using App.Applications.Users.Requests.UploadProfilePicture
+@* reuse your existing upload request *@
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Web
+
+<MudDialog MaxWidth="MaxWidth.Large" FullWidth>
+    <DialogContent>
+        <MudStack Spacing="2">
+            <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                <MudText Typo="Typo.h6">پروفایل پزشک</MudText>
+                @if (AllowEdit)
+                {
+                    <MudButton Variant="Variant.Filled"
+                               Color="@(_editing ? Color.Secondary : Color.Primary)"
+                               OnClick="ToggleEdit">
+                        @(_editing ? "بازگشت به نمایش" : "ویرایش")
+                    </MudButton>
+                }
+            </MudStack>
+
+            <MudForm @ref="_form" Model="_vm" Disabled="@(!_editing)">
+                <MudGrid GutterSize="GutterSize.Small">
+                    <MudItem xs="12" md="6">
+                        <MudTextField @bind-Value="_vm.FullName" Label="نام کامل" Required/>
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudTextField @bind-Value="_vm.Title" Label="عنوان (مثلاً: متخصص قلب…)" Required/>
+                    </MudItem>
+
+                    <MudItem xs="12" md="6">
+                        <MudNumericField T="int" @bind-Value="_vm.YearsOfExperience"
+                                         Label="سال تجربه" Min="0" Max="60" Immediate/>
+                    </MudItem>
+
+                    <!-- Upload like your form -->
+                    <MudItem xs="12" md="6">
+                        <MudFileUpload T="IBrowserFile" Accept="image/*" FilesChanged="OnPhotoSelected">
+                            <ActivatorContent>
+                                <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth
+                                           StartIcon="@MaterialIcons.Filled.CloudUpload">
+                                    @if (string.IsNullOrEmpty(_photoFile?.Name ?? null))
+                                    {
+                                        @("تصویر پروفایل (اختیاری)")
+                                    }
+                                    else
+                                    {
+                                        @_photoFile!.Name
+                                    }
+                                </MudButton>
+                            </ActivatorContent>
+                        </MudFileUpload>
+                    </MudItem>
+
+                    <MudItem xs="12" md="6">
+                        <MudTextField @bind-Value="_vm.PhotoUrl" Label="آدرس عکس (URL)"
+                                      Adornment="Adornment.End" AdornmentIcon="@MaterialIcons.Filled.Image"/>
+                    </MudItem>
+
+                    <MudItem xs="12" md="6">
+                        @if (!string.IsNullOrWhiteSpace(_vm.PhotoUrl))
+                        {
+                            <MudText Typo="Typo.subtitle2">پیش‌نمایش تصویر</MudText>
+
+                            <img src="@_vm.PhotoUrl" alt="Preview" style="max-width:180px;border-radius:12px;"/>
+                        }
+                    </MudItem>
+
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="_vm.Biography" Label="بیوگرافی" Lines="5"/>
+                    </MudItem>
+
+                    <!-- Specialties -->
+                    <MudItem xs="12" md="4">
+                        <MudText Typo="Typo.subtitle2">تخصص‌ها</MudText>
+                        <MudStack Row Spacing="1">
+                            <MudTextField @bind-Value="_newSpecialty" Placeholder="افزودن تخصص…"
+                                          @onkeyup="OnSpecialtyKeyUp"/>
+                            <MudButton Variant="Variant.Outlined" StartIcon="@MaterialIcons.Filled.Add"
+                                       OnClick="AddSpecialty">افزودن
+                            </MudButton>
+                        </MudStack>
+                        <MudChipSet Class="mt-2">
+                            @for (var i = 0; i < _vm.Specialties.Length; i++)
+                            {
+                                var idx = i;
+                                <MudChip Closeable Color="Color.Primary" Variant="Variant.Filled" Dense
+                                         OnClose="@(() => RemoveSpecialty(idx))">
+                                    @_vm.Specialties[idx]
+                                </MudChip>
+                            }
+                        </MudChipSet>
+                    </MudItem>
+
+                    <!-- Languages -->
+                    <MudItem xs="12" md="4">
+                        <MudText Typo="Typo.subtitle2">زبان‌ها</MudText>
+                        <MudStack Row Spacing="1">
+                            <MudTextField @bind-Value="_newLanguage" Placeholder="افزودن زبان…"
+                                          @onkeyup="OnLanguageKeyUp"/>
+                            <MudButton Variant="Variant.Outlined" StartIcon="@MaterialIcons.Filled.Add"
+                                       OnClick="AddLanguage">افزودن
+                            </MudButton>
+                        </MudStack>
+                        <MudChipSet Class="mt-2">
+                            @for (var i = 0; i < _vm.Education.Length; i++)
+                            {
+                                var idx = i;
+                                <MudChip Closeable Color="Color.Info" Variant="Variant.Outlined" Dense
+                                         OnClose="@(() => RemoveEducation(idx))">
+                                    @_vm.Education[idx]
+                                </MudChip>
+                            }
+                        </MudChipSet>
+                    </MudItem>
+
+                    <!-- Education -->
+                    <MudItem xs="12" md="4">
+                        <MudText Typo="Typo.subtitle2">سوابق تحصیلی</MudText>
+                        <MudStack Row Spacing="1">
+                            <MudTextField @bind-Value="_newEdu" Placeholder="افزودن سابقه…" @onkeyup="OnEduKeyUp"/>
+                            <MudButton Variant="Variant.Outlined" StartIcon="@MaterialIcons.Filled.Add"
+                                       OnClick="AddEdu">افزودن
+                            </MudButton>
+                        </MudStack>
+                        <MudChipSet Class="mt-2">
+                            @for (var i = 0; i < _vm.Languages.Length; i++)
+                            {
+                                var idx = i;
+                                <MudChip Closeable Color="Color.Secondary" Variant="Variant.Outlined" Dense
+                                         OnClose="@(() => RemoveLanguage(idx))">
+                                    @_vm.Languages[idx]
+                                </MudChip>
+                            }
+                        </MudChipSet>
+                    </MudItem>
+
+                    <!-- Socials -->
+                    <MudItem xs="12" md="6">
+                        <MudTextField @bind-Value="_vm.Website" Label="وب‌سایت" Adornment="Adornment.Start"
+                                      AdornmentIcon="@MaterialIcons.Filled.Public"/>
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudTextField @bind-Value="_vm.LinkedIn" Label="LinkedIn" Adornment="Adornment.Start"
+                                      AdornmentIcon="@MaterialIcons.Filled.Link"/>
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudTextField @bind-Value="_vm.Instagram" Label="Instagram" Adornment="Adornment.Start"
+                                      AdornmentIcon="@MaterialIcons.Filled.PhotoCamera"/>
+                    </MudItem>
+                    <MudItem xs="12" md="6">
+                        <MudTextField @bind-Value="_vm.WhatsApp" Label="WhatsApp (لینک یا شماره)"
+                                      Adornment="Adornment.Start" AdornmentIcon="@MaterialIcons.Filled.Chat"/>
+                    </MudItem>
+                </MudGrid>
+            </MudForm>
+        </MudStack>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton Color="Color.Info" OnClick="Cancel">انصراف</MudButton>
+        <MudButton Color="@(_editing ? Color.Success : Color.Warning)" OnClick="Submit">
+            @(_editing ? "ذخیره" : "تأیید")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter] public DoctorProfileResponse? Model { get; set; }
+    [Parameter] public bool AllowEdit { get; set; } = true;
+
+
+    private MudForm? _form;
+    private bool     _editing;
+
+    private UpsertDoctorProfileRequest _vm = new();
+
+    // file upload state (like your form)
+    private IBrowserFile? _photoFile;
+
+    // chip temp inputs
+    private string? _newSpecialty, _newLanguage, _newEdu;
+
+    protected override void OnParametersSet()
+    {
+        if (Model is null) return;
+
+        _vm = new UpsertDoctorProfileRequest
+        {
+            FullName          = Model.FullName,
+            Title             = Model.Title,
+            Biography         = Model.Biography,
+            Specialties       = Model.Specialties ?? Array.Empty<string>(),
+            Education         = Model.Education ?? Array.Empty<string>(),
+            Languages         = Model.Languages ?? Array.Empty<string>(),
+            YearsOfExperience = Model.YearsOfExperience,
+            PhotoUrl          = Model.PhotoUrl,
+            Website           = Model.Website,
+            Instagram         = Model.Instagram,
+            LinkedIn          = Model.LinkedIn,
+            WhatsApp          = Model.WhatsApp
+        };
+    }
+
+    private void ToggleEdit()
+    {
+        if (!AllowEdit) return;
+
+        _editing = !_editing;
+    }
+
+    private async Task Submit()
+    {
+        if (_editing)
+        {
+            if (_form is null) return;
+
+            await _form.Validate();
+            if (!_form.IsValid) return;
+
+            try
+            {
+                // If user selected a file, upload it first and set PhotoUrl
+                if (!string.IsNullOrEmpty(_photoFile?.Name))
+                {
+                    var uploadedUrl = await Mediator.Send(new UploadProfilePictureRequest(_photoFile));
+                    _vm.PhotoUrl = uploadedUrl;
+                }
+
+                // Clean arrays
+                _vm.Specialties = Clean(_vm.Specialties);
+                _vm.Languages   = Clean(_vm.Languages);
+                _vm.Education   = Clean(_vm.Education);
+
+                await Mediator.Send(_vm);
+                Snackbar.ShowSuccess("پروفایل ذخیره شد.");
+                _editing = false;
+                MudDialog.Close();
+            }
+            catch (Exception ex)
+            {
+                Snackbar.ShowError($"خطا در ذخیره: {ex.Message}");
+            }
+        }
+        else
+        {
+            MudDialog.Close();
+        }
+    }
+
+    private Task OnPhotoSelected(IBrowserFile file)
+    {
+        _photoFile = null;
+        _photoFile = file; // keep last selected
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    private static string[] Clean(string[]? xs)
+        => (xs ?? Array.Empty<string>())
+            .Select(s => s?.Trim())
+            .Where(s => !string.IsNullOrWhiteSpace(s))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+
+    private void Cancel()
+        => MudDialog.Cancel();
+
+    private void AddSpecialty()
+    {
+        if (string.IsNullOrWhiteSpace(_newSpecialty)) return;
+
+        _vm.Specialties = _vm.Specialties.Append(_newSpecialty.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+        _newSpecialty = null;
+    }
+
+    private void AddLanguage()
+    {
+        if (string.IsNullOrWhiteSpace(_newLanguage)) return;
+
+        _vm.Languages = _vm.Languages.Append(_newLanguage.Trim()).Distinct(StringComparer.OrdinalIgnoreCase).ToArray();
+        _newLanguage = null;
+    }
+
+    private void AddEdu()
+    {
+        if (string.IsNullOrWhiteSpace(_newEdu)) return;
+
+        _vm.Education = _vm.Education.Append(_newEdu.Trim()).ToArray();
+        _newEdu = null;
+    }
+
+    private void RemoveAt(ref string[] arr, int index)
+        => arr = arr.Where((_, i) => i != index).ToArray();
+
+    private void OnSpecialtyKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") AddSpecialty();
+    }
+
+    private void OnLanguageKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") AddLanguage();
+    }
+
+    private void OnEduKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter") AddEdu();
+    }
+
+    private void RemoveEducation(int index)
+        => _vm.Education = _vm.Education.Where((_, i) => i != index).ToArray();
+
+    private void RemoveSpecialty(int index)
+        => _vm.Specialties = _vm.Specialties.Where((_, i) => i != index).ToArray();
+
+    private void RemoveLanguage(int index)
+        => _vm.Languages = _vm.Languages.Where((_, i) => i != index).ToArray();
+
+}

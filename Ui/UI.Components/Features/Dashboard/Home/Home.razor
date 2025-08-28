@@ -1,20 +1,23 @@
 @page "/"
 @using UI.Components.Features.ClinicServices
+@using UI.Components.Features.Clinics
+@using UI.Components.Features.Doctors
 
 <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Gutters Style="padding: 24px">
     <MudGrid>
+
+        <MudItem md="12" lg="6">
+            <ClinicInfo/>
+        </MudItem>
+        <MudItem md="12" lg="6">
+            <DoctorInfo/>
+        </MudItem>
 
         <!-- Row 1 -->
         <MudItem md="12" lg="4">
             <ServiceInfoCard _canEdit="false"/>
         </MudItem>
 
-        <MudItem md="12" lg="4">
-            <MudCard>
-                <MudCardHeader>کارت ۲</MudCardHeader>
-                <MudCardContent>محتوا…</MudCardContent>
-            </MudCard>
-        </MudItem>
 
         <!-- Row 2 -->
         <MudItem md="12" lg="4">

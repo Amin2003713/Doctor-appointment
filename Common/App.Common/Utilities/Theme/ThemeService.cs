@@ -9,30 +9,29 @@ public class ThemeService : IThemeService
 
     public ThemeService()
     {
-        
         _lightTheme = new MudTheme
         {
             PaletteLight = new PaletteLight
             {
-                Primary                  = "#00A693" , 
-                Secondary                = "#FE28A2" , 
-                Tertiary                 = "#1C39BB" , 
-                Background               = "#FDFDFD" , 
+                Primary                  = "#00A693" ,
+                Secondary                = "#FE28A2" ,
+                Tertiary                 = "#1C39BB" ,
+                Background               = "#FDFDFD" ,
                 Surface                  = "#FFFFFF" ,
-                AppbarBackground         = "#1C39BB" , 
+                AppbarBackground         = "#1C39BB" ,
                 AppbarText               = "#FFFFFF" ,
                 DrawerBackground         = "#FFFFFF" ,
                 DrawerText               = "#3B3B3B" ,
                 TextPrimary              = "#3B3B3B" ,
                 TextSecondary            = "#5B5B5B" ,
-                ActionDefault            = "#FE28A2" , 
+                ActionDefault            = "#FE28A2" ,
                 ActionDisabled           = "#BDBDBD" ,
                 ActionDisabledBackground = "#E0E0E0" ,
                 Divider                  = "#E0E0E0" ,
-                Success                  = "#2E7D32" , 
+                Success                  = "#2E7D32" ,
                 Info                     = "#2196F3" ,
                 Warning                  = "#FBC02D" ,
-                Error                    = "#CA3433"  
+                Error                    = "#CA3433"
             } ,
             Typography = new Typography
             {
@@ -103,31 +102,31 @@ public class ThemeService : IThemeService
             }
         };
 
-        
+
         _darkTheme = new MudTheme
         {
             PaletteDark = new PaletteDark
             {
-                Primary                  = "#1565C0" ,                
-                Secondary                = "#29B6F6" ,                
-                Tertiary                 = "#0D47A1" ,                
-                Background               = "#121212" ,                
-                Surface                  = "#1A1A1A" ,                
-                AppbarBackground         = "#0D47A1" ,                
-                AppbarText               = "#FFFFFF" ,                
-                DrawerBackground         = "#1A1A1A" ,                
-                DrawerText               = "#B0BEC5" ,                
-                TextPrimary              = "#E3F2FD" ,                
-                TextSecondary            = "#90A4AE" ,                
-                ActionDefault            = "#29B6F6" ,                
-                ActionDisabled           = "rgba(255,255,255, 0.3)" , 
-                ActionDisabledBackground = "rgba(255,255,255, 0.1)" , 
-                Divider                  = "rgba(255,255,255, 0.1)" , 
-                Success                  = "#2E7D32" ,                
-                Info                     = "#0288D1" ,                
-                Warning                  = "#F9A825" ,                
-                Error                    = "#D32F2F"                  
-            } ,
+                Primary                  = "#8AB6D6", // soft pastel blue
+                Secondary                = "#A3C9A8", // muted green
+                Tertiary                 = "#C7B9E2", // pastel lavender
+                Background               = "#121212", // standard dark background
+                Surface                  = "#1E1E1E", // slightly lighter than background
+                AppbarBackground         = "#2C2C2C", // neutral dark gray
+                AppbarText               = "#ECEFF1", // near-white
+                DrawerBackground         = "#1E1E1E",
+                DrawerText               = "#B0BEC5", // soft gray text
+                TextPrimary              = "#F5F5F5", // soft white
+                TextSecondary            = "#AEBAC3", // muted cool gray
+                ActionDefault            = "#9EC1CF", // pastel teal/blue
+                ActionDisabled           = "rgba(255,255,255, 0.3)",
+                ActionDisabledBackground = "rgba(255,255,255, 0.08)",
+                Divider                  = "rgba(255,255,255, 0.12)",
+                Success                  = "#9DBF9E", // pastel green
+                Info                     = "#89AEB2", // muted cyan
+                Warning                  = "#E6C77E", // pastel amber
+                Error                    = "#D78E91", // soft rose red
+            },
             Typography = new Typography
             {
                 Default = new DefaultTypography
@@ -204,7 +203,7 @@ public class ThemeService : IThemeService
             }
         };
 
-        
+
         CurrentTheme = _darkTheme;
         IsDarkMode    = true;
     }

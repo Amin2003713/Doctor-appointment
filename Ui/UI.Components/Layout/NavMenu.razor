@@ -3,141 +3,155 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using UI.Components.Common.BaseComponents.Dialogs
 @using UI.Components.Common.BaseComponents.Picture
-@using UI.Components.Features.Clinic
-<MudNavMenu Margin="Margin.Normal" Rounded Bordered Dense>
+@using UI.Components.Features.Clinics
 
-    <!-- عمومی -->
+<MudNavMenu Class="app-nav" Margin="Margin.Normal" Rounded Bordered Dense>
+
+    <!-- همیشه قابل نمایش -->
     <MudNavLink Href="/" Icon="@MaterialIcons.Filled.Home" IconColor="Color.Primary">
         صفحه اصلی
     </MudNavLink>
 
-    <!-- Doctor (super admin) -->
-    <AuthorizeView Roles="Doctor">
-        <Authorized Context="auth">
-            <MudNavGroup Title="ثبت‌نام" Icon="@MaterialIcons.Filled.PersonAdd" IconColor="Color.Tertiary">
-                <MudNavLink OnClick="OpenRegisterDialog" Icon="@MaterialIcons.Filled.PersonAdd"
-                            IconColor="Color.Success">
-                    @(auth.User.IsInRole("Doctor") ? "ثبت‌نام (بیمار,منشی)" : "ثبت‌نام بیمار")
-                </MudNavLink>
-                <MudNavLink OnClick="@(() => Navigate("/appointments"))" Icon="@MaterialIcons.Filled.CalendarMonth"
-                            IconColor="Color.Info">
-                    @(auth.User.IsInRole("Doctor") ? "رزرو نوبت" : "رزرو نوبت")
-                </MudNavLink>
-            </MudNavGroup>
-        </Authorized>
-    </AuthorizeView>
-
-    <!-- Patient, Secretary, Doctor can see patient menu -->
-    <AuthorizeView Roles="Patient,Secretary,Doctor">
-        <Authorized Context="auth">
-            <MudNavGroup Title="@(auth.User.IsInRole("Patient")                             ? "پنل بیمار" :
-                                auth.User.IsInRole("Secretary") ? "پنل بیمار (دستیار)" :
-                                                                  "پنل بیمار")">
-
-                <MudNavLink OnClick="@(() => Navigate("/patient/appointments"))"
-                            Icon="@MaterialIcons.Filled.EventAvailable"
-                            IconColor="Color.Success">
-                    @(auth.User.IsInRole("Patient") ? "نوبت‌های من" : "نوبت‌های بیماران")
-                </MudNavLink>
-
-                <MudNavLink OnClick="@(() => Navigate("/patient/history"))" Icon="@MaterialIcons.Filled.History"
-                            IconColor="Color.Info">
-                    @(auth.User.IsInRole("Patient") ? "سوابق نوبت من" : "سوابق نوبت بیماران")
-                </MudNavLink>
-
-                <MudNavLink OnClick="@(() => Navigate("/patient/cancel"))" Icon="@MaterialIcons.Filled.Cancel"
-                            IconColor="Color.Error">
-                    @(auth.User.IsInRole("Patient") ? "لغو نوبت من" : "لغو نوبت بیماران")
-                </MudNavLink>
-            </MudNavGroup>
-        </Authorized>
-    </AuthorizeView>
-
-
-    <AuthorizeView Roles="Patient,Secretary,Doctor">
-        <Authorized Context="auth">
-            <MudNavLink OnClick="@(() => Navigate("/clinic-services"))"
-                        Icon="@MaterialIcons.Filled.EventAvailable"
-                        IconColor="Color.Success">
-               خدمات
-            </MudNavLink>
-        </Authorized>
-    </AuthorizeView>
-
-    <!-- Secretary -->
-    <AuthorizeView Roles="Secretary,Doctor">
-        <Authorized Context="auth">
-            <MudNavLink OnClick="@(() => Navigate("/secretary/book"))" Icon="@MaterialIcons.Filled.PersonAddAlt1"
-                        IconColor="Color.Success">
-                @(auth.User.IsInRole("Secretary") ? "رزرو برای بیمار" : "رزرو برای بیمار")
-            </MudNavLink>
-            <MudNavLink OnClick="@(() => Navigate("/users?Secretaries=false"))" Icon="@MaterialIcons.Filled.Group"
-                        IconColor="Color.Info">
-                @("لیست بیماران")
-            </MudNavLink>
-        </Authorized>
-    </AuthorizeView>
-
-    <!-- Doctor (super admin only) -->
-    <AuthorizeView Roles="Doctor">
-        <Authorized>
-            <MudNavLink OnClick="@(() => Navigate("/users?Secretaries=true"))" Icon="@MaterialIcons.Filled.Group"
-                        IconColor="Color.Info">
-                @("لیست منشی ها")
-            </MudNavLink>
-            <MudNavLink Href="/doctor/schedule" Icon="@MaterialIcons.Filled.Schedule" IconColor="Color.Info">
-                تعریف بازه‌های زمانی
-            </MudNavLink>
-            <MudNavLink Href="/doctor/agenda" Icon="@MaterialIcons.Filled.ViewAgenda" IconColor="Color.Primary">
-                لیست نوبت‌های روزانه
-            </MudNavLink>
-            <MudNavLink Href="/doctor/manage" Icon="@MaterialIcons.Filled.EditCalendar" IconColor="Color.Warning">
-                مدیریت/جابجایی نوبت
-            </MudNavLink>
-            <MudNavLink Href="/reports/appointments" Icon="@MaterialIcons.Filled.Assessment"
-                        IconColor="Color.Secondary">
-                گزارش همه نوبت‌ها
-            </MudNavLink>
-        </Authorized>
-    </AuthorizeView>
-    <AuthorizeView Roles="Doctor">
-        <Authorized Context="auth">
-            <MudNavLink OnClick="OpenClinicDialog" Icon="@MaterialIcons.Filled.LocalHospital"
-                        IconColor="Color.Error">
-                تنظیمات کلینیک
-            </MudNavLink>
-        </Authorized>
-    </AuthorizeView>
-    <!-- Logged in -->
     <AuthorizeView>
         <Authorized Context="auth">
+            @{
+                var isDoctor    = auth.User.IsInRole("Doctor");
+                var isSecretary = auth.User.IsInRole("Secretary");
+                var isPatient   = auth.User.IsInRole("Patient");
+            }
+
+            @* Doctor (super admin) *@
+            @if (isDoctor)
+            {
+                <MudNavGroup Title="مدیریت کاربران" Icon="@MaterialIcons.Filled.PersonAdd" IconColor="Color.Tertiary">
+                    <MudNavLink OnClick="OpenRegisterDialog" Icon="@MaterialIcons.Filled.PersonAdd"
+                                IconColor="Color.Success">
+                        ثبت‌نام (بیمار / منشی)
+                    </MudNavLink>
+                    <MudNavLink OnClick="@(() => Navigate("/appointments"))" Icon="@MaterialIcons.Filled.CalendarMonth"
+                                IconColor="Color.Info">
+                        رزرو نوبت
+                    </MudNavLink>
+                </MudNavGroup>
+            }
+
+            @* Patient panel (Doctor/Secretary/Patient) *@
+            @if (isDoctor || isSecretary || isPatient)
+            {
+                <MudNavGroup Title="@GetPatientPanelTitle(isPatient, isSecretary)"
+                             Icon="@MaterialIcons.Filled.MedicalServices" IconColor="Color.Primary">
+                    <MudNavLink OnClick="@(() => Navigate("/patient/appointments"))"
+                                Icon="@MaterialIcons.Filled.EventAvailable" IconColor="Color.Success">
+                        @(isPatient ? "نوبت‌های من" : "نوبت‌های بیماران")
+                    </MudNavLink>
+
+                    <MudNavLink OnClick="@(() => Navigate("/patient/history"))"
+                                Icon="@MaterialIcons.Filled.History" IconColor="Color.Info">
+                        @(isPatient ? "سوابق نوبت من" : "سوابق نوبت بیماران")
+                    </MudNavLink>
+
+                    <MudNavLink OnClick="@(() => Navigate("/patient/cancel"))"
+                                Icon="@MaterialIcons.Filled.Cancel" IconColor="Color.Error">
+                        @(isPatient ? "لغو نوبت من" : "لغو نوبت بیماران")
+                    </MudNavLink>
+                </MudNavGroup>
+
+                <MudNavLink OnClick="@(() => Navigate("/clinic-services"))"
+                            Icon="@MaterialIcons.Filled.LocalHospital" IconColor="Color.Success">
+                    خدمات
+                </MudNavLink>
+            }
+
+            @* Secretary tools (Secretary & Doctor) *@
+            @if (isSecretary || isDoctor)
+            {
+                <MudNavGroup Title="دستیار" Icon="@MaterialIcons.Filled.PersonAddAlt1" IconColor="Color.Success">
+                    <MudNavLink OnClick="@(() => Navigate("/secretary/book"))"
+                                Icon="@MaterialIcons.Filled.PersonAddAlt1" IconColor="Color.Success">
+                        رزرو برای بیمار
+                    </MudNavLink>
+                    <MudNavLink OnClick="@(() => Navigate("/users?Secretaries=false"))"
+                                Icon="@MaterialIcons.Filled.Group" IconColor="Color.Info">
+                        لیست بیماران
+                    </MudNavLink>
+                </MudNavGroup>
+            }
+
+            @* Doctor admin only *@
+            @if (isDoctor)
+            {
+                <MudNavGroup Title="مدیریت کلینیک" Icon="@MaterialIcons.Filled.EditCalendar" IconColor="Color.Warning">
+                    <MudNavLink Href="/doctor/schedule" Icon="@MaterialIcons.Filled.Schedule" IconColor="Color.Info">
+                        تعریف بازه‌های زمانی
+                    </MudNavLink>
+                    <MudNavLink Href="/doctor/agenda" Icon="@MaterialIcons.Filled.ViewAgenda" IconColor="Color.Primary">
+                        لیست نوبت‌های روزانه
+                    </MudNavLink>
+                    <MudNavLink Href="/doctor/manage" Icon="@MaterialIcons.Filled.EditCalendar"
+                                IconColor="Color.Warning">
+                        مدیریت/جابجایی نوبت
+                    </MudNavLink>
+                    <MudNavLink Href="/reports/appointments" Icon="@MaterialIcons.Filled.Assessment"
+                                IconColor="Color.Secondary">
+                        گزارش همه نوبت‌ها
+                    </MudNavLink>
+                    <MudNavLink OnClick="OpenClinicDialog" Icon="@MaterialIcons.Filled.Settings"
+                                IconColor="Color.Error">
+                        تنظیمات کلینیک
+                    </MudNavLink>
+                </MudNavGroup>
+            }
+
             <MudDivider Class="my-2"/>
-            <MudNavLink OnClick="OpenUserInfo" IconColor="Color.Primary">
+
+            <!-- User card -->
+            <MudNavLink OnClick="OpenUserInfo">
                 <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
-                    <MudAvatar>
+                    <MudAvatar Size="Size.Medium">
                         <ServerImage Src="@StateProvider.User?.Profile"/>
                     </MudAvatar>
-
-                    <!-- متن ها کنار آواتار، ولی خودشون عمودی -->
                     <MudStack Spacing="0">
-                        <!-- نام کامل -->
                         <MudText Typo="Typo.subtitle1" Bold="true">
                             @($"{GetRoleName(auth.User)}: {StateProvider.User?.FirstName} {StateProvider.User?.LastName}")
                         </MudText>
-
-                        <!-- نقش یا یوزرنیم به عنوان کپشن زیر نام -->
                         <MudText Typo="Typo.caption" Color="Color.Secondary">
                             @StateProvider.User?.UserName
                         </MudText>
                     </MudStack>
                 </MudStack>
-
             </MudNavLink>
         </Authorized>
+
+        <NotAuthorized>
+            <MudDivider Class="my-2"/>
+            <MudText Class="px-2" Typo="Typo.caption" Color="Color.Secondary">برای دسترسی بیشتر وارد شوید</MudText>
+        </NotAuthorized>
     </AuthorizeView>
 </MudNavMenu>
 
+<style>
+    /* tighter + consistent look */
+    .app-nav .mud-nav-link {
+        border-radius: 10px;
+    }
+
+    .app-nav .mud-nav-link .mud-icon-root {
+        opacity: .9;
+    }
+
+    .app-nav .mud-nav-group {
+        margin-top: 4px;
+    }
+
+    .app-nav .mud-nav-group .mud-nav-link {
+        margin-inline-start: .25rem;
+    }
+</style>
+
 @code {
+
+    private static string GetPatientPanelTitle(bool isPatient, bool isSecretary)
+        => isPatient ? "پنل بیمار" : isSecretary ? "پنل بیمار (دستیار)" : "پنل بیمار";
 
     private string GetRoleName(ClaimsPrincipal user)
     {
