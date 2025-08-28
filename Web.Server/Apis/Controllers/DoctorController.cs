@@ -93,8 +93,8 @@ public sealed class DoctorController(
     {
         if (string.IsNullOrWhiteSpace(body.FullName))
             return BadRequest("FullName is required.");
-
         var p = await db.DoctorProfiles.FirstOrDefaultAsync(ct) ?? await EnsureProfileAsync(ct);
+
 
         p.FullName          = body.FullName.Trim();
         p.Title             = (body.Title ?? "").Trim();
