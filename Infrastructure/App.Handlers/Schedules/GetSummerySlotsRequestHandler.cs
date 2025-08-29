@@ -6,17 +6,17 @@ using MediatR;
 
 namespace App.Handlers.Schedules;
 
-public class GetAvailableSlotsRequestHandler(
-    ApiFactory apiFactory,
+public class GetSummerySlotsRequestHandler(
+    ApiFactory       apiFactory,
     ISnackbarService snackbar
 )
-    : IRequestHandler<GetAvailableSlotsRequest, List<string>>
+    : IRequestHandler<GetSlotsSummeryRequest, SlotsSummaryResponse>
 {
     private readonly IWorkScheduleApis _api = apiFactory.CreateApi<IWorkScheduleApis>();
 
-    public async Task<List<string>> Handle(GetAvailableSlotsRequest request, CancellationToken ct)
+    public async Task<SlotsSummaryResponse> Handle(GetSlotsSummeryRequest request, CancellationToken ct)
     {
-        var resp = await _api.GetSlots(request.Date, request.ServiceId, ct);
+        var resp = await _api.GetSlotSummery(request.Date, request.ServiceId, ct);
         if (resp.IsSuccessStatusCode && resp.Content is not null) return resp.Content;
 
         snackbar.ShowError("امکان دریافت اسلات‌های خالی وجود ندارد.");

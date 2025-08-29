@@ -2,7 +2,8 @@
 
 namespace App.Applications.Schedules.Requests.GetSlots;
 
-public record GetAvailableSlotsRequest(
+public record GetSlotsSummeryRequest(
     DateOnly Date,
     Guid     ServiceId
-) : IRequest<List<string>>;
+) :
+    IRequest<SlotsSummaryResponse>;

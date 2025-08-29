@@ -1,4 +1,4 @@
-﻿namespace App.Applications.Appointments;
+﻿namespace App.Applications.Appointments.Requests;
 
 public enum AppointmentStatus
 {

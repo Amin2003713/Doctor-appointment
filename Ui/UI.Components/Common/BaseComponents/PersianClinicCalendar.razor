@@ -2,11 +2,11 @@
 @using Heron.MudCalendar
 @using MudBlazor
 @using App.Applications.Appointments
+@using App.Applications.Appointments.Requests
 
 
 @inherits ComponentBase
 
-<MudPaper Class="pa-4" @attributes="UserAttributes" dir="@(RightToLeft ? "rtl" : "ltr")">
 
     <MudCalendar T="ClinicCalendarItem"
                  Culture="@(new CultureInfo("fa-IR"))"
@@ -23,7 +23,7 @@
                  ShowTodayButton="true"
                  ShowDropdownViewSelector="true"
                  ButtonVariant="Variant.Text"
-                 h
+                 Style="padding: 12px;"
                  HighlightToday="true">
 
         <ToolbarContent>
@@ -91,7 +91,6 @@
             </MudStack>
         </MonthTemplate>
     </MudCalendar>
-</MudPaper>
 
 @code {
 

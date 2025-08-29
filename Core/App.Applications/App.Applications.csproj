@@ -25,6 +25,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Appointments\Validations\" />
       <Folder Include="Clinic\Requests\" />
     </ItemGroup>
 

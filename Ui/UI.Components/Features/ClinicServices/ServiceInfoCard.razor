@@ -5,7 +5,6 @@
 @using Microsoft.AspNetCore.Components.Authorization
 
 
-<MudPaper Class="pa-4">
     <MudTable T="ClinicServiceResponse"
               @ref="_table"
               Items="_services"
@@ -13,9 +12,10 @@
               Filter="FilterFunc"
               Hover
               Striped
+              Class="pa-4"
               Breakpoint="Breakpoint.MdAndDown"
               SortLabel="مرتب‌سازی بر اساس"
-              RowsPerPage="@(IsReadOnly ? 5 : 20)"
+              RowsPerPage="@(IsReadOnly ? 10 : 20)"
               CanCancelEdit
               RowEditPreview="BackupItem"
               RowEditCancel="RevertItem"
@@ -110,7 +110,6 @@
             </MudText>
         </FooterContent>
     </MudTable>
-</MudPaper>
 
 @code {
     private          string?                                 _searchString;
