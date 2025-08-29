@@ -39,10 +39,11 @@ public static class ApiRoutes
 
     public static class Schedule
     {
-        private const string Base   = "/api/schedule";
-        public const  string Get    = $"{Base}";
-        public const  string Update = $"{Base}";
-        public const  string Slots  = $"{Base}/slots";
+        private const string Base        = "/api/schedule";
+        public const  string Get         = $"{Base}";
+        public const  string Update      = $"{Base}";
+        public const  string Slots       = $"{Base}/slots";
+        public const  string SlotSummery = $"{Base}/slots/summary";
     }
 
     public static class User

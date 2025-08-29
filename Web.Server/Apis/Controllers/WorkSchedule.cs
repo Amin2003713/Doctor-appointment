@@ -173,6 +173,57 @@ public class WorkScheduleController(AppDbContext db) : ControllerBase
         return NoContent();
     }
 
+[HttpGet("slots/summary")]
+public async Task<ActionResult<SlotsSummaryDto>> GetSlotsSummary(
+    [FromQuery] DateOnly date,
+    [FromQuery] Guid serviceId,
+    CancellationToken ct)
+{
+    var settings = await db.ClinicSettings.AsNoTracking().FirstOrDefaultAsync(ct) ?? new ClinicSettings();
+    var service  = await db.MedicalServices.AsNoTracking().FirstOrDefaultAsync(x => x.Id == serviceId, ct);
+    if (service is null) return NotFound(new { message = "Service not found." });
+
+    var ws        = await EnsureScheduleAsync(ct);
+    var effective = ResolveIntervalsForDate(ws, date); // working intervals after overrides & breaks
+
+    var resp = new SlotsSummaryDto();
+    if (effective.Count == 0) return Ok(resp); // empty day
+
+    var duration = TimeSpan.FromMinutes(service.VisitMinutes > 0 ? service.VisitMinutes : settings.DefaultVisitMinutes);
+    var buffer   = TimeSpan.FromMinutes(settings.BufferBetweenVisitsMinutes);
+
+    // Booked items (Booked only)
+    var booked = await db.Appointments.AsNoTracking()
+        .Where(a => a.Date == date && a.ServiceId == serviceId && a.Status == AppointmentStatus.Booked)
+        .Select(a => new { a.Start, a.End })
+        .ToListAsync(ct);
+
+    // 1) StartTimes (same logic as your /slots endpoint)
+    resp.StartTimes = BuildStartSlots(effective, booked.Select(b => (b.Start, b.End)).ToList(), duration, buffer);
+
+    // 2) Booked as ranges (exact, no buffer)
+    resp.Booked = booked
+        .Select(b => new TimeRangeDto(b.Start.ToString("HH:mm"), b.End.ToString("HH:mm")))
+        .OrderBy(x => x.From)
+        .ToList();
+
+    // 3) FreeRanges = effective - (booked expanded by buffer on both sides)
+    var bookedWithBuffer = booked
+        .Select(b =>
+        {
+            var from = ClampToDay(TimeOnly.FromTimeSpan(b.Start.ToTimeSpan() - buffer));
+            var to   = ClampToDay(TimeOnly.FromTimeSpan(b.End.ToTimeSpan()   + buffer));
+            return new TimeRange(from, to);
+        })
+        .ToList();
+
+    var free = SubtractRanges(effective, MergeRanges(bookedWithBuffer));   // reuse your utilities
+    resp.FreeRanges = free.Select(ToDto).ToList();
+
+    return Ok(resp);
+}
+
+
     // -----------------------
     // GET /api/schedule/slots?date=YYYY-MM-DD&serviceId=GUID
     // -----------------------
@@ -218,4 +269,42 @@ public class WorkScheduleController(AppDbContext db) : ControllerBase
 
         return Ok(slots.Distinct().OrderBy(x => x).ToList());
     }
+
+    private static string HHmm(TimeSpan ts)
+        => TimeOnly.FromTimeSpan(ts).ToString("HH:mm");
+
+    private static List<string> BuildStartSlots(List<TimeRange> effective, List<(TimeOnly Start, TimeOnly End)> existing, TimeSpan duration, TimeSpan buffer)
+    {
+        var slots = new List<string>();
+
+        foreach (var r in effective)
+        {
+            var s = r.From.ToTimeSpan();
+            var e = r.To.ToTimeSpan();
+
+            while (s + duration <= e)
+            {
+                var candStart = s;
+                var candEnd   = s + duration;
+
+                var hasOverlap = existing.Any(a => Overlaps(candStart, candEnd, a.Start.ToTimeSpan(), a.End.ToTimeSpan()));
+
+                if (!hasOverlap)
+                    slots.Add(HHmm(candStart));
+
+                s += (duration + buffer);
+            }
+        }
+
+        return slots.Distinct().OrderBy(x => x).ToList();
+    }
+
+    private static TimeOnly ClampToDay(TimeOnly t)
+    {
+        // TimeOnly is already a time-of-day; clamp defensively if needed
+        if (t < TimeOnly.MinValue) return TimeOnly.MinValue;
+        if (t > TimeOnly.MaxValue) return TimeOnly.MaxValue;
+        return t;
+    }
+
 }
