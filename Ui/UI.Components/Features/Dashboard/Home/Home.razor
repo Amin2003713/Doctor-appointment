@@ -2,31 +2,38 @@
 @using UI.Components.Features.ClinicServices
 @using UI.Components.Features.Clinics
 @using UI.Components.Features.Doctors
+@using UI.Components.Features.Apointments
+<style>
+    .equal-height-box {
+        display: flex;
+        flex-direction: column;
+        min-height: 100%;
+    }
+</style>
+<MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Style="padding: 24px">
+    <MudGrid Justify="Justify.SpaceBetween">
 
-<MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Gutters Style="padding: 24px">
-    <MudGrid>
 
-        <MudItem md="12" lg="6">
-            <ClinicInfo/>
-        </MudItem>
         <MudItem md="12" lg="6">
             <DoctorInfo/>
         </MudItem>
 
+
+        <MudItem md="12" lg="6" >
+            <ClinicInfo/>
+        </MudItem>
+
         <!-- Row 1 -->
-        <MudItem md="12" lg="4">
+        <MudItem md="12" lg="8" >
             <ServiceInfoCard _canEdit="false"/>
         </MudItem>
 
-
         <!-- Row 2 -->
-        <MudItem md="12" lg="4">
-            <MudCard>
-                <MudCardHeader>کارت ۳</MudCardHeader>
-                <MudCardContent>محتوا…</MudCardContent>
-            </MudCard>
+        <MudItem md="12" lg="4" >
+            <Calendar/>
         </MudItem>
-        <MudItem md="12" lg="4">
+
+        <MudItem md="12" lg="4" >
             <MudCard>
                 <MudCardHeader>کارت ۴</MudCardHeader>
                 <MudCardContent>محتوا…</MudCardContent>
@@ -34,7 +41,7 @@
         </MudItem>
 
         <!-- Bottom full-width panel -->
-        <MudItem md="12" lg="4">
+        <MudItem md="12" lg="4" >
             <MudCard Class="bottom-panel">
                 <MudCardHeader>پنل پایینی</MudCardHeader>
                 <MudCardContent>گزارش/جدول/لیست …</MudCardContent>
@@ -43,5 +50,3 @@
 
     </MudGrid>
 </MudContainer>
-
-@code { }

@@ -1,0 +1,64 @@
+﻿@page "/calendar"
+
+@using App.Applications.Appointments
+@using Heron.MudCalendar
+@using UI.Components.Common.BaseComponents
+
+<PersianClinicCalendar
+    Appointments="@Appointments"
+    ShowToolbar="true"
+    ShowMonth="true"
+    ShowWeek="true"
+    ShowDay="true"
+    ShowWorkWeek="true"
+    ShowCurrentTime="true"
+    WorkDayStartHour="9"
+    WorkDayEndHour="18"
+    View="CalendarView.WorkWeek"
+    ToolbarContent="@Toolbar"
+/>
+
+@code {
+
+    private List<AppointmentResponse> Appointments = new()
+    {
+        new AppointmentResponse
+        {
+            Id              = Guid.NewGuid(),
+            ServiceId       = Guid.NewGuid(),
+            ServiceTitle    = "ویزیت عمومی",
+            Date            = DateOnly.FromDateTime(DateTime.Today),
+            Start           = "10:00",
+            End             = "10:30",
+            Status          = AppointmentStatus.Booked,
+            PatientFullName = "علی رضایی",
+            PatientPhone    = "09123456789",
+            PriceAmount     = 350000,
+            PriceCurrency   = "ريال",
+            Notes           = "بیمه تکمیلی دارد"
+        },
+        new AppointmentResponse
+        {
+            Id              = Guid.NewGuid(),
+            ServiceId       = Guid.NewGuid(),
+            ServiceTitle    = "فیزیوتراپی",
+            Date            = DateOnly.FromDateTime(DateTime.Today.AddDays(1)),
+            Start           = "14:00",
+            End             = "14:45",
+            Status          = AppointmentStatus.Completed,
+            PatientFullName = "مریم محمدی",
+            PatientPhone    = "09351234567",
+            PriceAmount     = 500000,
+            PriceCurrency   = "ريال"
+        }
+    };
+
+    private RenderFragment Toolbar => @<MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="pa-2">
+        <MudText Typo="Typo.h6">برنامه‌ زمان‌بندی کلینیک</MudText>
+        <MudStack Row Spacing="1">
+            <MudButton Variant="Variant.Outlined" OnClick="@(()=> /* prev */ {})">روز قبل</MudButton>
+            <MudButton Variant="Variant.Outlined" OnClick="@(()=> /* today */ {})">امروز</MudButton>
+            <MudButton Variant="Variant.Outlined" OnClick="@(()=> /* next */ {})">روز بعد</MudButton>
+        </MudStack>
+    </MudStack>;
+}

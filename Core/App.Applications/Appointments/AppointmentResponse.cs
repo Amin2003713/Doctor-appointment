@@ -1,4 +1,6 @@
-﻿namespace App.Applications.Appointments;
+﻿using MudBlazor;
+
+namespace App.Applications.Appointments;
 
 public class AppointmentResponse
 {
@@ -14,4 +16,5 @@ public class AppointmentResponse
     public decimal PriceAmount { get; set; }
     public string PriceCurrency { get; set; } = "ريال";
     public string? Notes { get; set; }
+
 }

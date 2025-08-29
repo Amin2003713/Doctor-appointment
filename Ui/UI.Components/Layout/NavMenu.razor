@@ -1,9 +1,11 @@
 ﻿@using System.Security.Claims
+@using App.Applications.Doctor.Requests.Get
 @using App.Applications.Users.Queries.GetUserInfo
 @using Microsoft.AspNetCore.Components.Authorization
 @using UI.Components.Common.BaseComponents.Dialogs
 @using UI.Components.Common.BaseComponents.Picture
 @using UI.Components.Features.Clinics
+@using UI.Components.Features.Doctors
 
 <MudNavMenu Class="app-nav" Margin="Margin.Normal" Rounded Bordered Dense>
 
@@ -99,6 +101,10 @@
                                 IconColor="Color.Error">
                         تنظیمات کلینیک
                     </MudNavLink>
+                    <MudNavLink OnClick="OpenDoctorInfo" Icon="@MaterialIcons.Filled.EnergySavingsLeaf"
+                                IconColor="Color.Error">
+                        اطلاعات دکتر
+                    </MudNavLink>
                 </MudNavGroup>
             }
 
@@ -169,11 +175,11 @@
             CloseOnEscapeKey = true,
             FullWidth        = true,
             MaxWidth         = MaxWidth.Medium,
-            NoHeader = true,
+            NoHeader         = true,
         };
 
 
-        await DialogService.ShowAsync<ClinicInfoDialog>( "", dialogOptions);
+        await DialogService.ShowAsync<ClinicInfoDialog>("", dialogOptions);
     }
 
     private async Task OpenRegisterDialog()
@@ -189,9 +195,35 @@
         await DialogService.ShowAsync<RegisterDialog>("ثبت‌نام", options);
     }
 
-    public void Navigate(string to , bool hard = true)
+    public void Navigate(string to, bool hard = true)
     {
-        NavigationManager.NavigateTo(to , false, hard);
+        NavigationManager.NavigateTo(to, false, hard);
+    }
+
+    private async Task OpenDoctorInfo()
+    {
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            MaxWidth         = MaxWidth.Medium,
+            FullWidth        = true,
+            CloseButton      = true,
+            Position         = DialogPosition.Center,
+            NoHeader         = true
+        };
+
+        var user = await Mediator.Send(new GetDoctorProfileRequest());
+
+
+        var parameters = new DialogParameters
+        {
+            {
+                "Model", user
+            }
+        };
+
+
+        await DialogService.ShowAsync<UpdateDoctorInfoDialog>("", parameters, options);
     }
 
     private async Task OpenUserInfo()

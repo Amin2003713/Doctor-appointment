@@ -12,25 +12,23 @@
 
 
     <ItemGroup>
+        <PackageReference Include="Blazor.PersianDatePicker" Version="3.6.3" />
         <PackageReference Include="Blazored.FluentValidation" Version="2.2.0"/>
         <PackageReference Include="Bromix.MudBlazor.MaterialDesignIcons" Version="7.4.47.56"/>
+        <PackageReference Include="Heron.MudCalendar" Version="3.2.0" />
+        <PackageReference Include="Heron.MudTotalCalendar" Version="3.1.0" />
         <PackageReference Include="MD.PersianDateTime.Standard" Version="2.5.0"/>
         <PackageReference Include="Microsoft.AspNetCore.Components.Web" Version="9.0.8"/>
         <PackageReference Include="Blazor.Heroicons" Version="2.2.0"/>
         <PackageReference Include="MudBlazor.FontIcons.MaterialIcons" Version="1.3.0"/>
         <PackageReference Include="MudBlazor.ThemeManager" Version="3.0.0"/>
+        <PackageReference Include="System.Globalization.Calendars" Version="4.3.0" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\..\Infrastructure\App.Handlers\App.Handlers.csproj"/>
     </ItemGroup>
 
-    <ItemGroup>
-        <Content Update="C:\Users\amin1\.nuget\packages\mudblazorjalali\7.6.1\contentFiles\any\net8.0\sasscompiler.json">
-            <DependentUpon>compilerconfig.json</DependentUpon>
-            <Link>sasscompiler.json</Link>
-        </Content>
-    </ItemGroup>
 
     <ItemGroup>
         <EmbeddedResource Update="Resources\Featurs\Authorizions\Login\Login.fa-IR.resx">

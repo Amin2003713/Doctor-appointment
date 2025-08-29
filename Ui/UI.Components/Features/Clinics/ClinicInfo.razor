@@ -2,8 +2,8 @@
 @using App.Applications.Clinic.Requests.Get
 @using App.Domain.ValueObjects
 
-<MudPaper Class="pa-4">
-    @if (_loading)
+<div>
+@if (_loading)
     {
         <MudSkeleton Height="220px" Width="100%"/>
 
@@ -21,7 +21,7 @@
     }
     else
     {
-        <MudCard Class="clinic-card">
+        <MudCard Class="clinic-card  equal-height-box">
             <MudCardHeader Class="clinic-card__header">
                 <MudText class="clinic-card__title">
                     <MudAvatar Class="mr-2" Variant="Variant.Filled" Size="Size.Large"
@@ -50,30 +50,22 @@
 
 
             <MudCardContent Class="pt-0">
-                <MudGrid Class="mt-2">
+                <MudGrid Class="mt-2" Spacing="7">
                     <MudItem xs="12" md="6">
                         <MudList Dense T="string">
 
-                            <MudListItem T="string" Dense="true" Icon="@MaterialIcons.Filled.Place">
+                            <MudListItem OnClick="OpenDirections" T="string" Dense="true" Icon="@MaterialIcons.Filled.Place">
                                 <MudStack Row="true">
-                                    <MudTooltip Text="رفتن به نقشه">
+                                    <MudTooltip  Text="رفتن به نقشه">
                                         <MudText>@_clinic.Address</MudText>
                                     </MudTooltip>
                                 </MudStack>
-
-
-                                <MudButton Variant="Variant.Text" Color="Color.Primary" Size="Size.Small"
-                                           StartIcon="@MaterialIcons.Filled.Directions"
-                                           OnClick="@OpenDirections">
-                                    مسیریابی
-                                </MudButton>
-
                             </MudListItem>
 
                             <MudListItem T="string" Icon="@MaterialIcons.Filled.Call">
 
 
-                                    <MudLink Href="@($"tel:{_clinic.PhoneNumber}")">@_clinic.PhoneNumber</MudLink>
+                                <MudLink Href="@($"tel:{_clinic.PhoneNumber}")">@_clinic.PhoneNumber</MudLink>
 
                             </MudListItem>
 
@@ -86,10 +78,9 @@
                                 <MudChipSet T="string">
                                     @foreach (var chip in PaymentChips)
                                     {
-                                        <MudChip T="string" Color="@chip.color" Variant="Variant.Outlined"
-                                                 StartIcon="@chip.icon">
-                                            @chip.text
-                                        </MudChip>
+                                        <MudChip T="string"  Value="@(chip.text)"  Color="@chip.color" Variant="Variant.Text"
+                                                 Icon="@chip.icon" Style="gap: 1rem;"/>
+                                        
                                     }
                                 </MudChipSet>
                             </MudListItem>
@@ -120,45 +111,65 @@
                     </MudItem>
 
                     <MudItem xs="12" md="12">
-                    @if (!string.IsNullOrWhiteSpace(_clinic.Notes))
+                        @if (!string.IsNullOrWhiteSpace(_clinic.Notes))
                         {
-                            <MudListItem T="string" Icon="@MaterialIcons.Filled.Info">
-                                <MudText>@_clinic.Notes</MudText>
-                            </MudListItem>
+                            <MudExpansionPanels Elevation="0">
+                                <MudExpansionPanel Text="@GetNotePreview()" @bind-Expanded="_noteOpen">
+                                    <MudListItem T="string" Icon="@MaterialIcons.Filled.Info">
+                                        <MudText Align="Align.Justify">@_clinic.Notes</MudText>
+                                    </MudListItem>
+                                </MudExpansionPanel>
+                            </MudExpansionPanels>
                         }
                     </MudItem>
                 </MudGrid>
             </MudCardContent>
 
-            <MudCardActions>
-                <MudStack Justify="Justify.SpaceAround" Spacing="4" Row="true">
-                    <MudButton Color="Color.Primary" Variant="Variant.Filled"
+            <MudCardActions Class="justify-end">
+                <MudStack AlignItems="AlignItems.End" Justify="Justify.FlexEnd" Spacing="4" Row="true">
+                    <MudButton Color="Color.Primary" Variant="Variant.Text"
                                StartIcon="@MaterialIcons.Filled.EventAvailable"
                                OnClick="@GoToReservation">
                         رزرو نوبت
                     </MudButton>
 
-                    <MudButton Color="Color.Secondary" Variant="Variant.Outlined"
+                    <MudButton Color="Color.Secondary" Variant="Variant.Text"
                                StartIcon="@MaterialIcons.Filled.Directions"
                                OnClick="@OpenDirections">
                         مسیریابی
                     </MudButton>
 
-                    <MudButton Color="Color.Tertiary" Variant="Variant.Filled"
+
+                    <MudButton Color="Color.Tertiary" Variant="Variant.Text"
                                StartIcon="@MaterialIcons.Filled.Call"
                                Href="@($"tel:{_clinic.PhoneNumber}")">
                         تماس
                     </MudButton>
                 </MudStack>
-            </MudCardActions>
-        </MudCard>
-    }
-</MudPaper>
+        </MudCardActions>
+    </MudCard>
+}
+</div>
 
 @code {
     private ClinicSettingsResponse? _clinic;
     private bool                    _loading = true;
+    private bool                    _noteOpen ;
 
+    private string GetNotePreview()
+    {
+        if (_noteOpen)
+            return "توضیحات";
+
+        if (string.IsNullOrWhiteSpace(_clinic?.Notes))
+            return "توضیحات";
+
+        var preview = _clinic.Notes.Length > 50
+            ? _clinic.Notes.Substring(0, 50) + "..."
+            : _clinic.Notes;
+
+        return $"توضیحات: {preview}";
+    }
     protected override async Task OnInitializedAsync()
     {
         try
@@ -283,5 +294,5 @@
         height: 220px;
         opacity: .8;
     }
-    
+
 </style>

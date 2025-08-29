@@ -2,7 +2,7 @@
 @using App.Applications.Doctor.Requests.Get
 @using UI.Components.Common.BaseComponents.Picture
 
-<MudPaper Class="pa-4">
+<div>
     @if (_loading)
     {
         <MudSkeleton Height="180px" Width="100%" Class="mb-4"/>
@@ -17,9 +17,9 @@
         }
         else
         {
-            <MudCard Class="doctor-card">
+            <MudCard Class="doctor-card equal-height-box">
                 <MudCardHeader Class="doctor-card__header">
-                    <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                    <MudText class="doctor-card__title">
                         <MudAvatar Size="Size.Large" Variant="Variant.Filled" Color="Color.Primary">
                             @if (!string.IsNullOrWhiteSpace(_doctor.PhotoUrl))
                             {
@@ -34,16 +34,17 @@
                         <MudStack>
                             <MudText Typo="Typo.h5">@_doctor.FullName</MudText>
                             <MudText Typo="Typo.subtitle2" Color="Color.Secondary">@_doctor.Title</MudText>
-
-                            @if (_doctor.YearsOfExperience > 0)
-                            {
-                                <MudChip T="string" Color="Color.Info" Variant="Variant.Outlined" Dense
-                                         Icon="@MaterialIcons.Filled.WorkHistory">
-                                    تجربه: @_doctor.YearsOfExperience سال
-                                </MudChip>
-                            }
                         </MudStack>
-                    </MudStack>
+                    </MudText>
+                    <MudItem>
+                        @if (_doctor.YearsOfExperience > 0)
+                        {
+                            <MudChip T="string" Color="Color.Info" Variant="Variant.Outlined" Dense
+                                     Icon="@MaterialIcons.Filled.WorkHistory">
+                                تجربه: @_doctor.YearsOfExperience سال
+                            </MudChip>
+                        }
+                    </MudItem>
                 </MudCardHeader>
 
                 <MudCardContent>
@@ -77,7 +78,7 @@
 
                     @if (!string.IsNullOrWhiteSpace(_doctor.Biography))
                     {
-                        <MudExpansionPanels  Elevation="0">
+                        <MudExpansionPanels Elevation="0">
                             <MudExpansionPanel Text="معرفی پزشک" Expanded="@_bioOpen"
                                                OnExpandedChanged="b => _bioOpen = b">
                                 <MudText>@_doctor.Biography</MudText>
@@ -103,7 +104,7 @@
                 <MudCardActions Class="justify-end">
                     @if (!string.IsNullOrWhiteSpace(_doctor.Website))
                     {
-                        <MudButton Variant="Variant.Outlined" Color="Color.Primary"
+                        <MudButton Variant="Variant.Text" Color="Color.Primary"
                                    StartIcon="@MaterialIcons.Filled.Public"
                                    Href="@NormalizeUrl(_doctor.Website)" Target="_blank">
                             وب‌سایت
@@ -137,12 +138,11 @@
             </MudCard>
         }
     }
-</MudPaper>
-
+</div>
 @code {
     private DoctorProfileResponse? _doctor;
-    private bool _loading = true;
-    private bool _bioOpen;
+    private bool                   _loading = true;
+    private bool                   _bioOpen = true;
 
     protected override async Task OnInitializedAsync()
     {
@@ -183,8 +183,18 @@
     overflow: hidden;
 }
 .doctor-card__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
     padding: 16px;
-    background: linear-gradient(135deg, rgba(99,102,241,.12), rgba(16,185,129,.12));
-    border-bottom: 1px solid rgba(255,255,255,.06);
+    background: linear-gradient(135deg, rgba(99, 102, 241, .12), rgba(16, 185, 129, .12));
+    border-bottom: 1px solid rgba(255, 255, 255, .06);
+}
+
+.doctor-card__title {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
 }
 </style>

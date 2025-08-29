@@ -13,91 +13,91 @@ public class ThemeService : IThemeService
         {
             PaletteLight = new PaletteLight
             {
-                Primary                  = "#00A693" ,
-                Secondary                = "#FE28A2" ,
-                Tertiary                 = "#1C39BB" ,
-                Background               = "#FDFDFD" ,
-                Surface                  = "#FFFFFF" ,
-                AppbarBackground         = "#1C39BB" ,
-                AppbarText               = "#FFFFFF" ,
-                DrawerBackground         = "#FFFFFF" ,
-                DrawerText               = "#3B3B3B" ,
-                TextPrimary              = "#3B3B3B" ,
-                TextSecondary            = "#5B5B5B" ,
-                ActionDefault            = "#FE28A2" ,
-                ActionDisabled           = "#BDBDBD" ,
-                ActionDisabledBackground = "#E0E0E0" ,
-                Divider                  = "#E0E0E0" ,
-                Success                  = "#2E7D32" ,
-                Info                     = "#2196F3" ,
-                Warning                  = "#FBC02D" ,
+                Primary                  = "#00A693",
+                Secondary                = "#FE28A2",
+                Tertiary                 = "#1C39BB",
+                Background               = "#FDFDFD",
+                Surface                  = "#FFFFFF",
+                AppbarBackground         = "#1C39BB",
+                AppbarText               = "#FFFFFF",
+                DrawerBackground         = "#FFFFFF",
+                DrawerText               = "#3B3B3B",
+                TextPrimary              = "#3B3B3B",
+                TextSecondary            = "#5B5B5B",
+                ActionDefault            = "#FE28A2",
+                ActionDisabled           = "#BDBDBD",
+                ActionDisabledBackground = "#E0E0E0",
+                Divider                  = "#E0E0E0",
+                Success                  = "#2E7D32",
+                Info                     = "#2196F3",
+                Warning                  = "#FBC02D",
                 Error                    = "#CA3433"
-            } ,
+            },
             Typography = new Typography
             {
                 Default = new DefaultTypography
                 {
-                    FontFamily = ["B taha" , "Tahoma" , "Arial" , "Helvetica" , "sans-serif"] ,
+                    FontFamily = ["B taha", "Tahoma", "Arial", "Helvetica", "sans-serif"],
                     FontSize   = "0.875rem"
-                } ,
-                H1        = new H1Typography
+                },
+                H1 = new H1Typography
                 {
-                    FontFamily        = ["B taha"] ,
-                    FontSize = "2.125rem"
-                } ,
-                H2        = new H2Typography
+                    FontFamily = ["B taha"],
+                    FontSize   = "2.125rem"
+                },
+                H2 = new H2Typography
                 {
-                    FontFamily        = ["B taha"] ,
-                    FontSize = "1.75rem"
-                } ,
-                H3        = new H3Typography
+                    FontFamily = ["B taha"],
+                    FontSize   = "1.75rem"
+                },
+                H3 = new H3Typography
                 {
-                    FontFamily        = ["B taha"] ,
-                    FontSize = "1.5rem"
-                } ,
-                H4        = new H4Typography
+                    FontFamily = ["B taha"],
+                    FontSize   = "1.5rem"
+                },
+                H4 = new H4Typography
                 {
-                    FontFamily        = ["B taha"] ,
-                    FontSize = "1.25rem"
-                } ,
-                H5        = new H5Typography
+                    FontFamily = ["B taha"],
+                    FontSize   = "1.25rem"
+                },
+                H5 = new H5Typography
                 {
-                    FontFamily        = ["B taha"] ,
-                    FontSize = "1.125rem"
-                } ,
-                H6        = new H6Typography
+                    FontFamily = ["B taha"],
+                    FontSize   = "1.125rem"
+                },
+                H6 = new H6Typography
                 {
-                    FontFamily        = ["B taha"] ,
-                    FontSize = "1rem"
-                } ,
-                Button    = new ButtonTypography
+                    FontFamily = ["B taha"],
+                    FontSize   = "1rem"
+                },
+                Button = new ButtonTypography
                 {
-                    FontFamily    = ["B taha"] ,
-                    FontSize = "0.875rem"
-                } ,
-                Body1     = new Body1Typography
+                    FontFamily = ["B taha"],
+                    FontSize   = "0.875rem"
+                },
+                Body1 = new Body1Typography
                 {
-                    FontFamily     = ["B taha"]
-                } ,
-                Body2     = new Body2Typography
+                    FontFamily = ["B taha"]
+                },
+                Body2 = new Body2Typography
                 {
-                    FontFamily     = ["B taha"]
-                } ,
+                    FontFamily = ["B taha"]
+                },
                 Subtitle1 = new Subtitle1Typography
                 {
                     FontFamily = ["B taha"]
-                } ,
+                },
                 Subtitle2 = new Subtitle2Typography
                 {
                     FontFamily = ["B taha"]
-                } ,
-                Caption   = new CaptionTypography
+                },
+                Caption = new CaptionTypography
                 {
-                    FontFamily   = ["B taha"]
-                } ,
-                Overline  = new OverlineTypography
+                    FontFamily = ["B taha"]
+                },
+                Overline = new OverlineTypography
                 {
-                    FontFamily  = ["B taha"]
+                    FontFamily = ["B taha"]
                 }
             }
         };
@@ -133,79 +133,79 @@ public class ThemeService : IThemeService
                 {
                     FontFamily = new[]
                     {
-                        "B taha" ,
-                        "Tahoma" ,
-                        "Arial" ,
-                        "Helvetica" ,
+                        "B taha",
+                        "Tahoma",
+                        "Arial",
+                        "Helvetica",
                         "sans-serif"
-                    } ,
-                    FontSize   = "0.875rem"
-                } ,
-                H1        = new H1Typography
-                {
-                    FontFamily        = ["B taha"] ,
-                    FontSize = "2.125rem"
-                } ,
-                H2        = new H2Typography
-                {
-                    FontFamily        = ["B taha"] ,
-                    FontSize = "1.75rem"
-                } ,
-                H3        = new H3Typography
-                {
-                    FontFamily        = ["B taha"] ,
-                    FontSize = "1.5rem"
-                } ,
-                H4        = new H4Typography
-                {
-                    FontFamily        = ["B taha"] ,
-                    FontSize = "1.25rem"
-                } ,
-                H5        = new H5Typography
-                {
-                    FontFamily        = ["B taha"] ,
-                    FontSize = "1.125rem"
-                } ,
-                H6        = new H6Typography
-                {
-                    FontFamily        = ["B taha"] ,
-                    FontSize = "1rem"
-                } ,
-                Button    = new ButtonTypography
-                {
-                    FontFamily    = ["B taha"] ,
+                    },
                     FontSize = "0.875rem"
-                } ,
-                Body1     = new Body1Typography
+                },
+                H1 = new H1Typography
                 {
-                    FontFamily     = ["B taha"]
-                } ,
-                Body2     = new Body2Typography
+                    FontFamily = ["B taha"],
+                    FontSize   = "2.125rem"
+                },
+                H2 = new H2Typography
                 {
-                    FontFamily     = ["B taha"]
-                } ,
+                    FontFamily = ["B taha"],
+                    FontSize   = "1.75rem"
+                },
+                H3 = new H3Typography
+                {
+                    FontFamily = ["B taha"],
+                    FontSize   = "1.5rem"
+                },
+                H4 = new H4Typography
+                {
+                    FontFamily = ["B taha"],
+                    FontSize   = "1.25rem"
+                },
+                H5 = new H5Typography
+                {
+                    FontFamily = ["B taha"],
+                    FontSize   = "1.125rem"
+                },
+                H6 = new H6Typography
+                {
+                    FontFamily = ["B taha"],
+                    FontSize   = "1rem"
+                },
+                Button = new ButtonTypography
+                {
+                    FontFamily = ["B taha"],
+                    FontSize   = "0.875rem"
+                },
+                Body1 = new Body1Typography
+                {
+                    FontFamily = ["B taha"]
+                },
+                Body2 = new Body2Typography
+                {
+                    FontFamily = ["B taha"]
+                },
                 Subtitle1 = new Subtitle1Typography
                 {
                     FontFamily = ["B taha"]
-                } ,
+                },
                 Subtitle2 = new Subtitle2Typography
                 {
                     FontFamily = ["B taha"]
-                } ,
-                Caption   = new CaptionTypography
+                },
+                Caption = new CaptionTypography
                 {
-                    FontFamily   = ["B taha"]
-                } ,
-                Overline  = new OverlineTypography
+                    FontFamily = ["B taha"]
+                },
+                Overline = new OverlineTypography
                 {
-                    FontFamily  = ["B taha"]
+                    FontFamily = ["B taha"]
                 }
             }
         };
 
 
         CurrentTheme = _darkTheme;
-        IsDarkMode    = true;
+        IsDarkMode   = true;
     }
 
     public bool IsDarkMode { get; private set; }
@@ -214,7 +214,7 @@ public class ThemeService : IThemeService
 
     public MudTheme CurrentTheme { get; private set; }
 
-    public void ToggleDarkLightMode(bool isDarkMode , bool refresh = true)
+    public void ToggleDarkLightMode(bool isDarkMode, bool refresh = true)
     {
         if (isDarkMode)
             SetDarkTheme(refresh);
@@ -225,7 +225,8 @@ public class ThemeService : IThemeService
     public void SetLightTheme(bool refresh)
     {
         CurrentTheme = _lightTheme;
-        IsDarkMode    = false;
+        IsDarkMode   = false;
+
         if (refresh)
             OnThemeChanged();
     }
@@ -233,7 +234,8 @@ public class ThemeService : IThemeService
     public void SetDarkTheme(bool refresh)
     {
         CurrentTheme = _darkTheme;
-        IsDarkMode    = true;
+        IsDarkMode   = true;
+
         if (refresh)
             OnThemeChanged();
     }
@@ -246,6 +248,6 @@ public class ThemeService : IThemeService
 
     protected virtual void OnThemeChanged()
     {
-        ThemeChanged?.Invoke(this , EventArgs.Empty);
+        ThemeChanged?.Invoke(this, EventArgs.Empty);
     }
 }

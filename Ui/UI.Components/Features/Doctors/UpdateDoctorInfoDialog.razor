@@ -81,11 +81,11 @@
                                        OnClick="AddSpecialty">افزودن
                             </MudButton>
                         </MudStack>
-                        <MudChipSet Class="mt-2">
+                        <MudChipSet T="string" Class="mt-2">
                             @for (var i = 0; i < _vm.Specialties.Length; i++)
                             {
                                 var idx = i;
-                                <MudChip Closeable Color="Color.Primary" Variant="Variant.Filled" Dense
+                                <MudChip T="string" Color="Color.Primary" Variant="Variant.Filled" Dense
                                          OnClose="@(() => RemoveSpecialty(idx))">
                                     @_vm.Specialties[idx]
                                 </MudChip>
@@ -103,11 +103,11 @@
                                        OnClick="AddLanguage">افزودن
                             </MudButton>
                         </MudStack>
-                        <MudChipSet Class="mt-2">
+                        <MudChipSet T="string" Class="mt-2">
                             @for (var i = 0; i < _vm.Education.Length; i++)
                             {
                                 var idx = i;
-                                <MudChip Closeable Color="Color.Info" Variant="Variant.Outlined" Dense
+                                <MudChip T="string" Color="Color.Info" Variant="Variant.Outlined" Dense
                                          OnClose="@(() => RemoveEducation(idx))">
                                     @_vm.Education[idx]
                                 </MudChip>
@@ -124,11 +124,11 @@
                                        OnClick="AddEdu">افزودن
                             </MudButton>
                         </MudStack>
-                        <MudChipSet Class="mt-2">
+                        <MudChipSet T="string" Class="mt-2">
                             @for (var i = 0; i < _vm.Languages.Length; i++)
                             {
                                 var idx = i;
-                                <MudChip Closeable Color="Color.Secondary" Variant="Variant.Outlined" Dense
+                                <MudChip T="string" Color="Color.Secondary" Variant="Variant.Outlined" Dense
                                          OnClose="@(() => RemoveLanguage(idx))">
                                     @_vm.Languages[idx]
                                 </MudChip>
