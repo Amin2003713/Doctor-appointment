@@ -1,0 +1,294 @@
+﻿@using App.Applications.Schedules.Requests.Get
+@using App.Applications.Schedules.Requests.Update
+@inject IMediator Mediator
+
+<MudDialog>
+    <DialogContent>
+        <MudStack Spacing="2">
+            <!-- Mode -->
+            <MudRadioGroup T="AddWorkSlotDialogMode" bind-Value="_mode" Row="true">
+                <MudRadio T="AddWorkSlotDialogMode"  Value="AddWorkSlotDialogMode.Weekly">هفتگی</MudRadio>
+                <MudRadio T="AddWorkSlotDialogMode"  Value="AddWorkSlotDialogMode.Override">اورراید (تاریخ خاص)</MudRadio>
+            </MudRadioGroup>
+
+            @if (_mode == AddWorkSlotDialogMode.Weekly)
+            {
+                <MudSelect @bind-Value="_dayOfWeek" Label="روز هفته" Required="true">
+                    @foreach (var d in Enum.GetValues<DayOfWeek>())
+                    {
+                        <MudSelectItem Value="d">@PersianDays[d]</MudSelectItem>
+                    }
+                </MudSelect>
+
+                <MudSwitch T="bool" bind-Value="_closed" Color="Color.Error" Label="بسته"/>
+            }
+            else
+            {
+                <MudDatePicker @bind-Date="_overrideDate" Label="تاریخ اورراید" Required="true"/>
+
+                <MudSwitch @bind-Value="_closed" Color="Color.Error" Label="بسته"/>
+            }
+
+            <MudDivider/>
+
+            <!-- Add a single interval quickly -->
+            <MudStack Row Spacing="2" AlignItems="AlignItems.End">
+                <MudTimePicker Label="از" @bind-Time="_from" Required="true"/>
+                <MudTimePicker Label="تا" @bind-Time="_to" Required="true"/>
+                <MudButton Variant="Variant.Outlined" OnClick="AddInterval">افزودن بازه</MudButton>
+            </MudStack>
+
+            <!-- Current intervals -->
+            <MudStack Row Spacing="1">
+                @if (_intervals.Any())
+                {
+                    @foreach (var t in _intervals)
+                    {
+                        <MudChip T="string"
+                                 OnClose="() => RemoveInterval(t)"
+                                 Variant="Variant.Outlined">
+                            @($"{t.From} - {t.To}")
+                        </MudChip>
+                    }
+                }
+                else
+                {
+                    <MudText Color="Color.Secondary">بازه‌ای اضافه نشده است</MudText>
+                }
+            </MudStack>
+
+            <MudExpansionPanels Elevation="0">
+                <MudExpansionPanel Text="استراحت‌ها (اختیاری)">
+                    <MudStack Row Spacing="2" AlignItems="AlignItems.End">
+                        <MudTimePicker Label="از" @bind-Time="_breakFrom"/>
+                        <MudTimePicker Label="تا" @bind-Time="_breakTo"/>
+                        <MudButton Variant="Variant.Outlined" OnClick="AddBreak">افزودن استراحت</MudButton>
+                    </MudStack>
+                    <MudStack Row Spacing="1" Class="mt-2">
+                        @if (_breaks.Any())
+                        {
+                            @foreach (var r in _breaks)
+                            {
+                                <MudChip T="string"
+                                         OnClose="() => RemoveBreak(r)"
+                                         Variant="Variant.Outlined">
+                                    @($"{r.From} - {r.To}")
+                                </MudChip>
+                            }
+                        }
+                        else
+                        {
+                            <MudText Color="Color.Secondary">—</MudText>
+                        }
+                    </MudStack>
+                </MudExpansionPanel>
+            </MudExpansionPanels>
+        </MudStack>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Secondary">انصراف</MudButton>
+        <MudButton OnClick="Save" Color="Color.Primary" Variant="Variant.Filled">ذخیره</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
+
+    // Incoming from page
+    [Parameter] public List<WorkingDayDto> Days { get; set; } = new();
+    [Parameter] public List<SpecialDateOverrideDto> Overrides { get; set; } = new();
+
+    // Optional prefilled for edit
+    [Parameter] public WorkingDayDto? Day { get; set; }
+    [Parameter] public SpecialDateOverrideDto? Override { get; set; }
+    [Parameter] public AddWorkSlotDialogMode? Mode { get; set; }
+
+    // Local UI state
+    private AddWorkSlotDialogMode _mode      = AddWorkSlotDialogMode.Weekly;
+    private DayOfWeek             _dayOfWeek = DayOfWeek.Saturday;
+    private DateTime?             _overrideDate; // bind with MudDatePicker (DateTime?)
+    private bool                  _closed;
+
+    private          TimeSpan?          _from, _to, _breakFrom, _breakTo;
+    private readonly List<TimeRangeDto> _intervals = new();
+    private readonly List<TimeRangeDto> _breaks    = new();
+
+    private static readonly Dictionary<DayOfWeek, string> PersianDays = new()
+    {
+        {
+            DayOfWeek.Saturday, "شنبه"
+        },
+        {
+            DayOfWeek.Sunday, "یکشنبه"
+        },
+        {
+            DayOfWeek.Monday, "دوشنبه"
+        },
+        {
+            DayOfWeek.Tuesday, "سه‌شنبه"
+        },
+        {
+            DayOfWeek.Wednesday, "چهارشنبه"
+        },
+        {
+            DayOfWeek.Thursday, "پنجشنبه"
+        },
+        {
+            DayOfWeek.Friday, "جمعه"
+        }
+    };
+
+    protected override void OnInitialized()
+    {
+        // Prefill edit scenario
+        if (Mode.HasValue) _mode = Mode.Value;
+
+        if (Day is not null)
+        {
+            _mode      = AddWorkSlotDialogMode.Weekly;
+            _dayOfWeek = Day.Day;
+            _closed    = Day.Closed;
+            _intervals.AddRange(Day.Intervals ?? new());
+            _breaks.AddRange(Day.Breaks       ?? new());
+        }
+
+        if (Override is not null)
+        {
+            _mode         = AddWorkSlotDialogMode.Override;
+            _overrideDate = new DateTime(Override.Date.Year, Override.Date.Month, Override.Date.Day);
+            _closed       = Override.Closed;
+            _intervals.AddRange(Override.Intervals ?? new());
+            // (Breaks not modeled on SpecialDateOverrideDto; keep empty unless you add it)
+        }
+    }
+
+    private void AddInterval()
+    {
+        if (_from is null || _to is null) return;
+        var f = _from.Value.ToString(@"hh\:mm");
+        var t = _to.Value.ToString(@"hh\:mm");
+        if (string.Compare(f, t, StringComparison.Ordinal) >= 0) return;
+
+        _intervals.Add(new TimeRangeDto(f, t));
+        _from = _to = null;
+        StateHasChanged();
+    }
+
+    private void RemoveInterval(TimeRangeDto t)
+    {
+        _intervals.RemoveAll(x => x.From == t.From && x.To == t.To);
+    }
+
+    private void AddBreak()
+    {
+        if (_breakFrom is null || _breakTo is null) return;
+        var f = _breakFrom.Value.ToString(@"hh\:mm");
+        var t = _breakTo.Value.ToString(@"hh\:mm");
+        if (string.Compare(f, t, StringComparison.Ordinal) >= 0) return;
+
+        _breaks.Add(new TimeRangeDto(f, t));
+        _breakFrom = _breakTo = null;
+        StateHasChanged();
+    }
+
+    private void RemoveBreak(TimeRangeDto r)
+    {
+        _breaks.RemoveAll(x => x.From == r.From && x.To == r.To);
+    }
+
+    private void Cancel()
+        => MudDialog.Cancel();
+
+    private async Task Save()
+    {
+        // Compose a full body including BOTH Days & Overrides
+        var body = new UpdateWorkScheduleRequest
+        {
+            Days      = Days.ToList(),
+            Overrides = Overrides.ToList()
+        };
+
+        if (_mode == AddWorkSlotDialogMode.Weekly)
+        {
+            var target = body.Days.FirstOrDefault(d => d.Day == _dayOfWeek);
+
+            if (target is null)
+            {
+                target = new WorkingDayDto
+                {
+                    Day = _dayOfWeek
+                };
+
+                body.Days.Add(target);
+            }
+
+            target.Closed    = _closed;
+            target.Intervals = _intervals.ToList();
+            target.Breaks    = _breaks.ToList();
+        }
+        else // Override
+        {
+            if (_overrideDate is null) return;
+            var dateOnly = DateOnly.FromDateTime(_overrideDate.Value);
+
+            // If editing an existing override (Override param provided), replace it
+            if (Override is not null)
+            {
+                var idx = body.Overrides.FindIndex(x => x.Id == Override.Id);
+
+                if (idx >= 0)
+                {
+                    body.Overrides[idx] = new SpecialDateOverrideDto
+                    {
+                        Id        = Override.Id,
+                        Date      = dateOnly,
+                        Closed    = _closed,
+                        Intervals = _intervals.ToList()
+                    };
+                }
+                else
+                {
+                    body.Overrides.Add(new SpecialDateOverrideDto
+                    {
+                        Id        = Override.Id != Guid.Empty ? Override.Id : Guid.NewGuid(),
+                        Date      = dateOnly,
+                        Closed    = _closed,
+                        Intervals = _intervals.ToList()
+                    });
+                }
+            }
+            else
+            {
+                // Add or upsert by Date (no duplicates per date)
+                var existing = body.Overrides.FirstOrDefault(x => x.Date == dateOnly);
+
+                if (existing is null)
+                {
+                    body.Overrides.Add(new SpecialDateOverrideDto
+                    {
+                        Id        = Guid.NewGuid(),
+                        Date      = dateOnly,
+                        Closed    = _closed,
+                        Intervals = _intervals.ToList()
+                    });
+                }
+                else
+                {
+                    existing.Closed    = _closed;
+                    existing.Intervals = _intervals.ToList();
+                }
+            }
+        }
+
+        await Mediator.Send(new UpdateWorkScheduleCommand(body));
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+
+    public enum AddWorkSlotDialogMode
+    {
+        Weekly,
+        Override
+    }
+
+}

@@ -1,0 +1,282 @@
+﻿@page "/doctor/schedule"
+@using App.Applications.Schedules.Requests.Get
+@using UI.Components.Features.Doctors.Schedules.Dialogs
+
+<MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="pt-4">
+    <MudPaper Elevation="2" Class="rounded-xl p-4">
+
+
+        <!-- One table for both Days & Overrides -->
+        <MudTable T="ScheduleRow" Dense Hover Class="rounded-xl" ServerData="LoadData">
+
+            <ToolBarContent>
+                <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                    <MudText Typo="Typo.h5" Class="fw-bold">برنامه کاری پزشک</MudText>
+                </MudStack>
+            </ToolBarContent>
+
+            <HeaderContent>
+                <MudTh>روز/تاریخ</MudTh>
+                <MudTh>وضعیت</MudTh>
+                <MudTh>بازه‌های کاری</MudTh>
+                <MudTh>استراحت‌ها</MudTh>
+                <MudTh></MudTh>
+            </HeaderContent>
+
+            <RowTemplate>
+                <MudTd DataLabel="روز/تاریخ">
+                    @if (context.IsOverride)
+                    {
+                        <MudStack Row AlignItems="AlignItems.Center" Spacing="1">
+                            <MudIcon Icon="@MaterialIcons.Filled.Event" Size="Size.Small"/>
+                            <MudText>@context.Date?.ToString("yyyy/MM/dd")</MudText>
+                            <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Filled"
+                                     Class="ms-2">
+                                اورراید
+                            </MudChip>
+                        </MudStack>
+                    }
+                    else
+                    {
+                        <MudStack Row AlignItems="AlignItems.Center" Spacing="1">
+                            <MudIcon Icon="@MaterialIcons.Filled.CalendarToday" Size="Size.Small"/>
+                            <MudText>@PersianDays[context.Day!.Value]</MudText>
+                        </MudStack>
+                    }
+                </MudTd>
+
+                <MudTd DataLabel="وضعیت">
+                    <MudChip T="string" Color="@(context.Closed ? Color.Error : Color.Success)">
+                        @(context.Closed ? "بسته" : "باز")
+                    </MudChip>
+                </MudTd>
+
+                <MudTd DataLabel="بازه‌های کاری">
+                    @if (context.Intervals?.Any() == true)
+                    {
+                        @foreach (var t in context.Intervals)
+                        {
+                            <MudChip T="string" Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small"
+                                     Class="me-1 mb-1">
+                                @($"{t.From} - {t.To}")
+                            </MudChip>
+                        }
+                    }
+                    else
+                    {
+                        <MudText Color="Color.Secondary">—</MudText>
+                    }
+                </MudTd>
+
+                <MudTd DataLabel="استراحت‌ها">
+                    @if (context.Breaks?.Any() == true)
+                    {
+                        @foreach (var b in context.Breaks)
+                        {
+                            <MudChip T="string" Color="Color.Secondary" Variant="Variant.Outlined" Size="Size.Small"
+                                     Class="me-1 mb-1">
+                                @($"{b.From} - {b.To}")
+                            </MudChip>
+                        }
+                    }
+                    else
+                    {
+                        <MudText Color="Color.Secondary">—</MudText>
+                    }
+                </MudTd>
+
+                <MudTd>
+                    @if (!context.IsOverride)
+                    {
+                        <MudIconButton Icon="@MaterialIcons.Filled.Edit"
+                                       Color="Color.Primary"
+                                       OnClick="() => EditDay(context.ToWorkingDay())"/>
+                    }
+                    else
+                    {
+                        <MudTooltip Text="ویرایش اورراید در نسخه بعدی">
+                            <MudIconButton Icon="@MaterialIcons.Outlined.Lock" Disabled="true"/>
+                        </MudTooltip>
+                    }
+                </MudTd>
+            </RowTemplate>
+
+            <LoadingContent>
+                <MudProgressLinear Indeterminate Color="Color.Primary"/>
+            </LoadingContent>
+
+            <PagerContent>
+                <MudTablePager/>
+            </PagerContent>
+        </MudTable>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private WorkScheduleResponse? _schedule;
+
+    // Unified row for Days & Overrides
+    private sealed class ScheduleRow
+    {
+        public bool IsOverride { get; init; }
+        public DayOfWeek? Day { get; init; }
+        public DateOnly? Date { get; init; }
+        public bool Closed { get; init; }
+        public List<TimeRangeDto> Intervals { get; init; } = new();
+        public List<TimeRangeDto> Breaks { get; init; } = new();
+
+        public WorkingDayDto ToWorkingDay()
+            => new WorkingDayDto
+            {
+                Day       = Day ?? DayOfWeek.Saturday,
+                Closed    = Closed,
+                Intervals = Intervals.ToList(),
+                Breaks    = Breaks.ToList()
+            };
+    }
+
+    private async Task<TableData<ScheduleRow>> LoadData(TableState state, CancellationToken cancellationToken)
+    {
+        try
+        {
+            _schedule = await Mediator.Send(new GetWorkScheduleRequest(), cancellationToken);
+
+            if (_schedule is null)
+                return new TableData<ScheduleRow>
+                {
+                    Items      = [],
+                    TotalItems = 0
+                };
+
+            var rows = new List<ScheduleRow>();
+
+            // 1) Weekly days
+            foreach (var d in _schedule.Days.OrderBy(x => (int)x.Day))
+            {
+                rows.Add(new ScheduleRow
+                {
+                    IsOverride = false,
+                    Day        = d.Day,
+                    Closed     = d.Closed,
+                    Intervals  = d.Intervals ?? new(),
+                    Breaks     = d.Breaks    ?? new()
+                });
+            }
+
+            // 2) Overrides (dated)
+            foreach (var ov in _schedule.Overrides.OrderBy(x => x.Date))
+            {
+                rows.Add(new ScheduleRow
+                {
+                    IsOverride = true,
+                    Date       = ov.Date,
+                    Closed     = ov.Closed,
+                    Intervals  = ov.Intervals ?? new(),
+                    Breaks     = new() // usually breaks aren’t used for overrides; keep empty unless you support them
+                });
+            }
+
+            // server-side paging if you like (for now simple slice)
+            var paged = rows.Skip(state.Page * state.PageSize).Take(state.PageSize).ToList();
+
+            return new TableData<ScheduleRow>
+            {
+                Items      = paged,
+                TotalItems = rows.Count
+            };
+        }
+        catch
+        {
+            return new TableData<ScheduleRow>
+            {
+                Items      = [],
+                TotalItems = 0
+            };
+        }
+    }
+
+    private async Task EditDay(WorkingDayDto day)
+    {
+        var parameters = new DialogParameters
+        {
+            {
+                "Day", day
+            },
+            {
+                "Days", _schedule?.Days ?? new()
+            },
+            {
+                "Overrides", _schedule?.Overrides ?? new()
+            },
+            {
+                "Mode", AddWorkSlotDialog.AddWorkSlotDialogMode.Weekly
+            }
+        };
+
+        var dialog = await DialogService.ShowAsync<AddWorkSlotDialog>($"ویرایش {day.Day}", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            _schedule = await Mediator.Send(new GetWorkScheduleRequest());
+            StateHasChanged();
+        }
+    }
+
+    private async Task EditOverride(Guid overrideId)
+    {
+        var ov = _schedule?.Overrides.FirstOrDefault(x => x.Id == overrideId);
+        if (ov is null) return;
+
+        var parameters = new DialogParameters
+        {
+            {
+                "Override", ov
+            },
+            {
+                "Days", _schedule?.Days ?? new()
+            },
+            {
+                "Overrides", _schedule?.Overrides ?? new()
+            },
+            {
+                "Mode", AddWorkSlotDialog.AddWorkSlotDialogMode.Override
+            }
+        };
+
+        var dialog = await DialogService.ShowAsync<AddWorkSlotDialog>($"ویرایش اورراید {ov.Date:yyyy/MM/dd}", parameters);
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            _schedule = await Mediator.Send(new GetWorkScheduleRequest());
+            StateHasChanged();
+        }
+    }
+
+    private static readonly Dictionary<DayOfWeek, string> PersianDays = new()
+    {
+        {
+            DayOfWeek.Saturday, "شنبه"
+        },
+        {
+            DayOfWeek.Sunday, "یکشنبه"
+        },
+        {
+            DayOfWeek.Monday, "دوشنبه"
+        },
+        {
+            DayOfWeek.Tuesday, "سه‌شنبه"
+        },
+        {
+            DayOfWeek.Wednesday, "چهارشنبه"
+        },
+        {
+            DayOfWeek.Thursday, "پنجشنبه"
+        },
+        {
+            DayOfWeek.Friday, "جمعه"
+        }
+    };
+
+}
