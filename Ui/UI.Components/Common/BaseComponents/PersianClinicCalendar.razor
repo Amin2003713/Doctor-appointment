@@ -8,7 +8,7 @@
 
 <MudPaper Class="pa-4" @attributes="UserAttributes" dir="@(RightToLeft ? "rtl" : "ltr")">
 
-    <MudCalendar T="AppointmentResponse"
+    <MudCalendar T="ClinicCalendarItem"
                  Culture="@(new CultureInfo("fa-IR"))"
                  FirstDayOfWeek="@FirstDayOfWeek"
                  CurrentDay="@CurrentDay"
@@ -17,9 +17,13 @@
                  ShowDay="@ShowDay"
                  ShowCurrentTime="@ShowCurrentTime"
                  @bind-View="@View"
-                 ShowWorkWeek="@ShowWorkWeek"
-                 Items="@Appointments"
+                 Items="@_items"
                  ShowToolbar="@ShowToolbar"
+                 ShowDatePicker="true"
+                 ShowTodayButton="true"
+                 ShowDropdownViewSelector="true"
+                 ButtonVariant="Variant.Text"
+                 h
                  HighlightToday="true">
 
         <ToolbarContent>
@@ -31,7 +35,8 @@
             <MudPaper Class="pa-1" Elevation="0">
                 <MudStack Spacing="1">
                     <MudStack Row AlignItems="AlignItems.Center" Spacing="1">
-                        <MudChip Color="@MapStatusToColor(e.Status)" Size="Size.Small" Variant="Variant.Outlined">
+                        <MudChip T="string" Color="@MapStatusToColor(e.Status)" Size="Size.Small"
+                                 Variant="Variant.Outlined">
                             @StatusText(e.Status)
                         </MudChip>
                         <MudText Typo="Typo.body2" Class="fw-600">@ToFa(e.ServiceTitle)</MudText>
@@ -55,7 +60,8 @@
             <MudPaper Class="pa-2" Elevation="0">
                 <MudStack Spacing="1">
                     <MudStack Row AlignItems="AlignItems.Center" Spacing="1">
-                        <MudChip Color="@MapStatusToColor(e.Status)" Size="Size.Small" Variant="Variant.Outlined">
+                        <MudChip T="string" Color="@MapStatusToColor(e.Status)" Size="Size.Small"
+                                 Variant="Variant.Outlined">
                             @StatusText(e.Status)
                         </MudChip>
                         <MudText Typo="Typo.subtitle2" Class="fw-600">@ToFa(e.ServiceTitle)</MudText>
@@ -63,13 +69,14 @@
 
                     <MudText Typo="Typo.caption">@ToFa($"{e.Start:HH\\:mm} - {e.End:HH\\:mm}")</MudText>
 
-                    <MudList Dense="true">
-                        <MudListItem>@ToFa($"بیمار: {e.PatientFullName}")</MudListItem>
-                        <MudListItem>@ToFa($"تلفن: {e.PatientPhone}")</MudListItem>
-                        <MudListItem>@ToFa($"مبلغ: {PriceFormat(e.PriceAmount, e.PriceCurrency)}")</MudListItem>
+                    <MudList T="string" Dense="true">
+                        <MudListItem T="string">@ToFa($"بیمار: {e.PatientFullName}")</MudListItem>
+                        <MudListItem T="string">@ToFa($"تلفن: {e.PatientPhone}")</MudListItem>
+                        <MudListItem
+                            T="string">@ToFa($"مبلغ: {PriceFormat(e.PriceAmount, e.PriceCurrency)}")</MudListItem>
                         @if (!string.IsNullOrWhiteSpace(e.Notes))
                         {
-                            <MudListItem>@ToFa($"یادداشت: {e.Notes}")</MudListItem>
+                            <MudListItem T="string">@ToFa($"یادداشت: {e.Notes}")</MudListItem>
                         }
                     </MudList>
                 </MudStack>
@@ -85,12 +92,12 @@
         </MonthTemplate>
     </MudCalendar>
 </MudPaper>
+
 @code {
 
     // ---------------------------
     // Public Parameters / API
     // ---------------------------
-    [Parameter] public IEnumerable<AppointmentResponse>? Appointments { get; set; }
     [Parameter] public bool ShowToolbar { get; set; } = true;
     [Parameter] public bool ShowMonth { get; set; } = true;
     [Parameter] public bool ShowWeek { get; set; } = true;
@@ -112,6 +119,16 @@
     [Parameter(CaptureUnmatchedValues = true)]
     public Dictionary<string, object?> UserAttributes { get; set; } = new();
 
+    [Parameter] public IEnumerable<AppointmentResponse>? Appointments { get; set; }
+
+
+    private List<ClinicCalendarItem> _items = new();
+
+    protected override void OnParametersSet()
+    {
+        _items = ClinicCalendarItem.FromAppointments(Appointments ?? []);
+    }
+
     // رنگ بر اساس وضعیت وقت
     private static Color MapStatusToColor(AppointmentStatus status)
         => status switch
@@ -120,10 +137,11 @@
                AppointmentStatus.Completed => Color.Success,
                AppointmentStatus.Cancelled => Color.Error,
                AppointmentStatus.NoShow    => Color.Warning,
+               AppointmentStatus.EmptySlot => Color.Tertiary,
                _                           => Color.Default
            };
 
-   
+
     private static string StatusText(AppointmentStatus e)
     {
         return e switch
@@ -132,6 +150,7 @@
                    AppointmentStatus.Completed => "انجام‌شده",
                    AppointmentStatus.Cancelled => "لغو",
                    AppointmentStatus.NoShow    => "عدم‌حضور",
+                   AppointmentStatus.EmptySlot => "خالی",
                    _                           => "نامشخص"
                };
     }

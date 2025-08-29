@@ -3,7 +3,7 @@
 @using App.Domain.ValueObjects
 
 <div>
-@if (_loading)
+    @if (_loading)
     {
         <MudSkeleton Height="220px" Width="100%"/>
 
@@ -41,6 +41,7 @@
                              StartIcon="@MaterialIcons.Filled.Schedule">
                         <span>زمان هر ویزیت: @_clinic.DefaultVisitMinutes دقیقه</span>
                     </MudChip>
+
                     <MudChip T="string" Color="Color.Warning" Variant="Variant.Filled" Class="ml-2 chip-multiline"
                              StartIcon="@MaterialIcons.Filled.Schedule">
                         <span>فاصله بین نوبت‌ها: @_clinic.BufferBetweenVisitsMinutes دقیقه</span>
@@ -54,9 +55,10 @@
                     <MudItem xs="12" md="6">
                         <MudList Dense T="string">
 
-                            <MudListItem OnClick="OpenDirections" T="string" Dense="true" Icon="@MaterialIcons.Filled.Place">
+                            <MudListItem OnClick="OpenDirections" T="string" Dense="true"
+                                         Icon="@MaterialIcons.Filled.Place">
                                 <MudStack Row="true">
-                                    <MudTooltip  Text="رفتن به نقشه">
+                                    <MudTooltip Text="رفتن به نقشه">
                                         <MudText>@_clinic.Address</MudText>
                                     </MudTooltip>
                                 </MudStack>
@@ -78,9 +80,9 @@
                                 <MudChipSet T="string">
                                     @foreach (var chip in PaymentChips)
                                     {
-                                        <MudChip T="string"  Value="@(chip.text)"  Color="@chip.color" Variant="Variant.Text"
+                                        <MudChip T="string" Value="@(chip.text)" Color="@chip.color"
+                                                 Variant="Variant.Text"
                                                  Icon="@chip.icon" Style="gap: 1rem;"/>
-                                        
                                     }
                                 </MudChipSet>
                             </MudListItem>
@@ -146,15 +148,15 @@
                         تماس
                     </MudButton>
                 </MudStack>
-        </MudCardActions>
-    </MudCard>
-}
+            </MudCardActions>
+        </MudCard>
+    }
 </div>
 
 @code {
     private ClinicSettingsResponse? _clinic;
     private bool                    _loading = true;
-    private bool                    _noteOpen ;
+    private bool                    _noteOpen;
 
     private string GetNotePreview()
     {
@@ -170,6 +172,7 @@
 
         return $"توضیحات: {preview}";
     }
+
     protected override async Task OnInitializedAsync()
     {
         try

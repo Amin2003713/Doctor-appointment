@@ -30,7 +30,9 @@ public class WorkScheduleController(AppDbContext db) : ControllerBase
 
         ws = new WorkSchedule
         {
-            Days = Enum.GetValues<DayOfWeek>().Select(d => new WorkingDay { Day = d }).ToList()
+            Days = Enum.GetValues<DayOfWeek>().Select(d => new WorkingDay { Day = d  , Intervals = [new TimeRange(TimeOnly.Parse("12:45"),
+                                                          TimeOnly.Parse("22:45"))]}).ToList(),
+            
         };
         db.WorkSchedules.Add(ws);
         await db.SaveChangesAsync(ct);
