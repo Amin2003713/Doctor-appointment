@@ -13,21 +13,7 @@
     <DialogContent>
         <MudStack Spacing="2">
 
-            <!-- بیمار -->
-            <MudTextField @bind-Value="Model.PatientFullName"
-                          Label="نام بیمار"
-                          Variant="Variant.Text"
-                          Required="true"
-                          Immediate="true"
-                          Placeholder="مثلاً علی رضایی"/>
-
-            <MudTextField @bind-Value="Model.PatientPhone"
-                          Label="شماره تماس"
-                          Variant="Variant.Text"
-                          Immediate="true"
-                          Placeholder="مثلاً 09121234567"/>
-
-            <MudSelect T="UserInfoResponse?"
+            <MudSelect T="UserListItemResponse?"
                        Label="بیمار"
                        Variant="Variant.Text"
                        @bind-Value="_selectedUser"
@@ -38,14 +24,14 @@
                 }
             </MudSelect>
             <!-- سرویس -->
-            <MudSelect T="Guid?"
+            <MudSelect T="ClinicServiceResponse"
                        Label="خدمت / سرویس"
                        Variant="Variant.Text"
-                       @bind-Value="Model.ServiceId"
+                       @bind-Value="_SelectedService"
                        Required="true">
                 @foreach (var service in Services)
                 {
-                    <MudSelectItem Value="@service.Id">@service.Title</MudSelectItem>
+                    <MudSelectItem Value="@service">@service.Title</MudSelectItem>
                 }
             </MudSelect>
 
@@ -93,10 +79,9 @@
     public UpsertAppointmentRequest Model { get; set; } = new();
     [Parameter] public bool IsPatient { get; set; } = true;
 
-    // you can inject services here to fetch services list
     private List<ClinicServiceResponse> Services = [];
 
-    private UserInfoResponse _selectedUser = null!;
+    private UserListItemResponse? _selectedUser ;
 
     private DateTime? BindedDate
     {
@@ -126,6 +111,7 @@
     }
 
     public List<UserListItemResponse> Users { get ; set ; }
+    public ClinicServiceResponse _SelectedService { get ; set ; }
 
     private void Cancel()
         => MudDialog.Cancel();
