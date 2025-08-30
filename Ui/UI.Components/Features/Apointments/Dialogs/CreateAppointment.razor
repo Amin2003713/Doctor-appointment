@@ -1,0 +1,145 @@
+﻿@using App.Applications.Appointments.Requests
+@using App.Applications.ClinicServices.Requests.Get
+@using App.Applications.ClinicServices.Requests.ListClinicServices
+@using App.Applications.Users.Requests.UserInfos
+@using App.Applications.Users.Requests.UserQueries
+@using App.Common.General.ApiResult
+@using MudBlazor
+
+
+<MudDialog>
+    <TitleContent>ایجاد نوبت جدید</TitleContent>
+
+    <DialogContent>
+        <MudStack Spacing="2">
+
+            <!-- بیمار -->
+            <MudTextField @bind-Value="Model.PatientFullName"
+                          Label="نام بیمار"
+                          Variant="Variant.Text"
+                          Required="true"
+                          Immediate="true"
+                          Placeholder="مثلاً علی رضایی"/>
+
+            <MudTextField @bind-Value="Model.PatientPhone"
+                          Label="شماره تماس"
+                          Variant="Variant.Text"
+                          Immediate="true"
+                          Placeholder="مثلاً 09121234567"/>
+
+            <MudSelect T="UserInfoResponse?"
+                       Label="بیمار"
+                       Variant="Variant.Text"
+                       @bind-Value="_selectedUser"
+                       Required="true">
+                @foreach (var user in Users)
+                {
+                    <MudSelectItem Value="@user">@($"{user.FullName} ({user.Username})")</MudSelectItem>
+                }
+            </MudSelect>
+            <!-- سرویس -->
+            <MudSelect T="Guid?"
+                       Label="خدمت / سرویس"
+                       Variant="Variant.Text"
+                       @bind-Value="Model.ServiceId"
+                       Required="true">
+                @foreach (var service in Services)
+                {
+                    <MudSelectItem Value="@service.Id">@service.Title</MudSelectItem>
+                }
+            </MudSelect>
+
+            <!-- تاریخ -->
+            <MudDatePicker Label="تاریخ"
+                           Variant="Variant.Text"
+                           Culture="@(new System.Globalization.CultureInfo("fa-IR"))"
+                           @bind-Date="BindedDate"
+                           Required="true"/>
+
+            <!-- ساعت -->
+            <MudTimePicker bind-Text="Model.Start"
+                           Label="ساعت شروع (HH:mm)"
+                           Variant="Variant.Text"
+                           Required="true"
+                           Placeholder="مثلاً 14:30"/>
+
+            <!-- توضیحات -->
+            <MudTextField @bind-Value="Model.Notes"
+                          Label="توضیحات"
+                          Variant="Variant.Text"
+                          Lines="3"
+                          AutoGrow="true"
+                          Placeholder="توضیحات اضافی..."/>
+        </MudStack>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="Cancel">
+            انصراف
+        </MudButton>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   OnClick="Save"
+                   Disabled="@IsInvalid()"
+                   StartIcon="@Icons.Filled.Save">
+            ذخیره
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
+
+    public UpsertAppointmentRequest Model { get; set; } = new();
+    [Parameter] public bool IsPatient { get; set; } = true;
+
+    // you can inject services here to fetch services list
+    private List<ClinicServiceResponse> Services = [];
+
+    private UserInfoResponse _selectedUser = null!;
+
+    private DateTime? BindedDate
+    {
+        get => Model.Date == default ? null : Model.Date.ToDateTime(TimeOnly.MinValue);
+        set => Model.Date = value.HasValue ? DateOnly.FromDateTime(value.Value) : default;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        Services = await Mediator.Send(new ListClinicServicesRequest());
+
+        if (!Services.Any())
+        {
+            Snackbar.ShowInfo("there is no service to tack.");
+            MudDialog.Close();
+        }
+
+        Users  = (await Mediator.Send(new UsersQueryRequest()
+                 {
+                     IsSecretaries = false,
+                     Page = 1,
+                     PageSize = int.MaxValue,
+                 })).Items.ToList() ??
+                 [];
+    }
+
+    public List<UserListItemResponse> Users { get ; set ; }
+
+    private void Cancel()
+        => MudDialog.Cancel();
+
+    private void Save()
+        => MudDialog.Close(DialogResult.Ok(Model));
+
+    private bool IsInvalid()
+    {
+        return Model.ServiceId == Guid.Empty ||
+               Model.Date == default ||
+               string.IsNullOrWhiteSpace(Model.Start) ||
+               string.IsNullOrWhiteSpace(Model.PatientFullName) ||
+               string.IsNullOrWhiteSpace(Model.PatientPhone);
+    }
+
+}
