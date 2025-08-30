@@ -317,31 +317,17 @@
         {
             CloseOnEscapeKey = true,
             MaxWidth = MaxWidth.Small,
-            FullWidth = true
+            FullWidth = true,
         };
 
-        var body = new StringBuilder().Append(appt.ServiceTitle)
-            .Append("\nتاریخ: ")
-            .Append($"{appt.Date:yyyy/MM/dd}")
-            .Append("\nساعت: ")
-            .Append(appt.Start)
-            .Append("-")
-            .Append(appt.End)
-            .Append("\nبیمار: ")
-            .Append(appt.PatientFullName)
-            .Append(" (")
-            .Append(NormalizePhone(appt.PatientPhone))
-            .Append(")\nوضعیت: ")
-            .Append(StatusText(appt.Status))
-            .Append("\nهزینه: ")
-            .Append($"{appt.PriceAmount:N0}")
-            .Append(" ")
-            .Append(appt.PriceCurrency)
-            .Append("\nتوضیحات: ")
-            .Append(string.IsNullOrWhiteSpace(appt.Notes) ? "-" : appt.Notes)
-            .ToString();
+        var parameters = new DialogParameters<ApointmentInfoDialog>
+        {
+            {
+                x => x.Model , appt
+            }
+        };
 
-        await DialogService.ShowMessageBox("جزئیات نوبت", body, yesText: "باشه");
+        await DialogService.ShowAsync<ApointmentInfoDialog>("" , parameters  , md);
     }
 
     private async Task ConfirmAndCancel(AppointmentResponse appt)

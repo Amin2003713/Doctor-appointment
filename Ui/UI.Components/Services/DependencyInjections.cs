@@ -13,6 +13,7 @@
     {
         public static IServiceCollection AddComponentServices(this IServiceCollection services)
         {
+
             services.AddMudServices(configuration =>
                 {
                     configuration.ResizeOptions.EnableLogging         = true;

@@ -1,0 +1,219 @@
+﻿@using App.Applications.Appointments.Requests
+@using App.Domain.Users
+@using MudBlazor
+
+@using App.Applications.Appointments.Requests
+@using App.Domain.Users
+@using MudBlazor
+
+<MudDialog>
+    <TitleContent>
+        <MudPaper Elevation="0" Class="p-3">
+            <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween" Class="gap-2">
+                <MudStack Row AlignItems="AlignItems.Center" Spacing="2" Class="min-w-0">
+                    <MudAvatar Size="Size.Large"
+                               Class="rounded-2xl shadow-sm bg-gradient-to-r from-info to-primary text-white">
+                        @Initials(Model?.PatientFullName)
+                    </MudAvatar>
+
+                    <MudStack Spacing="1" Class="min-w-0">
+                        <MudText Typo="Typo.h6" Class="font-bold truncate">@Model?.PatientFullName</MudText>
+
+                        <MudStack Row AlignItems="AlignItems.Center" Spacing="1" Class="text-secondary">
+                            <MudIcon Icon="@Icons.Filled.Phone" Size="Size.Small"/>
+                            <MudLink Href="@($"tel:{Model?.PatientPhone}")" Target="_self" Class="truncate">
+                                @ToPersianDigits(Model?.PatientPhone)
+                            </MudLink>
+
+                            @if (!string.IsNullOrWhiteSpace(Model?.PatientPhone))
+                            {
+                                <MudTooltip Text="کپی شماره">
+                                    <MudIconButton Icon="@Icons.Outlined.ContentCopy" Size="Size.Small"
+                                                   OnClick="@(() => CopyToClipboard(Model?.PatientPhone))"/>
+                                </MudTooltip>
+                            }
+                        </MudStack>
+                    </MudStack>
+                </MudStack>
+
+                <MudChip T="string" Color="@StatusColor(Model?.Status)" Variant="Variant.Filled"
+                         Class="text-white whitespace-nowrap">
+                    <MudStack Row AlignItems="AlignItems.Center" Spacing="1">
+                        <MudIcon Icon="@StatusIcon(Model?.Status)" Size="Size.Small"/>
+                        <span>@StatusLabel(Model?.Status)</span>
+                    </MudStack>
+                </MudChip>
+            </MudStack>
+
+            <MudDivider Class="mt-3"/>
+        </MudPaper>
+    </TitleContent>
+
+    <DialogContent>
+        <MudPaper Elevation="0" Class="p-3" >
+            <MudGrid Justify="Justify.FlexStart" GutterSize="GutterSize.Small">
+                <MudItem xs="12" md="6">
+                    <MudStack Row AlignItems="AlignItems.Center" Spacing="1">
+                        <MudIcon Icon="@Icons.Filled.Event"/>
+                        <MudText>تاریخ: @PersianDate(Model?.Date)</MudText>
+                    </MudStack>
+                </MudItem>
+
+                <MudItem xs="12" md="6">
+                    <MudStack Row AlignItems="AlignItems.Center" Spacing="1">
+                        <MudIcon Icon="@Icons.Filled.Schedule"/>
+                        <MudText>ساعت: @TimeRangeText(Model?.Start, Model?.End)</MudText>
+                    </MudStack>
+                </MudItem>
+
+                <MudItem xs="12" md="6">
+                    <MudStack Row AlignItems="AlignItems.Center" Spacing="1">
+                        <MudIcon Icon="@Icons.Filled.MedicalServices"/>
+                        <MudText>خدمت: @SafeText(Model?.ServiceTitle)</MudText>
+                    </MudStack>
+                </MudItem>
+
+                <MudItem xs="12" md="6">
+                    <MudStack Row AlignItems="AlignItems.Center" Spacing="1">
+                        <MudIcon Icon="@Icons.Filled.Payments"/>
+                        <MudText>هزینه: @PriceText(Model?.PriceAmount, Model?.PriceCurrency)</MudText>
+                    </MudStack>
+                </MudItem>
+
+                @if (!string.IsNullOrWhiteSpace(Model?.Notes))
+                {
+                    <MudItem xs="12">
+                        <MudDivider DividerType="DividerType.Middle" Class="my-2"/>
+                        <MudStack Row AlignItems="AlignItems.Start" Spacing="1">
+                            <MudIcon Icon="@Icons.Filled.Notes" Class="mt-0.5"/>
+                            <MudText Class="leading-relaxed break-words max-h-40 overflow-auto">
+                                <span class="whitespace-pre-wrap">@Model.Notes</span>
+                            </MudText>
+                        </MudStack>
+                    </MudItem>
+                }
+            </MudGrid>
+        </MudPaper>
+    </DialogContent>
+
+    <DialogActions>
+        <MudPaper Elevation="0" Class="px-3 pb-3 pt-0" >
+                <MudStack Row Spacing="1" Reverse>
+                    <MudButton FullWidth="true" Color="Color.Secondary" Variant="Variant.Outlined" OnClick="Cancel">
+                        انصراف
+                    </MudButton>
+                    <MudButton FullWidth="true" Color="Color.Primary" Variant="Variant.Filled" OnClick="Submit"
+                               StartIcon="@Icons.Filled.Check">
+                        تأیید
+                    </MudButton>
+
+                    <MudStack Row Spacing="1">
+                        <MudButton Variant="Variant.Text" Color="Color.Info" StartIcon="@Icons.Filled.Call"
+                                   Href="@($"tel:{Model?.PatientPhone}")" Target="_self">
+                            تماس
+                        </MudButton>
+
+                        <MudButton Variant="Variant.Text" Color="Color.Success" StartIcon="@Icons.Filled.Contacts"
+                                   Disabled="@string.IsNullOrWhiteSpace(Model?.PatientPhone)"
+                                   Href="@WhatsAppLink(Model?.PatientPhone)" Target="_blank">
+                            واتساپ
+                        </MudButton>
+                    </MudStack>
+                </MudStack>
+        </MudPaper>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter] public AppointmentResponse? Model { get; set; }
+
+    // ——— Helpers (formatting, labels, links) ———
+    private static string Initials(string? name)
+        => string.IsNullOrWhiteSpace(name)
+            ? "?"
+            : string.Concat(name.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries).Take(2).Select(p => p[0]))
+                .ToUpperInvariant();
+
+    private static string ToPersianDigits(string? input)
+    {
+        if (string.IsNullOrEmpty(input)) return string.Empty;
+
+        var en  = "0123456789";
+        var fa  = "۰۱۲۳۴۵۶۷۸۹";
+        var map = en.Zip(fa).ToDictionary(z => z.First, z => z.Second);
+        return new string(input.Select(ch => map.TryGetValue(ch, out var f) ? f : ch).ToArray());
+    }
+
+    private static string PersianDate(DateOnly? date)
+        => date is null
+            ? "-"
+            : date.Value.ToDateTime(TimeOnly.MinValue)
+                .ToString("yyyy/MM/dd", new System.Globalization.CultureInfo("fa-IR"));
+
+    private static string TimeRangeText(string? start, string? end)
+    {
+        TimeOnly.TryParse(start , out var s) ;
+        TimeOnly.TryParse(end ,   out var e) ;
+        return $"{s} تا {e}";
+    }
+
+    private static string SafeText(string? text)
+        => string.IsNullOrWhiteSpace(text) ? "-" : text;
+
+    private static string PriceText(decimal? amount, string? currency)
+        => amount is null ? "-" : $"{ToPersianDigits(amount.Value.ToString("N0"))} {currency ?? ""}".Trim();
+
+    private static Color StatusColor(object? status)
+        => (status?.ToString()) switch
+           {
+               "Booked"    => Color.Info,
+               "Completed" => Color.Success,
+               "Cancelled" => Color.Error,
+               "NoShow"    => Color.Warning,
+               _           => Color.Default
+           };
+
+    private static string StatusIcon(object? status)
+        => (status?.ToString()) switch
+           {
+               "Booked"    => Icons.Filled.EventAvailable,
+               "Completed" => Icons.Filled.CheckCircle,
+               "Cancelled" => Icons.Filled.Cancel,
+               "NoShow"    => Icons.Filled.ReportGmailerrorred,
+               _           => Icons.Filled.Info
+           };
+
+    private static string StatusLabel(object? status)
+        => (status?.ToString()) switch
+           {
+               "Booked"    => "رزرو شده",
+               "Completed" => "انجام شد",
+               "Cancelled" => "لغو شده",
+               "NoShow"    => "عدم حضور",
+               _           => "نامشخص"
+           };
+
+    private static string? WhatsAppLink(string? phone)
+    {
+        if (string.IsNullOrWhiteSpace(phone)) return null;
+
+        var digits = new string(phone.Where(char.IsDigit).ToArray());
+        return string.IsNullOrEmpty(digits) ? null : $"https://wa.me/{digits}";
+    }
+
+    private async Task CopyToClipboard(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text)) return;
+
+        // await ClipboardService.SetTextAsync(text);
+        Snackbar.ShowSuccess("شماره تماس کپی شد.");
+    }
+
+    private void Cancel()
+        => MudDialog.Close();
+
+    private void Submit()
+        => MudDialog.Close(DialogResult.Ok(true));
+
+}
