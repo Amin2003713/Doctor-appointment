@@ -1,61 +1,176 @@
-﻿@using UI.Components.Features.Apointments.List
+﻿@using System.Globalization
+@using FluentValidation
+@using MudBlazor
 
-<MudStack Spacing="2" Class="p-2">
-    <!-- تاریخ -->
-    <MudDatePicker Label="تاریخ جدید"
-                   Variant="Variant.Text"
-                   Culture="@(new CultureInfo("fa-IR"))"
-                   bind-Date="@_dateValue"/>
+<MudDialog>
+    <DialogContent>
+        <MudStack Spacing="2">
+            <!-- Header -->
+            <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                <MudText Typo="Typo.h6" Class="font-bold">تغییر زمان نوبت</MudText>
+                <MudIcon Icon="@MaterialIcons.Filled.Event" Size="Size.Medium"/>
+            </MudStack>
 
-    <!-- ساعت -->
-    <MudTextField @bind-Value="Model.Start"
-                  Label="ساعت شروع (HH:mm)"
-                  Variant="Variant.Text"
-                  Immediate="true"
-                  Placeholder="مثلاً 14:30"/>
+            <MudForm @ref="_form" Model="Model" Validation="ValidateForm">
+                <MudGrid Class="mt-2">
+                    <!-- تاریخ -->
+                    <MudItem xs="12" sm="6">
+                        <MudDatePicker Label="تاریخ جدید"
+                                       Variant="Variant.Outlined"
+                                       Culture="@(new CultureInfo("fa-IR"))"
+                                       DateFormat="yyyy/MM/dd"
+                                       PickerVariant="PickerVariant.Inline"
+                                       @bind-Date="_dateValue"
+                                       Adornment="Adornment.Start"
+                                       AdornmentIcon="@MaterialIcons.Filled.DateRange"
+                                       Immediate="true"
+                                       OpenTo="OpenTo.Date"/>
+                    </MudItem>
 
-    <!-- توضیحات -->
-    <MudTextField @bind-Value="Model.Notes"
-                  Label="توضیحات"
-                  Variant="Variant.Text"
-                  Lines="2"
-                  AutoGrow="true"/>
+                    <!-- ساعت -->
+                    <MudItem xs="12" sm="6">
+                        <MudTimePicker Label="ساعت شروع (HH:mm)"
+                                       Variant="Variant.Outlined"
+                                       @bind-Time="_startTime"
+                                       TimeFormat="HH:mm"
+                                       AmPm="false"
+                                       Adornment="Adornment.Start"
+                                       AdornmentIcon="@MaterialIcons.Filled.Schedule"
+                                       Immediate="true"
+                                       DisableToolbar="true"
+                                       OpenTo="OpenTo.Hours"/>
+                    </MudItem>
 
-    <!-- اقدامات -->
-    <MudStack Row Spacing="1" Justify="Justify.FlexEnd">
-        <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="Cancel">انصراف</MudButton>
+                    <!-- توضیحات -->
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="Model.Notes"
+                                      Label="توضیحات"
+                                      Variant="Variant.Outlined"
+                                      Lines="2"
+                                      AutoGrow="true"
+                                      HelperText="(اختیاری) هر نکته‌ای که باید به منشی/پزشک منتقل شود"/>
+                    </MudItem>
+                </MudGrid>
+            </MudForm>
+        </MudStack>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="Cancel">
+            انصراف
+        </MudButton>
+
         <MudButton Variant="Variant.Filled"
                    Color="Color.Primary"
                    StartIcon="@MaterialIcons.Filled.Save"
-                   Disabled="@IsInvalid()"
-                   OnClick="Submit">ثبت
+                   Disabled="@(_submitting || _disableSubmit)"
+                   OnClick="Submit">
+            ثبت
         </MudButton>
-    </MudStack>
-</MudStack>
+    </DialogActions>
+</MudDialog>
 
 @code {
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
     [Parameter] public RescheduleModel Model { get; set; } = new();
 
-    private DateTime? _dateValue;
+    private MudForm? _form;
+    private bool     _submitting;
+    private bool _disableSubmit => !IsParsableTime(_startTime);
 
+    private DateTime? _dateValue; // برای MudDatePicker
+    private TimeSpan? _startTime; // برای MudTimePicker (HH:mm)
+
+   
     protected override void OnInitialized()
     {
+        // Sync initial date
         _dateValue = Model.Date.ToDateTime(TimeOnly.MinValue);
 
-        // normalize Start to HH:mm if provided like "1430"
-        if (!string.IsNullOrWhiteSpace(Model.Start) && Model.Start.Length == 4 && !Model.Start.Contains(':'))
-            Model.Start = $"{Model.Start[..2]}:{Model.Start[2..]}";
+        // Normalize and sync initial time -> _startTime
+        if (!string.IsNullOrWhiteSpace(Model.Start))
+        {
+            var normalized = NormalizeTimeString(Model.Start);
+            if (TimeOnly.TryParseExact(normalized, "HH:mm", out var t))
+                _startTime = t.ToTimeSpan();
+        }
     }
 
-    private void Submit()
-        => MudDialog.Close(DialogResult.Ok(Model));
+    protected override void OnParametersSet()
+    {
+        // هر بار که DatePicker تغییر کرد، DateOnly مدل را همگام می‌کنیم
+        if (_dateValue.HasValue)
+            Model.Date = DateOnly.FromDateTime(_dateValue.Value);
+
+        // هر بار که TimePicker تغییر کرد، Model.Start را به رشته HH:mm به‌روزرسانی می‌کنیم
+        if (_startTime.HasValue)
+            Model.Start = new TimeOnly(_startTime.Value.Hours, _startTime.Value.Minutes).ToString("HH:mm");
+    }
+
+    private async Task Submit()
+    {
+        _submitting = true;
+
+        try
+        {
+            if (_form is not null)
+            {
+                await _form.Validate();
+                if (!_form.IsValid) return;
+
+                // همگام‌سازی نهایی (ایمن)
+                if (_dateValue.HasValue)
+                    Model.Date = DateOnly.FromDateTime(_dateValue.Value);
+
+                if (_startTime.HasValue)
+                    Model.Start = new TimeOnly(_startTime.Value.Hours, _startTime.Value.Minutes).ToString("HH:mm");
+
+                MudDialog.Close(DialogResult.Ok(Model));
+            }
+        }
+        finally
+        {
+            _submitting = false;
+        }
+    }
 
     private void Cancel()
         => MudDialog.Cancel();
 
-    private bool IsInvalid()
-        => string.IsNullOrWhiteSpace(Model.Start) || !TimeOnly.TryParse(Model.Start, out _);
+    // ---- Validation helpers ----
+    private void ValidateForm(ValidationContext<object> ctx)
+    {
+        // تاریخ باید انتخاب شود
+        if (!_dateValue.HasValue)
+            ctx.AddFailure(nameof(Model.Date), "انتخاب تاریخ الزامی است.");
+
+        // ساعت باید معتبر باشد و در بازه کاری (نمونه: 09:00 تا 18:00)
+        if (!IsParsableTime(_startTime))
+        {
+            ctx.AddFailure(nameof(Model.Start), "ساعت شروع نامعتبر است (الگوی HH:mm).");
+        }
+        else
+        {
+            var start = _startTime!.Value;
+            var from  = new TimeSpan(9,  0, 0);
+            var to    = new TimeSpan(18, 0, 0);
+
+            if (start < from || start > to)
+                ctx.AddFailure(nameof(Model.Start), "ساعت باید بین 09:00 تا 18:00 باشد.");
+        }
+    }
+
+    private static string NormalizeTimeString(string input)
+    {
+        var v = input.Trim();
+        if (v.Length == 4 && !v.Contains(':')) // "1430" -> "14:30"
+            v = $"{v[..2]}:{v[2..]}";
+
+        return v;
+    }
+
+    private static bool IsParsableTime(TimeSpan? t)
+        => t.HasValue && t.Value >= TimeSpan.Zero && t.Value < TimeSpan.FromDays(1);
 
     public class RescheduleModel
     {
