@@ -20,13 +20,19 @@
                     }
                 </MudSelect>
 
-                <MudSwitch T="bool" bind-Value="_closed" Color="Color.Error" Label="بسته"/>
+                <MudSwitch T="bool"
+                           @bind-Value="_closed"
+                           Color="Color.Error"
+                           Label="@(_closed ? "بسته" : "باز")"/>
             }
             else
             {
                 <MudDatePicker @bind-Date="_overrideDate" Label="تاریخ اورراید" Required="true"/>
 
-                <MudSwitch @bind-Value="_closed" Color="Color.Error" Label="بسته"/>
+                <MudSwitch T="bool"
+                           @bind-Value="_closed"
+                           Color="Color.Error"
+                           Label="@(_closed ? "بسته" : "باز")"/>
             }
 
             <MudDivider/>

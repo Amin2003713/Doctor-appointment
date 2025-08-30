@@ -1,0 +1,68 @@
+﻿@using UI.Components.Features.Apointments.List
+
+<MudStack Spacing="2" Class="p-2">
+    <!-- تاریخ -->
+    <MudDatePicker Label="تاریخ جدید"
+                   Variant="Variant.Text"
+                   Culture="@(new CultureInfo("fa-IR"))"
+                   bind-Date="@_dateValue"/>
+
+    <!-- ساعت -->
+    <MudTextField @bind-Value="Model.Start"
+                  Label="ساعت شروع (HH:mm)"
+                  Variant="Variant.Text"
+                  Immediate="true"
+                  Placeholder="مثلاً 14:30"/>
+
+    <!-- توضیحات -->
+    <MudTextField @bind-Value="Model.Notes"
+                  Label="توضیحات"
+                  Variant="Variant.Text"
+                  Lines="2"
+                  AutoGrow="true"/>
+
+    <!-- اقدامات -->
+    <MudStack Row Spacing="1" Justify="Justify.FlexEnd">
+        <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="Cancel">انصراف</MudButton>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   StartIcon="@MaterialIcons.Filled.Save"
+                   Disabled="@IsInvalid()"
+                   OnClick="Submit">ثبت
+        </MudButton>
+    </MudStack>
+</MudStack>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter] public RescheduleModel Model { get; set; } = new();
+
+    private DateTime? _dateValue;
+
+    protected override void OnInitialized()
+    {
+        _dateValue = Model.Date.ToDateTime(TimeOnly.MinValue);
+
+        // normalize Start to HH:mm if provided like "1430"
+        if (!string.IsNullOrWhiteSpace(Model.Start) && Model.Start.Length == 4 && !Model.Start.Contains(':'))
+            Model.Start = $"{Model.Start[..2]}:{Model.Start[2..]}";
+    }
+
+    private void Submit()
+        => MudDialog.Close(DialogResult.Ok(Model));
+
+    private void Cancel()
+        => MudDialog.Cancel();
+
+    private bool IsInvalid()
+        => string.IsNullOrWhiteSpace(Model.Start) || !TimeOnly.TryParse(Model.Start, out _);
+
+    public class RescheduleModel
+    {
+        public Guid ServiceId { get; set; }
+        public DateOnly Date { get; set; }
+        public string Start { get; set; } = "";
+        public string? Notes { get; set; }
+    }
+
+}

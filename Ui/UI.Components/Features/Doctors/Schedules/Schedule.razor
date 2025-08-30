@@ -1,5 +1,6 @@
 ﻿@page "/doctor/schedule"
 @using App.Applications.Schedules.Requests.Get
+@using MudBlazor.Extensions
 @using UI.Components.Features.Doctors.Schedules.Dialogs
 
 <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="pt-4">
@@ -7,7 +8,7 @@
 
 
         <!-- One table for both Days & Overrides -->
-        <MudTable T="ScheduleRow" Dense Hover Class="rounded-xl" ServerData="LoadData">
+        <MudTable @ref="_table" T="ScheduleRow" Dense Hover Class="rounded-xl" ServerData="LoadData">
 
             <ToolBarContent>
                 <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
@@ -115,6 +116,8 @@
 @code {
     private WorkScheduleResponse? _schedule;
 
+    private     MudTable<ScheduleRow> _table;
+
     // Unified row for Days & Overrides
     private sealed class ScheduleRow
     {
@@ -218,7 +221,7 @@
 
         if (!result.Canceled)
         {
-            _schedule = await Mediator.Send(new GetWorkScheduleRequest());
+             await _table.ReloadServerData();
             StateHasChanged();
         }
     }
@@ -249,7 +252,7 @@
 
         if (!result.Canceled)
         {
-            _schedule = await Mediator.Send(new GetWorkScheduleRequest());
+            await _table.ReloadServerData();
             StateHasChanged();
         }
     }
