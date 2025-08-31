@@ -12,13 +12,12 @@ using Microsoft.EntityFrameworkCore;
 namespace Api.Endpoints.Controllers;
 
 [ApiController]
-[Route("api/appointments")] 
+[Route("api/appointments")]
 [Authorize]
 public class AppointmentsController(
     AppDbContext db
 ) : ControllerBase
 {
-    
     [Authorize(Roles = "Doctor,Secretary,Patient")]
     [HttpPost]
     public async Task<ActionResult<Guid>> Create([FromBody] UpsertAppointmentRequest body, CancellationToken ct)
@@ -35,7 +34,7 @@ public class AppointmentsController(
 
         var (userId, role) = GetUserIdAndRole();
 
-        
+
         string patientName;
         string patientPhone;
         Guid?  patientUserId = null;
@@ -55,7 +54,7 @@ public class AppointmentsController(
             patientPhone = string.IsNullOrWhiteSpace(body.PatientPhone) ? "-" : body.PatientPhone.Trim();
         }
 
-        
+
         var schedule = await db.WorkSchedules.AsNoTracking()
                            .Include(x => x.Overrides)
                            .FirstOrDefaultAsync(ct) ??
@@ -71,26 +70,37 @@ public class AppointmentsController(
         var insideWorkingHours = intervals.Any(tr => start >= tr.From && end <= tr.To);
         if (!insideWorkingHours) return BadRequest("Selected time is outside working hours.");
 
-        
+
         var serviceOverlap = await db.Appointments.AsNoTracking()
-            .Where(a => a.Date == body.Date && a.ServiceId == body.ServiceId && a.Status == AppointmentStatus.Booked)
-            .AnyAsync(a => Overlaps(start.ToTimeSpan(), end.ToTimeSpan(), a.Start.ToTimeSpan(), a.End.ToTimeSpan()), ct);
+            .AnyAsync(a =>
+                    a.Date == body.Date &&
+                    a.ServiceId == body.ServiceId &&
+                    a.Status == AppointmentStatus.Booked &&
+                    // overlap check: start < a.End && a.Start < end
+                    start < a.End &&
+                    a.Start < end,
+                ct);
+
 
         if (serviceOverlap) return Conflict("Selected time overlaps another appointment for this service.");
 
-        
+
         var patientOverlap = await db.Appointments.AsNoTracking()
-            .Where(a => a.Date == body.Date &&
-                        a.Status == AppointmentStatus.Booked &&
-                        (
-                            (patientUserId.HasValue && a.PatientUserId == patientUserId) ||
-                            (!patientUserId.HasValue && a.PatientUserId == null && a.PatientPhone == patientPhone)
-                        ))
-            .AnyAsync(a => Overlaps(start.ToTimeSpan(), end.ToTimeSpan(), a.Start.ToTimeSpan(), a.End.ToTimeSpan()), ct);
+            .AnyAsync(a =>
+                    a.Date == body.Date &&
+                    a.Status == AppointmentStatus.Booked &&
+                    (
+                        (patientUserId.HasValue && a.PatientUserId == patientUserId) ||
+                        (!patientUserId.HasValue && a.PatientUserId == null && a.PatientPhone == patientPhone)
+                    ) &&
+                    // overlap check
+                    start < a.End &&
+                    a.Start < end,
+                ct);
 
         if (patientOverlap) return Conflict("This patient already has an appointment that overlaps this time.");
 
-        
+
         var ap = new Appointment
         {
             ServiceId        = body.ServiceId,
@@ -112,9 +122,7 @@ public class AppointmentsController(
         return Ok(ap.Id);
     }
 
-    
-    
-    
+
     [Authorize(Roles = "Doctor,Secretary,Patient")]
     [HttpGet]
     public async Task<ActionResult<List<AppointmentResponse>>> List(
@@ -139,9 +147,9 @@ public class AppointmentsController(
         if (from.HasValue) q = q.Where(a => a.Date >= from.Value);
         if (to.HasValue) q = q.Where(a => a.Date <= to.Value);
 
-        
+
         var services = await db.MedicalServices.AsNoTracking()
-            .ToDictionaryAsync(s => s.Id, s => s.Title, ct); 
+            .ToDictionaryAsync(s => s.Id, s => s.Title, ct);
 
         var list = await q.OrderBy(a => a.Date)
             .ThenBy(a => a.Start)
@@ -149,7 +157,7 @@ public class AppointmentsController(
             {
                 Id = a.Id,
                 ServiceId = a.ServiceId,
-                ServiceTitle = "", 
+                ServiceTitle = "",
                 Date = a.Date,
                 Start = a.Start.ToString("HH:mm"),
                 End = a.End.ToString("HH:mm"),
@@ -169,7 +177,7 @@ public class AppointmentsController(
         return Ok(list);
     }
 
-    
+
     // Get by id
     // ---------------------------
     [Authorize(Roles = "Doctor,Secretary,Patient")]
@@ -260,23 +268,34 @@ public class AppointmentsController(
         var inside = intervals.Any(tr => newStart >= tr.From && newEnd <= tr.To);
         if (!inside) return BadRequest("Selected time is outside working hours.");
 
-        // keep service-level conflict guard (exclude current ap)
+
         var svcConflict = await db.Appointments.AsNoTracking()
-            .Where(a => a.Date == body.Date && a.ServiceId == ap.ServiceId && a.Status == AppointmentStatus.Booked && a.Id != ap.Id)
-            .AnyAsync(a => Overlaps(newStart.ToTimeSpan(), newEnd.ToTimeSpan(), a.Start.ToTimeSpan(), a.End.ToTimeSpan()), ct);
+            .AnyAsync(a =>
+                    a.Date == body.Date &&
+                    a.ServiceId == ap.ServiceId &&
+                    a.Status == AppointmentStatus.Booked &&
+                    a.Id != ap.Id &&
+                    // overlap check
+                    newStart < a.End &&
+                    a.Start < newEnd,
+                ct);
 
         if (svcConflict) return Conflict("Selected time overlaps another appointment for this service.");
 
         // NEW RULE: patient-level overlap across ANY service (exclude current ap)
         var patientConflict = await db.Appointments.AsNoTracking()
-            .Where(a => a.Date == body.Date &&
-                        a.Status == AppointmentStatus.Booked &&
-                        a.Id != ap.Id &&
-                        (
-                            (ap.PatientUserId.HasValue && a.PatientUserId == ap.PatientUserId) ||
-                            (!ap.PatientUserId.HasValue && a.PatientUserId == null && a.PatientPhone == ap.PatientPhone)
-                        ))
-            .AnyAsync(a => Overlaps(newStart.ToTimeSpan(), newEnd.ToTimeSpan(), a.Start.ToTimeSpan(), a.End.ToTimeSpan()), ct);
+            .AnyAsync(a =>
+                    a.Date == body.Date &&
+                    a.Status == AppointmentStatus.Booked &&
+                    a.Id != ap.Id &&
+                    (
+                        (ap.PatientUserId.HasValue && a.PatientUserId == ap.PatientUserId) ||
+                        (!ap.PatientUserId.HasValue && a.PatientUserId == null && a.PatientPhone == ap.PatientPhone)
+                    ) &&
+                    // overlap check
+                    newStart < a.End &&
+                    a.Start < newEnd,
+                ct);
 
         if (patientConflict) return Conflict("This patient already has an appointment that overlaps this time.");
 

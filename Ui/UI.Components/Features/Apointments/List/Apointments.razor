@@ -60,6 +60,7 @@
                   Hover
                   Virtualize
                   FixedHeader
+                  GroupBy="@(new TableGroupDefinition<AppointmentResponse>(response => response.ServiceId))"
                   Breakpoint="Breakpoint.MdAndDown"
                   Height="68vh"
                   CanCancelEdit
@@ -78,7 +79,6 @@
             </ToolBarContent>
 
             <HeaderContent>
-                <MudTh class="whitespace-nowrap">شناسه</MudTh>
                 <MudTh>خدمت</MudTh>
                 <MudTh>تاریخ</MudTh>
                 <MudTh>ساعت</MudTh>
@@ -86,14 +86,12 @@
                 <MudTh>نام بیمار</MudTh>
                 <MudTh>تلفن</MudTh>
                 <MudTh>هزینه</MudTh>
-                <MudTh HideSmall>یادداشت</MudTh>
+                <MudTh>یادداشت</MudTh>
                 <MudTh class="text-center">اقدامات</MudTh>
             </HeaderContent>
 
             <RowTemplate>
-                <MudTd DataLabel="شناسه">
-                    <MudText Typo="Typo.body2" Class="font-mono">@context.Id</MudText>
-                </MudTd>
+
                 <MudTd DataLabel="خدمت">
                     <MudText>@context.ServiceTitle</MudText>
                 </MudTd>
@@ -122,7 +120,7 @@
                         <MudText Align="Align.Left">@NormalizePhone(context.PatientPhone)</MudText>
                     </MudRTLProvider>
                 </MudTd>
-                <MudTd DataLabel="هزینه">
+                <MudTd HideSmall DataLabel="هزینه">
                     <MudText>@context.PriceAmount.ToString("N0") @context.PriceCurrency</MudText>
                 </MudTd>
                 <MudTd HideSmall DataLabel="یادداشت">
@@ -246,10 +244,14 @@
 
     private async Task<TableData<AppointmentResponse>> LoadServerData(TableState state, CancellationToken ct)
     {
-        if (_all.Count == null) await ReloadData(ct);
+        // اگر هنوز داده‌ای لود نشده، یک‌بار لود کن
+        if (_all is null || _all.Count == 0)
+            await ReloadData();
 
-        IEnumerable<AppointmentResponse> q = _all;
-        if (_status.HasValue) q = q.Where(a => a.Status == _status.Value);
+        IEnumerable<AppointmentResponse> q = _all!;
+
+        if (_status.HasValue)
+            q = q.Where(a => a.Status == _status.Value);
 
         if (!string.IsNullOrWhiteSpace(_search))
         {
@@ -264,22 +266,24 @@
         q = q.OrderBy(a => a.Date).ThenBy(a => a.Start);
         _totalCount = q.LongCount();
 
-        var page = q.Skip(state.Page * state.PageSize).Take(state.PageSize).ToList();
+        var pageItems = q.Skip(state.Page * state.PageSize).Take(state.PageSize).ToList();
+
         return new TableData<AppointmentResponse>
         {
-            Items = page,
+            Items = pageItems,
             TotalItems = (int)Math.Min(int.MaxValue, _totalCount)
         };
     }
 
-    private async Task ReloadData(CancellationToken ct = default)
+
+    private async Task ReloadData()
     {
         try
         {
             var fromDo = _dateRange?.Start is not null ? DateOnly.FromDateTime(_dateRange!.Start!.Value) : (From ?? DateOnly.FromDateTime(DateTime.Today));
             var toDo   = _dateRange?.End   is not null ? DateOnly.FromDateTime(_dateRange!.End!.Value)   : (To   ?? DateOnly.FromDateTime(DateTime.Today.AddDays(7)));
 
-            var list = await Mediator.Send(new GetAppointmentsQuery(fromDo, toDo, PatientUserId), ct);
+            var list = await Mediator.Send(new GetAppointmentsQuery(fromDo, toDo, PatientUserId));
             _all = list ?? [];
             _totalCount = _all.Count;
             await _table!.ReloadServerData();
@@ -307,6 +311,7 @@
     private string ToolbarCaption => _dateRange is { Start: not null, End: not null }
         ? $"از {_dateRange!.Start:yyyy/MM/dd} تا {_dateRange!.End:yyyy/MM/dd}"
         : "بازهٔ زمانی انتخاب‌شده";
+
 
     // ===== Row action handlers =====
 
@@ -395,7 +400,8 @@
         {
             CloseOnEscapeKey = true,
             MaxWidth = MaxWidth.ExtraSmall,
-            FullWidth = true
+            FullWidth = true,
+            NoHeader = true,
         };
 
         var dlg = await DialogService.ShowAsync<RescheduleDialog>("تغییر زمان نوبت", parameters, options);

@@ -1,6 +1,6 @@
-﻿@using System.Globalization
-@using FluentValidation
-@using MudBlazor
+﻿
+@using App.Applications.Schedules.Requests.GetSlots
+
 
 <MudDialog>
     <DialogContent>
@@ -11,7 +11,7 @@
                 <MudIcon Icon="@MaterialIcons.Filled.Event" Size="Size.Medium"/>
             </MudStack>
 
-            <MudForm @ref="_form" Model="Model" Validation="ValidateForm">
+            <MudForm @ref="_form" Model="Model" >
                 <MudGrid Class="mt-2">
                     <!-- تاریخ -->
                     <MudItem xs="12" sm="6">
@@ -20,25 +20,54 @@
                                        Culture="@(new CultureInfo("fa-IR"))"
                                        DateFormat="yyyy/MM/dd"
                                        PickerVariant="PickerVariant.Inline"
-                                       @bind-Date="_dateValue"
+                                       Date="@(_dateValue)"
+                                       DateChanged="OnDateChanged"
                                        Adornment="Adornment.Start"
                                        AdornmentIcon="@MaterialIcons.Filled.DateRange"
-                                       Immediate="true"
                                        OpenTo="OpenTo.Date"/>
                     </MudItem>
 
-                    <!-- ساعت -->
+                    <!-- ساعت (از اسلات‌های خالی) -->
                     <MudItem xs="12" sm="6">
-                        <MudTimePicker Label="ساعت شروع (HH:mm)"
-                                       Variant="Variant.Outlined"
-                                       @bind-Time="_startTime"
-                                       TimeFormat="HH:mm"
-                                       AmPm="false"
-                                       Adornment="Adornment.Start"
-                                       AdornmentIcon="@MaterialIcons.Filled.Schedule"
-                                       Immediate="true"
-                                       DisableToolbar="true"
-                                       OpenTo="OpenTo.Hours"/>
+                        <MudStack Spacing="1">
+                            @if (_loadingSlots)
+                            {
+                                <MudStack Row AlignItems="AlignItems.Center" Spacing="1">
+                                    <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="mr-2"/>
+                                    <MudText>در حال دریافت زمان‌های خالی…</MudText>
+                                </MudStack>
+                            }
+                            else if (_slots.Count > 0)
+                            {
+                                <MudSelect T="string"
+                                           Label="انتخاب از زمان‌های خالی"
+                                           Variant="Variant.Outlined"
+                                           Required="true"
+                                           Value="_selectedSlot"
+                                           ValueChanged="OnSlotSelected">
+                                    @foreach (var slot in _slots)
+                                    {
+                                        <MudSelectItem Value="@slot">@slot</MudSelectItem>
+                                    }
+                                </MudSelect>
+
+                                <MudText Color="Color.Success" Typo="Typo.caption">
+                                    @($"تعداد زمان‌های موجود: {_slots.Count}")
+                                </MudText>
+                            }
+                            else if (_dateValue is not null && Model.ServiceId != Guid.Empty)
+                            {
+                                <MudAlert Severity="Severity.Info" Dense="true">
+                                    برای این تاریخ، زمان خالی یافت نشد. لطفاً تاریخ دیگری را انتخاب کنید.
+                                </MudAlert>
+                            }
+                            else if (Model.ServiceId == Guid.Empty)
+                            {
+                                <MudAlert Severity="Severity.Warning" Dense="true">
+                                    ServiceId نامعتبر است. بدون شناسه سرویس امکان دریافت اسلات وجود ندارد.
+                                </MudAlert>
+                            }
+                        </MudStack>
                     </MudItem>
 
                     <!-- توضیحات -->
@@ -76,35 +105,107 @@
 
     private MudForm? _form;
     private bool     _submitting;
-    private bool _disableSubmit => !IsParsableTime(_startTime);
 
-    private DateTime? _dateValue; // برای MudDatePicker
-    private TimeSpan? _startTime; // برای MudTimePicker (HH:mm)
+    private DateTime?    _dateValue;    // برای MudDatePicker
+    private string?      _selectedSlot; // HH:mm
+    private bool         _loadingSlots;
+    private List<string> _slots = new();
 
-   
-    protected override void OnInitialized()
+    private CancellationTokenSource? _slotCts;
+
+    private bool _disableSubmit => Model.ServiceId == Guid.Empty ||
+                                   !_dateValue.HasValue ||
+                                   string.IsNullOrWhiteSpace(_selectedSlot) ||
+                                   !IsValidHHmm(_selectedSlot!);
+
+    protected override async Task OnInitializedAsync()
     {
         // Sync initial date
-        _dateValue = Model.Date.ToDateTime(TimeOnly.MinValue);
+        _dateValue = Model.Date == default ? null : Model.Date.ToDateTime(TimeOnly.MinValue);
 
-        // Normalize and sync initial time -> _startTime
-        if (!string.IsNullOrWhiteSpace(Model.Start))
-        {
-            var normalized = NormalizeTimeString(Model.Start);
-            if (TimeOnly.TryParseExact(normalized, "HH:mm", out var t))
-                _startTime = t.ToTimeSpan();
-        }
+        // Sync initial slot (if Start already set)
+        if (!string.IsNullOrWhiteSpace(Model.Start) && IsValidHHmm(Model.Start))
+            _selectedSlot = NormalizeTimeString(Model.Start);
+
+        // اگر سرویس و تاریخ داریم، اسلات‌ها را بگیر
+        if (Model.ServiceId != Guid.Empty && _dateValue is not null)
+            await TryLoadSlotsAsync();
     }
 
-    protected override void OnParametersSet()
+    private void OnDateChanged(DateTime? dt)
     {
-        // هر بار که DatePicker تغییر کرد، DateOnly مدل را همگام می‌کنیم
-        if (_dateValue.HasValue)
-            Model.Date = DateOnly.FromDateTime(_dateValue.Value);
+        _dateValue = dt;
+        if (dt.HasValue)
+            Model.Date = DateOnly.FromDateTime(dt.Value);
 
-        // هر بار که TimePicker تغییر کرد، Model.Start را به رشته HH:mm به‌روزرسانی می‌کنیم
-        if (_startTime.HasValue)
-            Model.Start = new TimeOnly(_startTime.Value.Hours, _startTime.Value.Minutes).ToString("HH:mm");
+        _selectedSlot = null;
+        Model.Start = string.Empty;
+        _ = TryLoadSlotsAsync();
+    }
+
+    private void OnSlotSelected(string? hhmm)
+    {
+        _selectedSlot = hhmm;
+        Model.Start = hhmm ?? string.Empty;
+    }
+
+    private async Task TryLoadSlotsAsync()
+    {
+        if (Model.ServiceId == Guid.Empty || _dateValue is null)
+        {
+            _slots.Clear();
+            _loadingSlots = false;
+            StateHasChanged();
+            return;
+        }
+
+        _slotCts?.Cancel();
+        _slotCts = new CancellationTokenSource();
+        var token = _slotCts.Token;
+
+        _loadingSlots = true;
+        StateHasChanged();
+
+        try
+        {
+            var req    = new GetAvailableSlotsRequest(DateOnly.FromDateTime(_dateValue.Value), Model.ServiceId);
+            var result = await Mediator.Send(req, token);
+
+            if (token.IsCancellationRequested) return;
+
+            _slots = (result ?? new List<string>())
+                .Where(s => !string.IsNullOrWhiteSpace(s))
+                .Select(NormalizeTimeString)
+                .Where(IsValidHHmm)
+                .Distinct()
+                .OrderBy(s => s)
+                .ToList();
+
+        
+            if (!string.IsNullOrWhiteSpace(_selectedSlot) && _slots.Contains(_selectedSlot))
+            {
+                Model.Start = _selectedSlot!;
+            }
+            else
+            {
+                _selectedSlot = _slots.FirstOrDefault();
+                Model.Start = _selectedSlot ?? string.Empty;
+            }
+        }
+        catch (Exception ex)
+        {
+            _slots.Clear();
+            _selectedSlot = null;
+            Model.Start = string.Empty;
+        }
+        finally
+        {
+            if (!token.IsCancellationRequested)
+            {
+                _loadingSlots = false;
+                StateHasChanged();
+            }
+        }
     }
 
     private async Task Submit()
@@ -118,12 +219,12 @@
                 await _form.Validate();
                 if (!_form.IsValid) return;
 
-                // همگام‌سازی نهایی (ایمن)
+                // همگام‌سازی نهایی
                 if (_dateValue.HasValue)
                     Model.Date = DateOnly.FromDateTime(_dateValue.Value);
 
-                if (_startTime.HasValue)
-                    Model.Start = new TimeOnly(_startTime.Value.Hours, _startTime.Value.Minutes).ToString("HH:mm");
+                if (!string.IsNullOrWhiteSpace(_selectedSlot))
+                    Model.Start = NormalizeTimeString(_selectedSlot!);
 
                 MudDialog.Close(DialogResult.Ok(Model));
             }
@@ -137,40 +238,20 @@
     private void Cancel()
         => MudDialog.Cancel();
 
-    // ---- Validation helpers ----
-    private void ValidateForm(ValidationContext<object> ctx)
-    {
-        // تاریخ باید انتخاب شود
-        if (!_dateValue.HasValue)
-            ctx.AddFailure(nameof(Model.Date), "انتخاب تاریخ الزامی است.");
-
-        // ساعت باید معتبر باشد و در بازه کاری (نمونه: 09:00 تا 18:00)
-        if (!IsParsableTime(_startTime))
-        {
-            ctx.AddFailure(nameof(Model.Start), "ساعت شروع نامعتبر است (الگوی HH:mm).");
-        }
-        else
-        {
-            var start = _startTime!.Value;
-            var from  = new TimeSpan(9,  0, 0);
-            var to    = new TimeSpan(18, 0, 0);
-
-            if (start < from || start > to)
-                ctx.AddFailure(nameof(Model.Start), "ساعت باید بین 09:00 تا 18:00 باشد.");
-        }
-    }
 
     private static string NormalizeTimeString(string input)
     {
         var v = input.Trim();
         if (v.Length == 4 && !v.Contains(':')) // "1430" -> "14:30"
             v = $"{v[..2]}:{v[2..]}";
-
+        // صفرگذاری دقیقه/ساعت تک‌رقمی (مثلاً "9:5" -> "09:05")
+        if (TimeSpan.TryParse(v, out var t))
+            return $"{(int)t.TotalHours:00}:{t.Minutes:00}";
         return v;
     }
 
-    private static bool IsParsableTime(TimeSpan? t)
-        => t.HasValue && t.Value >= TimeSpan.Zero && t.Value < TimeSpan.FromDays(1);
+    private static bool IsValidHHmm(string v)
+        => TimeSpan.TryParse(v, out var t) && t >= TimeSpan.Zero && t < TimeSpan.FromDays(1);
 
     public class RescheduleModel
     {
@@ -179,5 +260,4 @@
         public string Start { get; set; } = "";
         public string? Notes { get; set; }
     }
-
 }

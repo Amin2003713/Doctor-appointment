@@ -14,29 +14,26 @@ public sealed class CreateAppointmentCommandHandler(
     ISnackbarService                                  snackbar,
     IStringLocalizer<CreateAppointmentCommandHandler> localizer,
     ILogger<CreateAppointmentCommandHandler>          logger
-) : IRequestHandler<CreateAppointmentCommand, Guid>
+) : IRequestHandler<CreateAppointmentCommand>
 {
     public IAppointmentsApi api = apiFactory.CreateApi<IAppointmentsApi>();
 
-    public async Task<Guid> Handle(CreateAppointmentCommand request, CancellationToken ct)
+    public async Task Handle(CreateAppointmentCommand request, CancellationToken ct)
     {
         try
         {
             var id = await api.CreateAsync(request, ct);
             snackbar.ShowSuccess(localizer["Appointment created"]);
-            return id;
         }
         catch (ApiException ex)
         {
             logger.LogWarning(ex, "Create appointment failed");
             snackbar.ShowError("error in api");
-            return Guid.Empty;
         }
         catch (Exception ex)
         {
             logger.LogError(ex, "Create appointment crashed");
             snackbar.ShowError("error in api");
-            return Guid.Empty;
         }
     }
 }

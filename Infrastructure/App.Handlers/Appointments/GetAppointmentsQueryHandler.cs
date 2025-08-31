@@ -22,7 +22,7 @@ public sealed class GetAppointmentsQueryHandler(
     {
         try
         {
-            var list = await api.ListAsync(request.From, request.To, request.PatientUserId, ct);
+            var list = await api.ListAsync(request.From, request.To, request.PatientUserId);
             return list;
         }
         catch (ApiException ex)
