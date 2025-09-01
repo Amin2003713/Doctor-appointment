@@ -98,7 +98,7 @@
                                ValueChanged="OnSlotSelected">
                         @foreach (var slot in _slots)
                         {
-                            <MudSelectItem Value="@slot">@slot</MudSelectItem>
+                            <MudSelectItem Disabled="slot.Value" Value="@slot.Key">@slot.Key</MudSelectItem>
                         }
                     </MudSelect>
 
@@ -161,10 +161,10 @@
     private bool _servicesLoaded;
 
     // تاریخ و اسلات‌ها
-    private DateTime?    _selectedDate;
-    private bool         _loadingSlots;
-    private List<string> _slots = new();
-    private string?      _selectedSlot; // HH:mm
+    private DateTime?     _selectedDate;
+    private bool          _loadingSlots;
+    private Dictionary<string , bool> _slots = new();
+    private string?       _selectedSlot; // HH:mm
 
     // لغو درخواست‌های قبلی اسلات
     private CancellationTokenSource? _slotCts;
@@ -328,17 +328,13 @@
             var result = await Mediator.Send(req, token);
             if (token.IsCancellationRequested) return;
 
-            _slots = (result ?? new List<string>()).Where(s => !string.IsNullOrWhiteSpace(s)).
-                                                    Distinct().
-                                                    OrderBy(s => s) // فرض بر فرمت HH:mm
-                                                    .
-                                                    ToList();
+            _slots = result;
 
             // Optional: پیش‌انتخاب اولین اسلات
             if (_slots.Count > 0)
             {
-                _selectedSlot = _slots[0];
-                Model.Start   = _selectedSlot;
+                _selectedSlot = _slots.First().Key;
+                Model.Start   = _selectedSlot   ;
             }
         }
         catch (OperationCanceledException)

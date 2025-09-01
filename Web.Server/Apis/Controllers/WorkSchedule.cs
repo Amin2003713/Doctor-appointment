@@ -201,7 +201,7 @@ public class WorkScheduleController(AppDbContext db) : ControllerBase
     {
         var settings      = await db.ClinicSettings.AsNoTracking().FirstOrDefaultAsync(ct) ?? new ClinicSettings();
         var service       = await db.MedicalServices.AsNoTracking().FirstOrDefaultAsync(x => x.Id == serviceId, ct);
-        var userTakenAppo = await db.Appointments.AsNoTracking().Where(x => x.PatientUserId       == patientUserId).ToListAsync(cancellationToken: ct);
+        var userTakenAppo = await db.Appointments.AsNoTracking().Where(x => x.PatientUserId       == patientUserId && x.Date == date).ToListAsync(cancellationToken: ct);
 
         if (service is null)
             return NotFound(new

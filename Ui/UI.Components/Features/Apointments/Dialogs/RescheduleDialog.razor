@@ -181,7 +181,7 @@
 
             if (token.IsCancellationRequested) return;
 
-            _slots = (result ?? new List<string>()).Where(s => !string.IsNullOrWhiteSpace(s)).Select(NormalizeTimeString).Where(IsValidHHmm).Distinct().OrderBy(s => s).ToList();
+            _slots = (result ?? []).Where(s => !string.IsNullOrWhiteSpace(s.Key)).Select(a => NormalizeTimeString(a.Key)).Where(IsValidHHmm).Distinct().OrderBy(s => s).ToList();
 
 
             if (!string.IsNullOrWhiteSpace(_selectedSlot) && _slots.Contains(_selectedSlot))

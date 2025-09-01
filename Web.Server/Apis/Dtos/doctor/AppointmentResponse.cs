@@ -17,6 +17,6 @@ public class AppointmentResponse
     public string PriceCurrency { get; set; } = "ريال";
     public string? Notes { get; set; }
 
-    public long PatientId { get; set; } = default!;
+    public long PatientId { get; set; } 
 
 }

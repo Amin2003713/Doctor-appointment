@@ -107,7 +107,7 @@ public class AppointmentsController(
         var ap = new Appointment
         {
             ServiceId       = body.ServiceId,
-            PatientUserId   = patientUserId,
+            PatientUserId   = patientUserId ?? 0,
             PatientFullName = patientName,
             PatientPhone    = patientPhone,
             Date            = body.Date,
@@ -169,7 +169,7 @@ public class AppointmentsController(
                                PriceAmount     = a.PriceAmount,
                                PriceCurrency   = a.PriceCurrency,
                                Notes           = a.Notes,
-                               PatientId       = a.PatientUserId!.Value
+                               PatientId       = a.PatientUserId ?? 0
                            }).
                            ToListAsync(ct);
 
@@ -210,7 +210,8 @@ public class AppointmentsController(
             PriceAmount     = a.PriceAmount,
             PriceCurrency   = a.PriceCurrency,
             Notes           = a.Notes,
-            PatientId       = a.PatientUserId!.Value
+            PatientId       = a.PatientUserId ?? 0
+
         });
     }
 

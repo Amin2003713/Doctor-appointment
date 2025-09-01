@@ -6,4 +6,4 @@ public record GetAvailableSlotsRequest(
     DateOnly Date,
     Guid     ServiceId,
     long     patientUserId
-) : IRequest<List<string>>;
+) : IRequest<Dictionary<string, bool>>;
