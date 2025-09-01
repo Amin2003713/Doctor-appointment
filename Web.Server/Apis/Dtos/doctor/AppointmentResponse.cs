@@ -16,4 +16,7 @@ public class AppointmentResponse
     public decimal PriceAmount { get; set; }
     public string PriceCurrency { get; set; } = "ريال";
     public string? Notes { get; set; }
+
+    public long PatientId { get; set; } = default!;
+
 }

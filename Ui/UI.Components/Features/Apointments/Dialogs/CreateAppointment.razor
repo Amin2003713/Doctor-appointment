@@ -137,6 +137,13 @@
 </MudDialog>
 
 @code {
+    [CascadingParameter] public Action UpdateUi { get; set; } = default!;
+
+    private void TriggerParentUpdate()
+    {
+        UpdateUi?.Invoke(); // Call the parent's UpdateUi method
+    }
+
     [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
 
     public CreateAppointmentCommand Model { get; set; } = new();
@@ -316,7 +323,7 @@
         try
         {
             var dateOnly = DateOnly.FromDateTime(_selectedDate.Value);
-            var req      = new GetAvailableSlotsRequest(dateOnly, _selectedService.Id);
+            var req      = new GetAvailableSlotsRequest(dateOnly, _selectedService.Id, _selectedUser!.Id);
 
             var result = await Mediator.Send(req, token);
             if (token.IsCancellationRequested) return;
@@ -371,9 +378,10 @@
 
         await Mediator.Send(Model);
         MudDialog.Close();
+        TriggerParentUpdate();
     }
 
-    /* ------------------- اعتبارسنجی ------------------- */
+/* ------------------- اعتبارسنجی ------------------- */
 
     private bool IsInvalid()
     {

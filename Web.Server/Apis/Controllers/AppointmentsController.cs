@@ -168,7 +168,8 @@ public class AppointmentsController(
                                PatientPhone    = a.PatientPhone,
                                PriceAmount     = a.PriceAmount,
                                PriceCurrency   = a.PriceCurrency,
-                               Notes           = a.Notes
+                               Notes           = a.Notes,
+                               PatientId       = a.PatientUserId!.Value
                            }).
                            ToListAsync(ct);
 
@@ -208,7 +209,8 @@ public class AppointmentsController(
             PatientPhone    = a.PatientPhone,
             PriceAmount     = a.PriceAmount,
             PriceCurrency   = a.PriceCurrency,
-            Notes           = a.Notes
+            Notes           = a.Notes,
+            PatientId       = a.PatientUserId!.Value
         });
     }
 

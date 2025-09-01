@@ -10,6 +10,7 @@ public class AppointmentResponse
     public string End { get; set; } = default!;
     public AppointmentStatus Status { get; set; }
     public string PatientFullName { get; set; } = default!;
+    public long PatientId { get; set; } = default!;
     public string PatientPhone { get; set; } = default!;
     public decimal PriceAmount { get; set; }
     public string PriceCurrency { get; set; } = "ريال";

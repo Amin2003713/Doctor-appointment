@@ -14,7 +14,7 @@
     {
         <MudPaper Class="rounded-xl mb-3 px-3 py-2 p-2">
             <MudStack Row Spacing="2" AlignItems="AlignItems.Center">
-            <MudText Typo="Typo.h6" Class="fw-bold">برنامه‌ی نوبت‌ها</MudText>
+                <MudText Typo="Typo.h6" Class="fw-bold">برنامه‌ی نوبت‌ها</MudText>
                 <MudSpacer/>
                 @if (!PatientUserId.HasValue)
                 {
@@ -197,7 +197,7 @@
                                     لغو نوبت
                                 </MudIconButton>
                             }
-                           
+
                             <!-- Doctor/Secretary: complete, reschedule, cancel (when Booked) -->
                             <AuthorizeView Roles="Doctor,Secretary">
                                 <Authorized Context="Auth">
@@ -277,6 +277,13 @@
 </MudContainer>
 
 @code {
+    [CascadingParameter] public Action UpdateUi { get; set; } = default!;
+
+    private void TriggerParentUpdate()
+    {
+        UpdateUi?.Invoke(); // Call the parent's UpdateUi method
+    }
+
     private MudTable<AppointmentResponse>? _table;
 
 
@@ -421,6 +428,7 @@
             await Mediator.Send(new CancelAppointmentCommand(appt.Id), CancellationToken.None);
             Snackbar.ShowSuccess("نوبت لغو شد.");
             await ReloadData();
+            TriggerParentUpdate();
         }
         catch (Exception ex)
         {
@@ -437,6 +445,7 @@
             await Mediator.Send(new CompleteAppointmentCommand(appt.Id), CancellationToken.None);
             Snackbar.ShowSuccess("نوبت با موفقیت انجام‌شده علامت خورد.");
             await ReloadData();
+            TriggerParentUpdate();
         }
         catch (Exception ex)
         {
@@ -453,10 +462,11 @@
             {
                 x => x.Model, new RescheduleDialog.RescheduleModel
                 {
-                    ServiceId = appt.ServiceId,
-                    Date      = appt.Date,
-                    Start     = appt.Start,
-                    Notes     = appt.Notes
+                    ServiceId     = appt.ServiceId,
+                    Date          = appt.Date,
+                    Start         = appt.Start,
+                    Notes         = appt.Notes,
+                    PatientUserId = appt.PatientId
                 }
             }
         };
@@ -490,6 +500,7 @@
 
                 Snackbar.ShowSuccess("زمان نوبت با موفقیت تغییر کرد.");
                 await ReloadData();
+                TriggerParentUpdate();
             }
             catch (Exception ex)
             {

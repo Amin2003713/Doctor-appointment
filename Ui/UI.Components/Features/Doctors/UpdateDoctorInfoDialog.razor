@@ -104,12 +104,12 @@
                             </MudButton>
                         </MudStack>
                         <MudChipSet T="string" Class="mt-2">
-                            @for (var i = 0; i < _vm.Education.Length; i++)
+                            @for (var i = 0; i < _vm.Languages.Length; i++)
                             {
                                 var idx = i;
                                 <MudChip T="string" Color="Color.Info" Variant="Variant.Outlined" Dense
-                                         OnClose="@(() => RemoveEducation(idx))">
-                                    @_vm.Education[idx]
+                                         OnClose="@(() => RemoveLanguage(idx))">
+                                    @_vm.Languages[idx]
                                 </MudChip>
                             }
                         </MudChipSet>
@@ -125,12 +125,12 @@
                             </MudButton>
                         </MudStack>
                         <MudChipSet T="string" Class="mt-2">
-                            @for (var i = 0; i < _vm.Languages.Length; i++)
+                            @for (var i = 0; i < _vm.Education.Length; i++)
                             {
                                 var idx = i;
                                 <MudChip T="string" Color="Color.Secondary" Variant="Variant.Outlined" Dense
-                                         OnClose="@(() => RemoveLanguage(idx))">
-                                    @_vm.Languages[idx]
+                                         OnClose="@(() => RemoveEducation(idx))">
+                                    @_vm.Education[idx]
                                 </MudChip>
                             }
                         </MudChipSet>
@@ -167,6 +167,13 @@
 </MudDialog>
 
 @code {
+[CascadingParameter]
+    public Action UpdateUi { get; set; } = default!;
+
+    private void TriggerParentUpdate()
+    {
+        UpdateUi?.Invoke(); // Call the parent's UpdateUi method
+    }
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
     [Parameter] public DoctorProfileResponse? Model { get; set; }
     [Parameter] public bool AllowEdit { get; set; } = true;
@@ -219,7 +226,9 @@
 
             await _form.Validate();
             if (!_form.IsValid) return;
-
+        }
+        else
+        {
             try
             {
                 // If user selected a file, upload it first and set PhotoUrl
@@ -237,15 +246,15 @@
                 await Mediator.Send(_vm);
                 Snackbar.ShowSuccess("پروفایل ذخیره شد.");
                 _editing = false;
+                
+                TriggerParentUpdate();
                 MudDialog.Close();
             }
             catch (Exception ex)
             {
                 Snackbar.ShowError($"خطا در ذخیره: {ex.Message}");
             }
-        }
-        else
-        {
+
             MudDialog.Close();
         }
     }
@@ -258,8 +267,9 @@
         return Task.CompletedTask;
     }
 
-    private static string[] Clean(string[]? xs)
-        => (xs ?? Array.Empty<string>())
+    private static string?[] Clean(string[]? xs)
+        => (xs ??
+            [])
             .Select(s => s?.Trim())
             .Where(s => !string.IsNullOrWhiteSpace(s))
             .Distinct(StringComparer.OrdinalIgnoreCase)

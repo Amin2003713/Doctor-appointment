@@ -208,6 +208,13 @@
 </MudContainer>
 
 @code {
+[CascadingParameter]
+    public Action UpdateUi { get; set; } = default!;
+
+    private void TriggerParentUpdate()
+    {
+        UpdateUi?.Invoke(); // Call the parent's UpdateUi method
+    }
     private MudTable<UserListItemResponse>? _table;
     private string?                         _search;
 
@@ -349,6 +356,8 @@
         await Mediator.Send(new ToggleUserRequest(userId));
         await _table!.ReloadServerData();
         StateHasChanged();
+        TriggerParentUpdate();
+
     }
 
 }

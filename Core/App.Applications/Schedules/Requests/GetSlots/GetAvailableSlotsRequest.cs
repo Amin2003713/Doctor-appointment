@@ -4,5 +4,6 @@ namespace App.Applications.Schedules.Requests.GetSlots;
 
 public record GetAvailableSlotsRequest(
     DateOnly Date,
-    Guid     ServiceId
+    Guid     ServiceId,
+    long     patientUserId
 ) : IRequest<List<string>>;

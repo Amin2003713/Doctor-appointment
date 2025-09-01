@@ -254,7 +254,7 @@ public class WorkScheduleController(AppDbContext db) : ControllerBase
     // GET /api/schedule/slots?date=YYYY-MM-DD&serviceId=GUID
     // -----------------------
     [HttpGet("slots")]
-    public async Task<ActionResult<List<string>>> GetSlots([FromQuery] DateOnly date, [FromQuery] Guid serviceId, CancellationToken ct)
+    public async Task<ActionResult<List<string>>> GetSlots([FromQuery] DateOnly date, [FromQuery] Guid serviceId , [FromQuery] long patientUserId, CancellationToken ct)
     {
         var settings = await db.ClinicSettings.AsNoTracking().FirstOrDefaultAsync(ct) ?? new ClinicSettings();
         var service  = await db.MedicalServices.AsNoTracking().FirstOrDefaultAsync(x => x.Id == serviceId, ct);

@@ -103,6 +103,13 @@
 </MudDialog>
 
 @code {
+[CascadingParameter]
+    public Action UpdateUi { get; set; } = default!;
+
+    private void TriggerParentUpdate()
+    {
+        UpdateUi?.Invoke(); // Call the parent's UpdateUi method
+    }
     [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
 
     private bool ApiCalling { get; set; }
@@ -134,6 +141,7 @@
             Console.WriteLine(Request);
             await Mediator.Send(Request);
             Snackbar.ShowSuccess("ثبت‌نام موفقیت‌آمیز بود");
+            TriggerParentUpdate();
             MudDialog.Close();
         }
         catch (Exception ex)

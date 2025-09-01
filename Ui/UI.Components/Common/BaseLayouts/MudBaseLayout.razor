@@ -13,39 +13,42 @@
     <MudPopoverProvider/>
     <MudDialogProvider/>
     <MudSnackbarProvider/>
-
-    <MudLayout class="page">
-        <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Style=" padding: 0 !important;">
-            @Body
-        </MudContainer>
-    </MudLayout>
+    <CascadingValue Value="UpdateUi">
+        <MudLayout class="page">
+            <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Style=" padding: 0 !important;">
+                @Body
+            </MudContainer>
+        </MudLayout>
+    </CascadingValue>
 </MudRTLProvider>
 
 @code {
+
     private MudThemeProvider _mudThemeProvider = null!;
     public Settings? Settings { get; set; }
+
+
+    private void UpdateUi()
+        => StateHasChanged();
 
     protected override async Task OnInitializedAsync()
     {
         Settings = await Mediator.Send(new LoadSettingsQuery());
-        
-        ThemeService.ThemeChanged += HandleThemeChanged!;
 
-        
+        ThemeService.ThemeChanged += HandleThemeChanged!;
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            
             await _mudThemeProvider.WatchSystemPreference(ThemeService.OnSystemPreferenceChanged);
             var systemPreference = await _mudThemeProvider.GetSystemPreference();
-            ThemeService.ToggleDarkLightMode(systemPreference , false);
+            ThemeService.ToggleDarkLightMode(systemPreference, false);
         }
     }
 
-    private void HandleThemeChanged(object sender , EventArgs e)
+    private void HandleThemeChanged(object sender, EventArgs e)
     {
         StateHasChanged();
     }

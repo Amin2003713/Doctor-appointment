@@ -159,6 +159,13 @@
 </div>
 
 @code {
+[CascadingParameter]
+    public Action UpdateUi { get; set; } = default!;
+
+    private void TriggerParentUpdate()
+    {
+        UpdateUi?.Invoke(); // Call the parent's UpdateUi method
+    }
     private ClinicSettingsResponse? _clinic;
     private bool                    _loading = true;
     private bool                    _noteOpen;
