@@ -15,48 +15,57 @@ namespace Api.Endpoints.Controllers;
 [Authorize]
 public class WorkScheduleController(AppDbContext db) : ControllerBase
 {
-    
-    
-    
     private async Task<WorkSchedule> EnsureScheduleAsync(CancellationToken ct)
     {
-        var ws = await db.WorkSchedules
-            .Include(x => x.Days).ThenInclude(d => d.Intervals)
-            .Include(x => x.Days).ThenInclude(d => d.Breaks)
-            .Include(x => x.Overrides)
-            .FirstOrDefaultAsync(ct);
+        var ws = await db.WorkSchedules.Include(x => x.Days).
+                          ThenInclude(d => d.Intervals).
+                          Include(x => x.Days).
+                          ThenInclude(d => d.Breaks).
+                          Include(x => x.Overrides).
+                          FirstOrDefaultAsync(ct);
 
         if (ws is not null) return ws;
 
         ws = new WorkSchedule
         {
-            Days = Enum.GetValues<DayOfWeek>().Select(d => new WorkingDay { Day = d  , Intervals = [new TimeRange(TimeOnly.Parse("12:45"),
-                                                          TimeOnly.Parse("22:45"))]}).ToList(),
-            
+            Days = Enum.GetValues<DayOfWeek>().
+                        Select(d => new WorkingDay
+                        {
+                            Day = d,
+                            Intervals =
+                            [
+                                new TimeRange(TimeOnly.Parse("12:45"),
+                                              TimeOnly.Parse("22:45"))
+                            ]
+                        }).
+                        ToList(),
         };
+
         db.WorkSchedules.Add(ws);
         await db.SaveChangesAsync(ct);
         return ws;
     }
 
-    private static bool ValidRange(TimeRange r) => r.From < r.To;
+    private static bool ValidRange(TimeRange r)
+        => r.From < r.To;
 
     private static List<TimeRange> MergeRanges(IEnumerable<TimeRange> ranges)
     {
-        var list = ranges.Where(ValidRange)
-                         .OrderBy(r => r.From)
-                         .ThenBy(r => r.To)
-                         .ToList();
+        var list = ranges.Where(ValidRange).OrderBy(r => r.From).ThenBy(r => r.To).ToList();
         if (list.Count == 0) return new();
 
-        var merged = new List<TimeRange> { list[0] };
+        var merged = new List<TimeRange>
+        {
+            list[0]
+        };
+
         for (int i = 1; i < list.Count; i++)
         {
             var last = merged[^1];
             var cur  = list[i];
+
             if (cur.From <= last.To)
             {
-                
                 merged[^1] = new TimeRange(last.From, cur.To > last.To ? cur.To : last.To);
             }
             else
@@ -64,32 +73,36 @@ public class WorkScheduleController(AppDbContext db) : ControllerBase
                 merged.Add(cur);
             }
         }
+
         return merged;
     }
 
     private static List<TimeRange> SubtractRanges(List<TimeRange> sources, List<TimeRange> subtracts)
     {
-        
         var result = new List<TimeRange>(sources);
+
         foreach (var b in subtracts.Where(ValidRange))
         {
             var next = new List<TimeRange>();
+
             foreach (var s in result)
             {
                 if (b.To <= s.From || b.From >= s.To)
                 {
-                    next.Add(s); 
+                    next.Add(s);
                     continue;
                 }
-                
+
                 if (b.From > s.From)
                     next.Add(new TimeRange(s.From, TimeOnly.MinValue.Add(s.From.ToTimeSpan().Add((b.From - s.From)))));
 
                 if (b.To < s.To)
                     next.Add(new TimeRange(b.To, s.To));
             }
+
             result = MergeRanges(next);
         }
+
         return MergeRanges(result);
     }
 
@@ -101,18 +114,20 @@ public class WorkScheduleController(AppDbContext db) : ControllerBase
         var day = ws.Days.FirstOrDefault(d => d.Day == date.DayOfWeek);
         if (day is null || day.Closed) return new List<TimeRange>();
 
-        
+
         return SubtractRanges(MergeRanges(day.Intervals), MergeRanges(day.Breaks));
     }
 
     private static bool Overlaps(TimeSpan aStart, TimeSpan aEnd, TimeSpan bStart, TimeSpan bEnd)
         => aStart < bEnd && bStart < aEnd;
 
-    private static TimeRangeDto ToDto(TimeRange r) => new(r.From.ToString("HH:mm"), r.To.ToString("HH:mm"));
-    private static TimeRange ParseRange(TimeRangeDto dto) => new(TimeOnly.Parse(dto.From), TimeOnly.Parse(dto.To));
+    private static TimeRangeDto ToDto(TimeRange r)
+        => new(r.From.ToString("HH:mm"), r.To.ToString("HH:mm"));
 
-    
-    
+    private static TimeRange ParseRange(TimeRangeDto dto)
+        => new(TimeOnly.Parse(dto.From), TimeOnly.Parse(dto.To));
+
+
     // -----------------------
     [HttpGet]
     public async Task<ActionResult<WorkScheduleResponse>> GetSchedule(CancellationToken ct)
@@ -121,22 +136,24 @@ public class WorkScheduleController(AppDbContext db) : ControllerBase
 
         var resp = new WorkScheduleResponse
         {
-            Days = ws.Days.OrderBy(d => d.Day)
-                .Select(d => new WorkingDayDto
-                {
-                    Day = d.Day,
-                    Closed = d.Closed,
-                    Intervals = MergeRanges(d.Intervals).Select(ToDto).ToList(),
-                    Breaks   = MergeRanges(d.Breaks).Select(ToDto).ToList()
-                }).ToList(),
-            Overrides = ws.Overrides.OrderBy(o => o.Date)
-                .Select(o => new SpecialDateOverrideDto
-                {
-                    Id = o.Id,
-                    Date = o.Date,
-                    Closed = o.Closed,
-                    Intervals = MergeRanges(o.Intervals).Select(ToDto).ToList()
-                }).ToList()
+            Days = ws.Days.OrderBy(d => d.Day).
+                      Select(d => new WorkingDayDto
+                      {
+                          Day       = d.Day,
+                          Closed    = d.Closed,
+                          Intervals = MergeRanges(d.Intervals).Select(ToDto).ToList(),
+                          Breaks    = MergeRanges(d.Breaks).Select(ToDto).ToList()
+                      }).
+                      ToList(),
+            Overrides = ws.Overrides.OrderBy(o => o.Date).
+                           Select(o => new SpecialDateOverrideDto
+                           {
+                               Id        = o.Id,
+                               Date      = o.Date,
+                               Closed    = o.Closed,
+                               Intervals = MergeRanges(o.Intervals).Select(ToDto).ToList()
+                           }).
+                           ToList()
         };
 
         return Ok(resp);
@@ -153,75 +170,84 @@ public class WorkScheduleController(AppDbContext db) : ControllerBase
 
         // replace Days
         ws.Days = (body.Days ?? new()).Select(d => new WorkingDay
-        {
-            Day       = d.Day,
-            Closed    = d.Closed,
-            Intervals = (d.Intervals ?? new()).Select(ParseRange).Where(ValidRange).ToList(),
-            Breaks    = (d.Breaks ?? new()).Select(ParseRange).Where(ValidRange).ToList()
-        }).ToList();
+                                       {
+                                           Day       = d.Day,
+                                           Closed    = d.Closed,
+                                           Intervals = (d.Intervals ?? new()).Select(ParseRange).Where(ValidRange).ToList(),
+                                           Breaks    = (d.Breaks    ?? new()).Select(ParseRange).Where(ValidRange).ToList()
+                                       }).
+                                       ToList();
 
         // replace Overrides
         ws.Overrides = (body.Overrides ?? new()).Select(o => new SpecialDateOverride
-        {
-            Id        = o.Id == Guid.Empty ? Guid.NewGuid() : o.Id,
-            Date      = o.Date,
-            Closed    = o.Closed,
-            Intervals = (o.Intervals ?? new()).Select(ParseRange).Where(ValidRange).ToList()
-        }).ToList();
+                                                 {
+                                                     Id        = o.Id == Guid.Empty ? Guid.NewGuid() : o.Id,
+                                                     Date      = o.Date,
+                                                     Closed    = o.Closed,
+                                                     Intervals = (o.Intervals ?? new()).Select(ParseRange).Where(ValidRange).ToList()
+                                                 }).
+                                                 ToList();
 
         await db.SaveChangesAsync(ct);
         return NoContent();
     }
 
-[HttpGet("slots/summary")]
-public async Task<ActionResult<SlotsSummaryDto>> GetSlotsSummary(
-    [FromQuery] DateOnly date,
-    [FromQuery] Guid serviceId,
-    CancellationToken ct)
-{
-    var settings = await db.ClinicSettings.AsNoTracking().FirstOrDefaultAsync(ct) ?? new ClinicSettings();
-    var service  = await db.MedicalServices.AsNoTracking().FirstOrDefaultAsync(x => x.Id == serviceId, ct);
-    if (service is null) return NotFound(new { message = "Service not found." });
+    [HttpGet("slots/summary")]
+    public async Task<ActionResult<SlotsSummaryDto>> GetSlotsSummary(
+        [FromQuery] DateOnly date,
+        [FromQuery] Guid     serviceId,
+        [FromQuery] long     patientUserId,
+        CancellationToken    ct)
+    {
+        var settings      = await db.ClinicSettings.AsNoTracking().FirstOrDefaultAsync(ct) ?? new ClinicSettings();
+        var service       = await db.MedicalServices.AsNoTracking().FirstOrDefaultAsync(x => x.Id == serviceId, ct);
+        var userTakenAppo = await db.Appointments.AsNoTracking().Where(x => x.PatientUserId       == patientUserId).ToListAsync(cancellationToken: ct);
 
-    var ws        = await EnsureScheduleAsync(ct);
-    var effective = ResolveIntervalsForDate(ws, date); // working intervals after overrides & breaks
+        if (service is null)
+            return NotFound(new
+            {
+                message = "Service not found."
+            });
 
-    var resp = new SlotsSummaryDto();
-    if (effective.Count == 0) return Ok(resp); // empty day
+        var ws        = await EnsureScheduleAsync(ct);
+        var effective = ResolveIntervalsForDate(ws, date); // working intervals after overrides & breaks
 
-    var duration = TimeSpan.FromMinutes(service.VisitMinutes > 0 ? service.VisitMinutes : settings.DefaultVisitMinutes);
-    var buffer   = TimeSpan.FromMinutes(settings.BufferBetweenVisitsMinutes);
+        var resp = new SlotsSummaryDto();
+        if (effective.Count == 0) return Ok(resp); // empty day
 
-    // Booked items (Booked only)
-    var booked = await db.Appointments.AsNoTracking()
-        .Where(a => a.Date == date && a.ServiceId == serviceId && a.Status == AppointmentStatus.Booked)
-        .Select(a => new { a.Start, a.End })
-        .ToListAsync(ct);
+        var duration = TimeSpan.FromMinutes(service.VisitMinutes > 0 ? service.VisitMinutes : settings.DefaultVisitMinutes);
+        var buffer   = TimeSpan.FromMinutes(settings.BufferBetweenVisitsMinutes);
 
-    // 1) StartTimes (same logic as your /slots endpoint)
-    resp.StartTimes = BuildStartSlots(effective, booked.Select(b => (b.Start, b.End)).ToList(), duration, buffer);
+        // Booked items (Booked only)
+        var booked = await db.Appointments.AsNoTracking().
+                              Where(a => a.Date == date && a.ServiceId == serviceId && a.Status == AppointmentStatus.Booked).
+                              Select(a => new
+                              {
+                                  a.Start,
+                                  a.End
+                              }).
+                              ToListAsync(ct);
 
-    // 2) Booked as ranges (exact, no buffer)
-    resp.Booked = booked
-        .Select(b => new TimeRangeDto(b.Start.ToString("HH:mm"), b.End.ToString("HH:mm")))
-        .OrderBy(x => x.From)
-        .ToList();
+        // 1) StartTimes (same logic as your /slots endpoint)
+        resp.StartTimes = BuildStartSlots(effective, booked.Select(b => (b.Start, b.End)).ToList(), duration, buffer, userTakenAppo);
 
-    // 3) FreeRanges = effective - (booked expanded by buffer on both sides)
-    var bookedWithBuffer = booked
-        .Select(b =>
-        {
-            var from = ClampToDay(TimeOnly.FromTimeSpan(b.Start.ToTimeSpan() - buffer));
-            var to   = ClampToDay(TimeOnly.FromTimeSpan(b.End.ToTimeSpan()   + buffer));
-            return new TimeRange(from, to);
-        })
-        .ToList();
+        // 2) Booked as ranges (exact, no buffer)
+        resp.Booked = booked.Select(b => new TimeRangeDto(b.Start.ToString("HH:mm"), b.End.ToString("HH:mm"))).OrderBy(x => x.From).ToList();
 
-    var free = SubtractRanges(effective, MergeRanges(bookedWithBuffer));   // reuse your utilities
-    resp.FreeRanges = free.Select(ToDto).ToList();
+        // 3) FreeRanges = effective - (booked expanded by buffer on both sides)
+        var bookedWithBuffer = booked.Select(b =>
+                                             {
+                                                 var from = ClampToDay(TimeOnly.FromTimeSpan(b.Start.ToTimeSpan() - buffer));
+                                                 var to   = ClampToDay(TimeOnly.FromTimeSpan(b.End.ToTimeSpan()   + buffer));
+                                                 return new TimeRange(from, to);
+                                             }).
+                                      ToList();
 
-    return Ok(resp);
-}
+        var free = SubtractRanges(effective, MergeRanges(bookedWithBuffer)); // reuse your utilities
+        resp.FreeRanges = free.Select(ToDto).ToList();
+
+        return Ok(resp);
+    }
 
 
     // -----------------------
@@ -232,9 +258,14 @@ public async Task<ActionResult<SlotsSummaryDto>> GetSlotsSummary(
     {
         var settings = await db.ClinicSettings.AsNoTracking().FirstOrDefaultAsync(ct) ?? new ClinicSettings();
         var service  = await db.MedicalServices.AsNoTracking().FirstOrDefaultAsync(x => x.Id == serviceId, ct);
-        if (service is null) return NotFound(new { message = "Service not found." });
 
-        var ws = await EnsureScheduleAsync(ct);
+        if (service is null)
+            return NotFound(new
+            {
+                message = "Service not found."
+            });
+
+        var ws        = await EnsureScheduleAsync(ct);
         var effective = ResolveIntervalsForDate(ws, date);
         if (effective.Count == 0) return Ok(new List<string>());
 
@@ -242,10 +273,14 @@ public async Task<ActionResult<SlotsSummaryDto>> GetSlotsSummary(
         var buffer   = TimeSpan.FromMinutes(settings.BufferBetweenVisitsMinutes);
 
         // load booked (Booked only)
-        var existing = await db.Appointments.AsNoTracking()
-            .Where(a => a.Date == date && a.ServiceId == serviceId && a.Status == AppointmentStatus.Booked)
-            .Select(a => new { a.Start, a.End })
-            .ToListAsync(ct);
+        var existing = await db.Appointments.AsNoTracking().
+                                Where(a => a.Date == date && a.ServiceId == serviceId && a.Status == AppointmentStatus.Booked).
+                                Select(a => new
+                                {
+                                    a.Start,
+                                    a.End
+                                }).
+                                ToListAsync(ct);
 
         var slots = new List<string>();
 
@@ -260,6 +295,7 @@ public async Task<ActionResult<SlotsSummaryDto>> GetSlotsSummary(
                 var candEnd   = s + duration;
 
                 var hasOverlap = existing.Any(a => Overlaps(candStart, candEnd, a.Start.ToTimeSpan(), a.End.ToTimeSpan()));
+
                 if (!hasOverlap)
                     slots.Add(TimeOnly.FromTimeSpan(candStart).ToString("HH:mm"));
 
@@ -273,7 +309,12 @@ public async Task<ActionResult<SlotsSummaryDto>> GetSlotsSummary(
     private static string HHmm(TimeSpan ts)
         => TimeOnly.FromTimeSpan(ts).ToString("HH:mm");
 
-    private static List<string> BuildStartSlots(List<TimeRange> effective, List<(TimeOnly Start, TimeOnly End)> existing, TimeSpan duration, TimeSpan buffer)
+    private static List<string> BuildStartSlots(
+        List<TimeRange>                      effective,
+        List<(TimeOnly Start, TimeOnly End)> existing,
+        TimeSpan                             duration,
+        TimeSpan                             buffer,
+        List<Appointment>                    userTakenAppo)
     {
         var slots = new List<string>();
 
@@ -287,9 +328,15 @@ public async Task<ActionResult<SlotsSummaryDto>> GetSlotsSummary(
                 var candStart = s;
                 var candEnd   = s + duration;
 
-                var hasOverlap = existing.Any(a => Overlaps(candStart, candEnd, a.Start.ToTimeSpan(), a.End.ToTimeSpan()));
+                // Check for overlap with existing slots
+                var hasExistingOverlap = existing.Any(a =>
+                                                          Overlaps(candStart, candEnd, a.Start.ToTimeSpan(), a.End.ToTimeSpan()));
 
-                if (!hasOverlap)
+                // Check for overlap with patient's taken appointments
+                var hasPatientOverlap = userTakenAppo.Any(a =>
+                                                              Overlaps(candStart, candEnd, a.Start.ToTimeSpan(), a.End.ToTimeSpan()));
+
+                if (!hasExistingOverlap && !hasPatientOverlap)
                     slots.Add(HHmm(candStart));
 
                 s += (duration + buffer);
@@ -306,5 +353,4 @@ public async Task<ActionResult<SlotsSummaryDto>> GetSlotsSummary(
         if (t > TimeOnly.MaxValue) return TimeOnly.MaxValue;
         return t;
     }
-
 }

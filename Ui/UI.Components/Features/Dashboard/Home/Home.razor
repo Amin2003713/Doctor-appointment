@@ -16,39 +16,32 @@
 
 
         <MudItem md="12" lg="6">
-            <DoctorInfo/>
+            <MudPaper class="equal-height-box rounded-xl mb-3 px-3 py-2 p-2">
+                <DoctorInfo/>
+
+            </MudPaper>
         </MudItem>
 
-
         <MudItem md="12" lg="6">
-            <ClinicInfo/>
+            <MudPaper class="equal-height-box rounded-xl mb-3 px-3 py-2 p-2">
+                <ClinicInfo/>
+            </MudPaper>
+        </MudItem>
+        <MudItem md="12" lg="12">
+            <MudPaper Class="rounded-xl mb-3 px-3 py-2 p-2">
+                <ServiceInfoCard _canEdit="false"/>
+            </MudPaper>
+           
         </MudItem>
 
         <!-- Row 1 -->
-        <MudItem md="12" lg="6">
-            <ServiceInfoCard _canEdit="false"/>
-        </MudItem>
 
         <!-- Row 2 -->
-        <MudItem md="12" lg="6">
+        <MudItem md="12" lg="12">
+            <MudPaper Class="rounded-xl mb-3 px-3 py-2 p-2">
             <Apointments ShowFilters="false" From="DateOnly.FromDateTime(DateTime.Now)"
-                         To="DateOnly.FromDateTime(DateTime.Now)"/>
+                             To="DateOnly.FromDateTime(DateTime.Now)"/>
+            </MudPaper>
         </MudItem>
-
-        <MudItem md="12" lg="4">
-            <MudCard>
-                <MudCardHeader>کارت ۴</MudCardHeader>
-                <MudCardContent>محتوا…</MudCardContent>
-            </MudCard>
-        </MudItem>
-
-        <!-- Bottom full-width panel -->
-        <MudItem md="12" lg="4">
-            <MudCard Class="bottom-panel">
-                <MudCardHeader>پنل پایینی</MudCardHeader>
-                <MudCardContent>گزارش/جدول/لیست …</MudCardContent>
-            </MudCard>
-        </MudItem>
-
     </MudGrid>
 </MudContainer>
