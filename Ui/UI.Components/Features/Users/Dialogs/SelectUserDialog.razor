@@ -1,0 +1,86 @@
+﻿@using App.Applications.Users.Requests.UserQueries
+@using App.Applications.Users.Queries.GetUserInfo
+@using MudBlazor
+
+<MudDialog>
+    <TitleContent>انتخاب کاربر</TitleContent>
+
+    <DialogContent>
+        <MudForm @ref="_form">
+            <MudSelect T="UserListItemResponse"
+                       Label="کاربر"
+                       Variant="Variant.Text"
+                       ToStringFunc="ToUserDisplay"
+                       @bind-Value="_selectedUser"
+                       Dense="true"
+                       Immediate="true"
+                       AutoFocus="true"
+                       Required="true"
+                       RequiredError="لطفاً یک کاربر انتخاب کنید.">
+                @if (_users is not null)
+                {
+                    @foreach (var user in _users)
+                    {
+                        <MudSelectItem  Value="@user">@ToUserDisplay(user)</MudSelectItem>
+                    }
+                }
+            </MudSelect>
+        </MudForm>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="Cancel">انصراف</MudButton>
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Disabled="@(_selectedUser is null)"
+                   OnClick="Submit"
+                   StartIcon="@Icons.Filled.Check">
+            انتخاب
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
+
+    private List<UserListItemResponse> _users = new();
+    private UserListItemResponse?      _selectedUser;
+    private MudForm?                   _form;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var result = await Mediator.Send(new UsersQueryRequest
+            {
+                Page     = 1,
+                PageSize = int.MaxValue
+            });
+
+            _users = result?.Items?.Where(u => u is not null).ToList() ?? [];
+        }
+        catch (Exception ex)
+        {
+            Snackbar.ShowError($"خطا در دریافت کاربران: {ex.Message}");
+            MudDialog.Cancel();
+        }
+    }
+
+    private static string ToUserDisplay(UserListItemResponse user)
+        => $"{user.FullName} ({user.Username})";
+
+    private void Cancel()
+        => MudDialog.Cancel();
+
+    private async Task Submit()
+    {
+        if (_form is null)
+            return;
+
+        await _form.Validate();
+
+        if (_form.IsValid)
+            MudDialog.Close(DialogResult.Ok(_selectedUser));
+    }
+
+}

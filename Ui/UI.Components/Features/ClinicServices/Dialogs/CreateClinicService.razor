@@ -1,0 +1,148 @@
+﻿@using App.Applications.ClinicServices.Requests.Create
+@using App.Applications.ClinicServices.Requests.Update
+@using MudBlazor
+
+<MudDialog>
+    <TitleContent>ایجاد خدمت جدید</TitleContent>
+
+    <DialogContent>
+        <MudForm @ref="_form" Model="@Model">
+            <MudStack Spacing="2">
+
+                <MudTextField @bind-Value="Model.Code"
+                              Label="کد خدمت"
+                              Variant="Variant.Text"
+                              Required="true"
+                              RequiredError="کد خدمت الزامی است."
+                              Immediate="true"
+                              MaxLength="32"
+                              HelperText="مثلاً: LAB-1001 یا SRV-01"/>
+
+                <MudTextField @bind-Value="Model.Title"
+                              Label="عنوان خدمت"
+                              Variant="Variant.Text"
+                              Required="true"
+                              RequiredError="عنوان خدمت الزامی است."
+                              Immediate="true"
+                              MaxLength="128"
+                              HelperText="مانند: آزمایش خون کامل، ویزیت اولیه، رادیولوژی…"/>
+
+
+                <MudStack Row Spacing="2">
+                    <MudNumericField T="decimal"
+                                     @bind-Value="Model.PriceAmount"
+                                     Label="هزینه"
+                                     Variant="Variant.Text"
+                                     Min="0"
+                                     Immediate="true"
+                                     Adornment="Adornment.End"
+                                     AdornmentIcon="@Icons.Filled.AttachMoney"
+                                     Required="true"
+                                     RequiredError="هزینه الزامی است."
+                                     HelperText="عددی وارد کنید"/>
+                    <MudSelect T="string"
+                               @bind-Value="Model.PriceCurrency"
+                               Label="واحد پول"
+                               Variant="Variant.Text"
+                               Dense="true">
+                        <MudSelectItem T="string" Value="@("ريال")">ريال</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("تومان")">تومان</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("IRR")">IRR</MudSelectItem>
+                        <MudSelectItem T="string" Value="@("IRT")">IRT</MudSelectItem>
+                    </MudSelect>
+                </MudStack>
+
+                <MudNumericField T="int"
+                                 @bind-Value="Model.VisitMinutes"
+                                 Label="مدت ویزیت (دقیقه)"
+                                 Variant="Variant.Text"
+                                 Min="1"
+                                 Max="600"
+                                 Immediate="true"
+                                 Required="true"
+                                 RequiredError="مدت ویزیت الزامی است."
+                                 HelperText="به دقیقه، مثلاً 20"/>
+
+                <MudTextField @bind-Value="Model.Description"
+                              Label="توضیحات"
+                              Variant="Variant.Text"
+                              AutoGrow="true"
+                              Placeholder="توضیح کوتاه دربارهٔ خدمت…"/>
+
+                <MudSwitch T="bool" bind-Value="Model.IsActive"
+                           Color="Color.Success"
+                           Label="فعال باشد؟"/>
+
+            </MudStack>
+        </MudForm>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton Variant="Variant.Text"
+                   Color="Color.Secondary"
+                   OnClick="Cancel">انصراف
+        </MudButton>
+
+        <MudButton Variant="Variant.Filled"
+                   Color="Color.Primary"
+                   Disabled="@(_saving)"
+                   OnClick="TrySubmit"
+                   StartIcon="@Icons.Filled.Save">
+            ذخیره
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
+
+    private MudForm? _form;
+    private bool     _saving;
+
+    public CreateClinicServiceRequest Model { get; set; } = new();
+
+    private async Task TrySubmit()
+    {
+        if (_form is null) return;
+           await _form.Validate();
+
+            await Save();
+    }
+
+    private async Task Save()
+    {
+        if (_saving) return;
+        _saving = true;
+
+        try
+        {
+            // ارسال به هندلر MediatR
+            await Mediator.Send(Model);
+
+            Snackbar.ShowSuccess("خدمت با موفقیت ثبت شد.");
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            Snackbar.ShowError($"خطا در ثبت خدمت: {ex.Message}");
+        }
+        finally
+        {
+            _saving = false;
+        }
+    }
+
+    private void Cancel()
+        => MudDialog.Cancel();
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        // ولیدیشن لحظه‌ای فرم
+        if (firstRender && _form is not null)
+        {
+            _form.Validate();
+        }
+    }
+
+
+}

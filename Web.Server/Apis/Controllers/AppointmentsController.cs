@@ -37,7 +37,7 @@ public class AppointmentsController(
 
         string patientName;
         string patientPhone;
-        Guid?  patientUserId = null;
+        long?  patientUserId = null;
 
         if (role is "Secretary" or "Doctor")
         {
@@ -128,7 +128,7 @@ public class AppointmentsController(
     public async Task<ActionResult<List<AppointmentResponse>>> List(
         [FromQuery] DateOnly? from,
         [FromQuery] DateOnly? to,
-        [FromQuery] Guid? patientUserId,
+        [FromQuery] long? patientUserId,
         CancellationToken ct)
     {
         var (uid, role) = GetUserIdAndRole();
@@ -325,12 +325,12 @@ public class AppointmentsController(
         return day.Intervals;
     }
 
-    private (Guid? userId, string role) GetUserIdAndRole()
+    private (long? userId, string role) GetUserIdAndRole()
     {
-        var   role = User.FindFirstValue(ClaimTypes.Role) ?? User.FindFirstValue("role") ?? User.FindFirstValue("roles") ?? "";
-        var   sub  = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
-        Guid? uid  = null;
-        if (Guid.TryParse(sub, out var parsed)) uid = parsed;
+        var   role                                  = User.FindFirstValue(ClaimTypes.Role) ?? User.FindFirstValue("role") ?? User.FindFirstValue("roles") ?? "";
+        var   sub                                   = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+        long? uid                                   = null;
+        if (long.TryParse(sub, out var parsed)) uid = parsed;
         return (uid, role);
     }
 }

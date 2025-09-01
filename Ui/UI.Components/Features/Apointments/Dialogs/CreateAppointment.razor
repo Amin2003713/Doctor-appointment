@@ -12,9 +12,22 @@
     <TitleContent>ایجاد نوبت جدید</TitleContent>
 
     <DialogContent>
-        <MudStack Class="gap-2" Justify="Justify.SpaceBetween" >
+        <MudStack Class="gap-2" Justify="Justify.SpaceBetween">
 
-           
+
+            @if (IsPatient || UserId.HasValue)
+            {
+                <MudTextField
+                    Label="بیمار"
+                    Value="@($"{_selectedUser!.FullName} ({_selectedUser.Username})")"
+                    Variant="Variant.Text"
+                    Required="true"
+                    ReadOnly="IsPatient"
+                    Disabled="@(!_usersLoaded && !IsPatient)"
+                />
+            }
+            else
+            {
                 <MudSelect T="UserListItemResponse"
                            Label="بیمار"
                            Variant="Variant.Text"
@@ -30,12 +43,25 @@
                         }
                     }
                 </MudSelect>
-    
+            }
+
+            @if (ServiceId.HasValue)
+            {
+                <MudTextField
+                    Label="خدمت / سرویس"
+                    Value="@($"{_selectedService!.Title}")"
+                    Variant="Variant.Text"
+                    Required="true"
+                    ReadOnly="IsPatient"
+                    Disabled="@(!_usersLoaded && !IsPatient)"/>
+            }
+            else
+            {
                 <MudSelect T="ClinicServiceResponse"
                            Label="خدمت / سرویس"
                            Variant="Variant.Text"
                            Required="true"
-                           Disabled="@(!_servicesLoaded)"
+                           Disabled="@(!_servicesLoaded || ServiceId.HasValue)"
                            ValueChanged="OnServiceChanged">
                     @if (Services.Count > 0)
                     {
@@ -45,55 +71,55 @@
                         }
                     }
                 </MudSelect>
-     
-                <MudDatePicker Label="تاریخ"
+            }
+
+            <MudDatePicker Label="تاریخ"
+                           Variant="Variant.Text"
+                           Culture="@(new CultureInfo("fa-IR"))"
+                           DateChanged="OnDateChanged"
+                           Required="true"/>
+
+            <MudStack Spacing="1">
+                <MudText Typo="Typo.subtitle2">ساعت</MudText>
+
+                @if (_loadingSlots)
+                {
+                    <MudStack Row AlignItems="AlignItems.Center" Spacing="1">
+                        <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="mr-2"/>
+                        <MudText>در حال دریافت زمان‌های خالی…</MudText>
+                    </MudStack>
+                }
+                else if (_slots.Count > 0)
+                {
+                    <MudSelect T="string"
+                               Label="انتخاب از زمان‌های خالی"
                                Variant="Variant.Text"
-                               Culture="@(new CultureInfo("fa-IR"))"
-                               DateChanged="OnDateChanged"
-                               Required="true"/>
-       
-                <MudStack Spacing="1">
-                    <MudText Typo="Typo.subtitle2">ساعت</MudText>
+                               Required="true"
+                               ValueChanged="OnSlotSelected">
+                        @foreach (var slot in _slots)
+                        {
+                            <MudSelectItem Value="@slot">@slot</MudSelectItem>
+                        }
+                    </MudSelect>
 
-                    @if (_loadingSlots)
-                    {
-                        <MudStack Row AlignItems="AlignItems.Center" Spacing="1">
-                            <MudProgressCircular Indeterminate="true" Size="Size.Small" Class="mr-2"/>
-                            <MudText>در حال دریافت زمان‌های خالی…</MudText>
-                        </MudStack>
-                    }
-                    else if (_slots.Count > 0)
-                    {
-                        <MudSelect T="string"
-                                   Label="انتخاب از زمان‌های خالی"
-                                   Variant="Variant.Text"
-                                   Required="true"
-                                   ValueChanged="OnSlotSelected">
-                            @foreach (var slot in _slots)
-                            {
-                                <MudSelectItem Value="@slot">@slot</MudSelectItem>
-                            }
-                        </MudSelect>
+                    <MudText Color="Color.Success" Typo="Typo.caption">
+                        @($"تعداد زمان‌های موجود: {_slots.Count}")
+                    </MudText>
+                }
+                else if (_selectedService is not null && _selectedDate is not null)
+                {
+                    <MudAlert Severity="Severity.Info" Dense="true">
+                        برای این تاریخ، زمان خالی یافت نشد. لطفاً تاریخ دیگری را انتخاب کنید.
+                    </MudAlert>
+                }
+            </MudStack>
 
-                        <MudText Color="Color.Success" Typo="Typo.caption">
-                            @($"تعداد زمان‌های موجود: {_slots.Count}")
-                        </MudText>
-                    }
-                    else if (_selectedService is not null && _selectedDate is not null)
-                    {
-                        <MudAlert Severity="Severity.Info" Dense="true">
-                            برای این تاریخ، زمان خالی یافت نشد. لطفاً تاریخ دیگری را انتخاب کنید.
-                        </MudAlert>
-                    }
-                </MudStack>
-   
-                <MudTextField @bind-Value="Model.Notes"
-                              Label="توضیحات"
-                              Variant="Variant.Text"
-                              Lines="3"
-                              AutoGrow="true"
-                              Placeholder="توضیحات اضافی..."/>
-       
+            <MudTextField @bind-Value="Model.Notes"
+                          Label="توضیحات"
+                          Variant="Variant.Text"
+                          AutoGrow="true"
+                          Placeholder="توضیحات اضافی..."/>
+
 
         </MudStack>
     </DialogContent>
@@ -115,6 +141,8 @@
 
     public CreateAppointmentCommand Model { get; set; } = new();
     [Parameter] public bool IsPatient { get; set; } = true;
+    [Parameter] public Guid? ServiceId { get; set; } = null!;
+    [Parameter] public long? UserId { get; set; } = null!;
 
     private readonly List<ClinicServiceResponse> Services = new();
     public List<UserListItemResponse> Users { get; set; } = new();
@@ -129,24 +157,37 @@
     private DateTime?    _selectedDate;
     private bool         _loadingSlots;
     private List<string> _slots = new();
-    private string?      _selectedSlot;  // HH:mm
+    private string?      _selectedSlot; // HH:mm
 
     // لغو درخواست‌های قبلی اسلات
     private CancellationTokenSource? _slotCts;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnInitializedAsync()
     {
-        if (!firstRender) return;
-
         try
         {
             // Services
-            var services = await Mediator.Send(new ListClinicServicesRequest());
-            Services.Clear();
-            if (services is not null)
-                Services.AddRange(services.Where(s => s is not null)!);
+            if (!ServiceId.HasValue)
+            {
+                var services = await Mediator.Send(new ListClinicServicesRequest());
+                Services.Clear();
 
-            _servicesLoaded = true;
+                if (services is not null)
+                    Services.AddRange(services.Where(s => s is not null)!);
+
+                _servicesLoaded = true;
+            }
+            else
+            {
+                var services = await Mediator.Send(new GetClinicServiceByIdRequest(ServiceId.Value));
+                Services.Clear();
+
+                if (services is not null)
+                    Services.Add(services!);
+
+                _selectedService = services;
+                _servicesLoaded  = true;
+            }
 
             if (Services.Count == 0)
             {
@@ -155,24 +196,35 @@
                 return;
             }
 
-            // Users
-            if (!IsPatient)
+            if (UserId.HasValue)
+            {
+                var me = await Mediator.Send(new UserInfoByIdRequest(UserId.Value));
+                _selectedUser = me?.Adapt<UserListItemResponse>();
+                _usersLoaded  = true;
+
+                if (_selectedUser is not null)
+                {
+                    Model.PatientFullName = _selectedUser.FullName;
+                    Model.PatientPhone    = _selectedUser.Username; // یا PhoneNumber اگر دارید
+                }
+            }
+            else if (!IsPatient)
             {
                 var usersRes = await Mediator.Send(new UsersQueryRequest
                 {
                     IsSecretaries = false,
-                    Page = 1,
-                    PageSize = int.MaxValue,
+                    Page          = 1,
+                    PageSize      = int.MaxValue,
                 });
 
-                Users = usersRes?.Items?.Where(u => u is not null).ToList() ?? new List<UserListItemResponse>();
+                Users        = usersRes?.Items?.Where(u => u is not null).ToList() ?? new List<UserListItemResponse>();
                 _usersLoaded = true;
             }
             else
             {
                 var me = await Mediator.Send(new UserInfoRequest());
                 _selectedUser = me?.Adapt<UserListItemResponse>();
-                _usersLoaded = true;
+                _usersLoaded  = true;
 
                 if (_selectedUser is not null)
                 {
@@ -219,6 +271,7 @@
     private async Task OnDateChanged(DateTime? date)
     {
         _selectedDate = date;
+
         if (date.HasValue)
             Model.Date = DateOnly.FromDateTime(date!.Value);
         else
@@ -267,11 +320,11 @@
             var result = await Mediator.Send(req, token);
             if (token.IsCancellationRequested) return;
 
-            _slots = (result ?? new List<string>())
-                .Where(s => !string.IsNullOrWhiteSpace(s))
-                .Distinct()
-                .OrderBy(s => s) // فرض بر فرمت HH:mm
-                .ToList();
+            _slots = (result ?? new List<string>()).Where(s => !string.IsNullOrWhiteSpace(s)).
+                                                    Distinct().
+                                                    OrderBy(s => s) // فرض بر فرمت HH:mm
+                                                    .
+                                                    ToList();
 
             // Optional: پیش‌انتخاب اولین اسلات
             if (_slots.Count > 0)

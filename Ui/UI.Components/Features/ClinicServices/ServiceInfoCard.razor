@@ -1,115 +1,115 @@
 ﻿@page "/clinic-services"
-@using App.Applications.ClinicServices.Requests.Get
-@using App.Applications.ClinicServices.Requests.ListClinicServices
-@using App.Applications.ClinicServices.Requests.Update
-@using Microsoft.AspNetCore.Components.Authorization
 
 
-    <MudTable T="ClinicServiceResponse"
-              @ref="_table"
-              Items="_services"
-              ServerData="LoadServerData"
-              Filter="FilterFunc"
-              Hover
-              Striped
-              Class="pa-4"
-              Breakpoint="Breakpoint.MdAndDown"
-              SortLabel="مرتب‌سازی بر اساس"
-              RowsPerPage="@(IsReadOnly ? 10 : 20)"
-              CanCancelEdit
-              RowEditPreview="BackupItem"
-              RowEditCancel="RevertItem"
-              RowEditCommit="@(async void (o) => await CommitEdit(o))"
-              ApplyButtonPosition="TableApplyButtonPosition.Start"
-              EditTrigger="TableEditTrigger.RowClick"
-              ReadOnly="@(IsReadOnly)"
-              Dense>
+<MudTable T="ClinicServiceResponse"
+          @ref="_table"
+          Items="_services"
+          ServerData="LoadServerData"
+          Filter="FilterFunc"
+          Hover
+          Striped
+          Class="pa-4"
+          Breakpoint="Breakpoint.MdAndDown"
+          SortLabel="مرتب‌سازی بر اساس"
+          RowsPerPage="@(IsReadOnly ? 10 : 20)"
+          CanCancelEdit
+          RowEditPreview="BackupItem"
+          RowEditCancel="RevertItem"
+          RowEditCommit="@(async void (o) => await CommitEdit(o))"
+          ApplyButtonPosition="TableApplyButtonPosition.Start"
+          EditTrigger="TableEditTrigger.RowClick"
+          ReadOnly="@(IsReadOnly)"
+          Dense>
 
-        <ToolBarContent>
-            <MudText Typo="Typo.h6" GutterBottom>لیست خدمات کلینیک</MudText>
-            <MudSpacer/>
-            <MudTextField @bind-Value="_searchString"
-                          OnBlur="RefreshTable"
-                          Placeholder="جستجو..."
-                          Adornment="Adornment.Start"
-                          AdornmentIcon="@Icons.Filled.Search"
-                          Class="mb-4"/>
-        </ToolBarContent>
+    <ToolBarContent>
+        <MudText Typo="Typo.h6" GutterBottom>لیست خدمات کلینیک</MudText>
+        <MudSpacer/>
+        <MudTextField @bind-Value="_searchString"
+                      OnBlur="RefreshTable"
+                      Placeholder="جستجو..."
+                      Adornment="Adornment.Start"
+                      AdornmentIcon="@Icons.Filled.Search"
+                      Class="mb-4"/>
+        <MudSpacer/>
+        <MudTooltip Text="درج خدمت">
+            <MudIconButton Icon="@Icons.Filled.Add" OnClick="OpenAddServiceDialog" Variant="Variant.Filled"/>
+        </MudTooltip>
+    </ToolBarContent>
 
-        <HeaderContent>
-            <MudTh>کد</MudTh>
-            <MudTh>عنوان</MudTh>
-            <MudTh>توضیحات</MudTh>
-            <MudTh>هزینه</MudTh>
-            <MudTh>واحد پول</MudTh>
-            <MudTh>مدت ویزیت</MudTh>
-            <MudTh>فعال</MudTh>
-            <MudTh>عملیات</MudTh>
-        </HeaderContent>
+    <HeaderContent>
+        <MudTh>کد</MudTh>
+        <MudTh>عنوان</MudTh>
+        <MudTh>توضیحات</MudTh>
+        <MudTh>هزینه</MudTh>
+        <MudTh>واحد پول</MudTh>
+        <MudTh>مدت ویزیت</MudTh>
+        <MudTh>فعال</MudTh>
+        <MudTh>عملیات</MudTh>
+    </HeaderContent>
 
-        <!-- Read template -->
-        <RowTemplate>
-            <MudTd DataLabel="کد">@context.Code</MudTd>
-            <MudTd DataLabel="عنوان">@context.Title</MudTd>
-            <MudTd HideSmall DataLabel="توضیحات">@context.Description</MudTd>
-            <MudTd DataLabel="हزینه">@($"{context.PriceAmount:n0}")</MudTd>
-            <MudTd DataLabel="واحد پول">@context.PriceCurrency</MudTd>
-            <MudTd HideSmall DataLabel="مدت ویزیت">@($"{context.VisitMinutes} دقیقه")</MudTd>
-            <MudTd HideSmall DataLabel="فعال">
-                <MudSwitch T="bool" Disabled="true" @bind-Value="context.IsActive" Color="Color.Success"/>
-            </MudTd>
-            <MudTd DataLabel="عملیات">
-                <MudTooltip Text="رزرو نوبت" Placement="Placement.Top" Arrow="true">
-                    <MudIconButton Icon="@Icons.Outlined.PersonAdd"
-                                   Size="Size.Small"
-                                   Color="Color.Success"
-                                   Disabled="@(!context.IsActive)"
-                                   OnClick="@(() => Reserve(context))"/>
-                </MudTooltip>
-            </MudTd>
-        </RowTemplate>
+    <!-- Read template -->
+    <RowTemplate>
+        <MudTd DataLabel="کد">@context.Code</MudTd>
+        <MudTd DataLabel="عنوان">@context.Title</MudTd>
+        <MudTd HideSmall DataLabel="توضیحات">@context.Description</MudTd>
+        <MudTd DataLabel="हزینه">@($"{context.PriceAmount:n0}")</MudTd>
+        <MudTd DataLabel="واحد پول">@context.PriceCurrency</MudTd>
+        <MudTd HideSmall DataLabel="مدت ویزیت">@($"{context.VisitMinutes} دقیقه")</MudTd>
+        <MudTd HideSmall DataLabel="فعال">
+            <MudSwitch T="bool" Disabled="true" @bind-Value="context.IsActive" Color="Color.Success"/>
+        </MudTd>
+        <MudTd DataLabel="عملیات">
+            <MudTooltip Text="رزرو نوبت" Placement="Placement.Top" Arrow="true">
+                <MudIconButton Icon="@Icons.Outlined.PersonAdd"
+                               Size="Size.Small"
+                               Color="Color.Success"
+                               Disabled="@(!context.IsActive)"
+                               OnClick="@(() => Reserve(context))"/>
+            </MudTooltip>
+        </MudTd>
+    </RowTemplate>
 
-        <!-- Edit template -->
-        <RowEditingTemplate>
-            <MudTd DataLabel="کد">
-                <MudTextField @bind-Value="context.Code" ReadOnly="true"/>
-            </MudTd>
-            <MudTd DataLabel="عنوان">
-                <MudTextField @bind-Value="context.Title" Required/>
-            </MudTd>
-            <MudTd HideSmall DataLabel="توضیحات">
-                <MudTextField @bind-Value="context.Description" Lines="1"/>
-            </MudTd>
-            <MudTd DataLabel="هزینه">
-                <MudNumericField @bind-Value="context.PriceAmount" T="decimal" Required Min="0"/>
-            </MudTd>
-            <MudTd DataLabel="واحد پول">
-                <MudTextField @bind-Value="context.PriceCurrency" Required/>
-            </MudTd>
-            <MudTd HideSmall DataLabel="مدت ویزیت">
-                <MudNumericField @bind-Value="context.VisitMinutes" T="int" Required Min="1" Max="480"/>
-            </MudTd>
-            <MudTd HideSmall DataLabel="فعال">
-                <MudSwitch T="bool" @bind-Value="context.IsActive" Color="Color.Success"/>
-            </MudTd>
-            <MudTd DataLabel="عملیات">
-            </MudTd>
+    <!-- Edit template -->
+    <RowEditingTemplate>
+        <MudTd DataLabel="کد">
+            <MudTextField @bind-Value="context.Code" ReadOnly="true"/>
+        </MudTd>
+        <MudTd DataLabel="عنوان">
+            <MudTextField @bind-Value="context.Title" Required/>
+        </MudTd>
+        <MudTd HideSmall DataLabel="توضیحات">
+            <MudTextField @bind-Value="context.Description" Lines="1"/>
+        </MudTd>
+        <MudTd DataLabel="هزینه">
+            <MudNumericField @bind-Value="context.PriceAmount" T="decimal" Required Min="0"/>
+        </MudTd>
+        <MudTd DataLabel="واحد پول">
+            <MudTextField @bind-Value="context.PriceCurrency" Required/>
+        </MudTd>
+        <MudTd HideSmall DataLabel="مدت ویزیت">
+            <MudNumericField @bind-Value="context.VisitMinutes" T="int" Required Min="1" Max="480"/>
+        </MudTd>
+        <MudTd HideSmall DataLabel="فعال">
+            <MudSwitch T="bool" @bind-Value="context.IsActive" Color="Color.Success"/>
+        </MudTd>
+        <MudTd DataLabel="عملیات">
+        </MudTd>
 
-        </RowEditingTemplate>
+    </RowEditingTemplate>
 
-        <PagerContent>
-            <MudTablePager HideRowsPerPage="IsReadOnly" RowsPerPageString="تعداد در هر صفحه:" AllItemsText="همه"/>
-        </PagerContent>
-        <FooterContent>
-            <MudText Typo="Typo.caption" Style="min-width: 200px !important;" Align="Align.Center">
-                @if (_canEdit)
-                {
-                    @("برای ویرایش روی ردیف کلیک کنید")
-                    Console.WriteLine(IsReadOnly);
-                }
-            </MudText>
-        </FooterContent>
-    </MudTable>
+    <PagerContent>
+        <MudTablePager HideRowsPerPage="IsReadOnly" RowsPerPageString="تعداد در هر صفحه:" AllItemsText="همه"/>
+    </PagerContent>
+    <FooterContent>
+        <MudText Typo="Typo.caption" Style="min-width: 200px !important;" Align="Align.Center">
+            @if (_canEdit)
+            {
+                @("برای ویرایش روی ردیف کلیک کنید")
+                Console.WriteLine(IsReadOnly);
+            }
+        </MudText>
+    </FooterContent>
+</MudTable>
 
 @code {
     private          string?                                 _searchString;
@@ -128,38 +128,40 @@
             _services = result;
 
             var filtered = _services.Where(x =>
-                string.IsNullOrWhiteSpace(_searchString) ||
-                x.Title.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ||
-                x.Code.Contains(_searchString, StringComparison.OrdinalIgnoreCase));
+                                               string.IsNullOrWhiteSpace(_searchString)                            ||
+                                               x.Title.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ||
+                                               x.Code.Contains(_searchString, StringComparison.OrdinalIgnoreCase));
 
             IEnumerable<ClinicServiceResponse> data = state.SortLabel switch
                                                       {
-                                                          "کد"    => state.SortDirection == SortDirection.Descending ? filtered.OrderByDescending(x => x.Code)        : filtered.OrderBy(x => x.Code),
-                                                          "عنوان" => state.SortDirection == SortDirection.Descending ? filtered.OrderByDescending(x => x.Title)       : filtered.OrderBy(x => x.Title),
+                                                          "کد"    => state.SortDirection == SortDirection.Descending ? filtered.OrderByDescending(x => x.Code) : filtered.OrderBy(x => x.Code),
+                                                          "عنوان" => state.SortDirection == SortDirection.Descending ? filtered.OrderByDescending(x => x.Title) : filtered.OrderBy(x => x.Title),
                                                           "هزینه" => state.SortDirection == SortDirection.Descending ? filtered.OrderByDescending(x => x.PriceAmount) : filtered.OrderBy(x => x.PriceAmount),
                                                           _       => filtered
                                                       };
 
             var page = data.Skip(state.Page * state.PageSize).Take(state.PageSize).ToList();
+
             return new TableData<ClinicServiceResponse>
             {
-                Items = page,
+                Items      = page,
                 TotalItems = filtered!.Count()
             };
         }
         catch (Exception ex)
         {
             Snackbar.ShowError($"خطا در بارگذاری داده‌ها: {ex.Message}");
+
             return new TableData<ClinicServiceResponse>
             {
-                Items = [],
+                Items      = [],
                 TotalItems = 0
             };
         }
     }
 
     private bool FilterFunc(ClinicServiceResponse s)
-        => string.IsNullOrWhiteSpace(_searchString) ||
+        => string.IsNullOrWhiteSpace(_searchString)                            ||
            s.Title.Contains(_searchString, StringComparison.OrdinalIgnoreCase) ||
            s.Code.Contains(_searchString, StringComparison.OrdinalIgnoreCase);
 
@@ -167,6 +169,7 @@
     private void BackupItem(object itemObj)
     {
         var item = (ClinicServiceResponse)itemObj;
+
         _backup[item.Id] = new ClinicServiceResponse
         {
             Id            = item.Id,
@@ -204,9 +207,9 @@
         try
         {
             // Guard: if invalid, keep row in edit mode and do not call server
-            if (string.IsNullOrWhiteSpace(item.Title) ||
+            if (string.IsNullOrWhiteSpace(item.Title)         ||
                 string.IsNullOrWhiteSpace(item.PriceCurrency) ||
-                item.PriceAmount < 0 ||
+                item.PriceAmount  < 0                         ||
                 item.VisitMinutes <= 0)
             {
                 Snackbar.ShowWarning("اطلاعات نامعتبر است. فیلدهای ضروری را بررسی کنید.");
@@ -222,7 +225,7 @@
                 PriceCurrency = item.PriceCurrency,
                 VisitMinutes  = item.VisitMinutes,
                 IsActive      = item.IsActive,
-                Code = item.Code
+                Code          = item.Code
             };
 
             await Mediator.Send(cmd);
@@ -239,14 +242,49 @@
         }
     }
 
-    private void Reserve(ClinicServiceResponse context)
+    private async Task Reserve(ClinicServiceResponse context)
     {
-        NavigationManager.NavigateTo($"/reservation?serviceId={context.Id}");
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            MaxWidth         = MaxWidth.Small,
+            FullWidth        = true,
+            CloseButton      = true,
+            Position         = DialogPosition.Center
+        };
+
+        var parameters = new DialogParameters
+        {
+            {
+                "ServiceId", context.Id
+            },
+            {
+                "IsPatient", StateProvider.User.Roles.Contains("Patient")
+            }
+        };
+
+
+        await DialogService.ShowAsync<CreateAppointment>("ایجاد نوبت جدید", parameters, options);
     }
 
     private void RefreshTable()
     {
         _ = _table?.ReloadServerData();
+    }
+
+    private async Task OpenAddServiceDialog()
+    {
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            MaxWidth         = MaxWidth.Small,
+            FullWidth        = true,
+            CloseButton      = true,
+            Position         = DialogPosition.Center
+        };
+
+
+        await DialogService.ShowAsync<CreateClinicService>("اطلاعات کاربر", options);
     }
 
 }

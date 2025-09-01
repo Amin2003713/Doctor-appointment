@@ -15,7 +15,7 @@ public interface IAppointmentsApi
     Task<List<AppointmentResponse>> ListAsync(
         [AliasAs("from")]          DateOnly? from          = null,
         [AliasAs("to")]            DateOnly? to            = null,
-        [AliasAs("patientUserId")] Guid?     patientUserId = null,
+        [AliasAs("patientUserId")] long?     patientUserId = null,
         CancellationToken                    ct            = default);
 
 

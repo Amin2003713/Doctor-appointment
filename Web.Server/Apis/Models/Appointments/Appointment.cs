@@ -5,7 +5,7 @@ public class Appointment
     public Guid Id { get; set; } = Guid.NewGuid();
 
     public Guid ServiceId { get; set; }
-    public Guid? PatientUserId { get; set; }                
+    public long? PatientUserId { get; set; }                
     public string PatientFullName { get; set; } = default!; 
     public string PatientPhone { get; set; } = default!;
 
@@ -20,6 +20,6 @@ public class Appointment
 
     public string? Notes { get; set; }
 
-    public Guid? CreatedByUserId { get; set; }
+    public long? CreatedByUserId { get; set; }
     public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
 }

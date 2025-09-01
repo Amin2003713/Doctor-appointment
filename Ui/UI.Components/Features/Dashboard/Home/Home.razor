@@ -3,6 +3,7 @@
 @using UI.Components.Features.Clinics
 @using UI.Components.Features.Doctors
 @using UI.Components.Features.Apointments
+@using UI.Components.Features.Apointments.List
 <style>
     .equal-height-box {
         display: flex;
@@ -19,22 +20,22 @@
         </MudItem>
 
 
-        <MudItem md="12" lg="6" >
+        <MudItem md="12" lg="6">
             <ClinicInfo/>
         </MudItem>
 
         <!-- Row 1 -->
-        <MudItem md="12" lg="7" >
+        <MudItem md="12" lg="6">
             <ServiceInfoCard _canEdit="false"/>
         </MudItem>
 
         <!-- Row 2 -->
-        <MudItem md="12" lg="5" >
-            <Calendar
-                ShowToolbar="false"/>
+        <MudItem md="12" lg="6">
+            <Apointments ShowFilters="false" From="DateOnly.FromDateTime(DateTime.Now)"
+                         To="DateOnly.FromDateTime(DateTime.Now)"/>
         </MudItem>
 
-        <MudItem md="12" lg="4" >
+        <MudItem md="12" lg="4">
             <MudCard>
                 <MudCardHeader>کارت ۴</MudCardHeader>
                 <MudCardContent>محتوا…</MudCardContent>
@@ -42,7 +43,7 @@
         </MudItem>
 
         <!-- Bottom full-width panel -->
-        <MudItem md="12" lg="4" >
+        <MudItem md="12" lg="4">
             <MudCard Class="bottom-panel">
                 <MudCardHeader>پنل پایینی</MudCardHeader>
                 <MudCardContent>گزارش/جدول/لیست …</MudCardContent>

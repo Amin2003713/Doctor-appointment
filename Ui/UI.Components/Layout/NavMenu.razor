@@ -1,11 +1,14 @@
 ﻿@using System.Security.Claims
 @using App.Applications.Doctor.Requests.Get
 @using App.Applications.Users.Queries.GetUserInfo
+@using App.Applications.Users.Requests.UserQueries
 @using Microsoft.AspNetCore.Components.Authorization
 @using UI.Components.Common.BaseComponents.Dialogs
 @using UI.Components.Common.BaseComponents.Picture
 @using UI.Components.Features.Apointments.Dialogs
 @using UI.Components.Features.Clinics
+@using UI.Components.Features.ClinicServices.Dialogs
+@using UI.Components.Features.Users.Dialogs
 @using UI.Components.Features.Doctors
 
 <MudNavMenu Class="app-nav" Margin="Margin.Normal" Rounded Bordered Dense>
@@ -43,8 +46,9 @@
             {
                 <MudNavGroup Title="@GetPatientPanelTitle(isPatient, isSecretary)"
                              Icon="@MaterialIcons.Filled.MedicalServices" IconColor="Color.Primary">
-                    <MudNavLink OnClick="@(() => Navigate("/patient/appointments"))"
-                                Icon="@MaterialIcons.Filled.EventAvailable" IconColor="Color.Success">
+                    <MudNavLink
+                        OnClick="GotoPatientAppointment"
+                        Icon="@MaterialIcons.Filled.EventAvailable" IconColor="Color.Success">
                         @(isPatient ? "نوبت‌های من" : "نوبت‌های بیماران")
                     </MudNavLink>
 
@@ -87,19 +91,23 @@
                     <MudNavLink Href="/doctor/schedule" Icon="@MaterialIcons.Filled.Schedule" IconColor="Color.Info">
                         تعریف بازه‌های زمانی
                     </MudNavLink>
-                    <MudNavLink Href="/doctor/agenda" Icon="@MaterialIcons.Filled.ViewAgenda" IconColor="Color.Primary">
+                    <MudNavLink
+                        Href=@($"/doctor/agenda?From={DateOnly.FromDateTime(DateTime.Now)}&To={DateOnly.FromDateTime(DateTime.Now)}")
+                        Icon="@MaterialIcons.Filled.ViewAgenda" IconColor="Color.Primary">
                         لیست نوبت‌های روزانه
                     </MudNavLink>
                     <MudNavLink OnClick="@(() => Navigate("/users?Secretaries=true"))"
                                 Icon="@MaterialIcons.Filled.Group" IconColor="Color.Info">
                         لیست منشی ها
                     </MudNavLink>
-                    <MudNavLink Href="/doctor/manage" Icon="@MaterialIcons.Filled.EditCalendar"
+                    <MudNavLink OnClick="OpenAddServiceDialog" Icon="@MaterialIcons.Filled.EditCalendar"
                                 IconColor="Color.Warning">
-                        مدیریت/جابجایی نوبت
+                        خدمت جدید
                     </MudNavLink>
-                    <MudNavLink Href="/reports/appointments" Icon="@MaterialIcons.Filled.Assessment"
-                                IconColor="Color.Secondary">
+                    <MudNavLink
+                        Href=@($"/doctor/agenda?From={DateOnly.FromDateTime(DateTime.MaxValue)}&To={DateOnly.FromDateTime(DateTime.MinValue)}")
+                        Icon="@MaterialIcons.Filled.Assessment"
+                        IconColor="Color.Secondary">
                         گزارش همه نوبت‌ها
                     </MudNavLink>
                     <MudNavLink OnClick="OpenClinicDialog" Icon="@MaterialIcons.Filled.Settings"
@@ -281,5 +289,41 @@
         await DialogService.ShowAsync<CreateAppointment>("اطلاعات کاربر", parameters, options);
     }
 
+
+    private async Task OpenAddServiceDialog()
+    {
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            MaxWidth         = MaxWidth.Small,
+            FullWidth        = true,
+            CloseButton      = true,
+            Position         = DialogPosition.Center
+        };
+
+
+        await DialogService.ShowAsync<CreateClinicService>("اطلاعات کاربر", options);
+    }
+
+    private async Task GotoPatientAppointment()
+    {
+        var parameters = new DialogParameters<SelectUserDialog>();
+
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            FullWidth        = true,
+            MaxWidth         = MaxWidth.Small,
+            NoHeader         = true,
+        };
+
+        var dialog = await DialogService.ShowAsync<SelectUserDialog>("انتخاب کاربر", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result!.Canceled && result.Data is UserListItemResponse selectedUser)
+        {
+            NavigationManager.NavigateTo($"/doctor/agenda?From={DateOnly.FromDateTime(DateTime.MaxValue)}&To={DateOnly.FromDateTime(DateTime.MinValue)}&PatientUserId={selectedUser.Id}");
+        }
+    }
 
 }
