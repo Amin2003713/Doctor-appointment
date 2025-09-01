@@ -7,7 +7,6 @@ public class UpsertAppointmentRequest
     public string Start { get; set; } = default!; 
     public string? Notes { get; set; }
 
-    
     public string? PatientFullName { get; set; }
     public string? PatientPhone { get; set; }
 }
