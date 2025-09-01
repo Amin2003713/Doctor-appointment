@@ -200,7 +200,7 @@
             => $"/doctor/agenda?From={from:yyyy-MM-dd}&To={to:yyyy-MM-dd}";
 
         // “All” report: keep your existing sentinel values
-        public static string AllAgendaReport => $"/doctor/agenda?From={DateOnly.FromDateTime(DateTime.MaxValue):yyyy-MM-dd}&To={DateOnly.FromDateTime(DateTime.MinValue):yyyy-MM-dd}";
+        public static string AllAgendaReport => $"/doctor/agenda?From={DateOnly.FromDateTime(DateTime.MinValue):yyyy-MM-dd}&To={DateOnly.FromDateTime(DateTime.MaxValue):yyyy-MM-dd}";
     }
 
     // -------- Role / labels ---------------------------------------------------
@@ -333,11 +333,20 @@
 
         // Secretary/Doctor: pick a user
         var prms = new DialogParameters<SelectUserDialog>();
-        var opts = new DialogOptions { CloseOnEscapeKey = true, FullWidth = true, MaxWidth = MaxWidth.Small, NoHeader = true };
-        var dlg = await DialogService.ShowAsync<SelectUserDialog>("انتخاب کاربر", prms, opts);
+
+        var opts = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            FullWidth        = true,
+            MaxWidth         = MaxWidth.Small,
+            NoHeader         = true
+        };
+
+        var dlg    = await DialogService.ShowAsync<SelectUserDialog>("انتخاب کاربر", prms, opts);
         var result = await dlg.Result;
 
         if (!result!.Canceled && result.Data is UserListItemResponse u)
             NavigationManager.NavigateTo($"{Routes.AllAgendaReport}&PatientUserId={u.Id}");
     }
+
 }
