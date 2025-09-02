@@ -250,63 +250,6 @@ public class WorkScheduleController(AppDbContext db) : ControllerBase
         return Ok(resp);
     }
 
-
-    // -----------------------
-    // GET /api/schedule/slots?date=YYYY-MM-DD&serviceId=GUID
-    // -----------------------
-    [HttpGet("slots")]
-    public async Task<ActionResult<List<string>>> GetSlots([FromQuery] DateOnly date, [FromQuery] Guid serviceId , [FromQuery] long patientUserId, CancellationToken ct)
-    {
-        var settings = await db.ClinicSettings.AsNoTracking().FirstOrDefaultAsync(ct) ?? new ClinicSettings();
-        var service  = await db.MedicalServices.AsNoTracking().FirstOrDefaultAsync(x => x.Id == serviceId, ct);
-
-        if (service is null)
-            return NotFound(new
-            {
-                message = "Service not found."
-            });
-
-        var ws        = await EnsureScheduleAsync(ct);
-        var effective = ResolveIntervalsForDate(ws, date);
-        if (effective.Count == 0) return Ok(new List<string>());
-
-        var duration = TimeSpan.FromMinutes(service.VisitMinutes > 0 ? service.VisitMinutes : settings.DefaultVisitMinutes);
-        var buffer   = TimeSpan.FromMinutes(settings.BufferBetweenVisitsMinutes);
-
-        // load booked (Booked only)
-        var existing = await db.Appointments.AsNoTracking().
-                                Where(a => a.Date == date && a.ServiceId == serviceId && a.Status == AppointmentStatus.Booked).
-                                Select(a => new
-                                {
-                                    a.Start,
-                                    a.End
-                                }).
-                                ToListAsync(ct);
-
-        var slots = new List<string>();
-
-        foreach (var r in effective)
-        {
-            var s = r.From.ToTimeSpan();
-            var e = r.To.ToTimeSpan();
-
-            while (s + duration <= e)
-            {
-                var candStart = s;
-                var candEnd   = s + duration;
-
-                var hasOverlap = existing.Any(a => Overlaps(candStart, candEnd, a.Start.ToTimeSpan(), a.End.ToTimeSpan()));
-
-                if (!hasOverlap)
-                    slots.Add(TimeOnly.FromTimeSpan(candStart).ToString("HH:mm"));
-
-                s += (duration + buffer);
-            }
-        }
-
-        return Ok(slots.Distinct().OrderBy(x => x).ToList());
-    }
-
     private static string HHmm(TimeSpan ts)
         => TimeOnly.FromTimeSpan(ts).ToString("HH:mm");
 
