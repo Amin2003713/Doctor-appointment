@@ -169,7 +169,7 @@ public class UsersController(
             Profile           = dto.Profile,
             Address           = dto.Address,
             FullName          = BuildFullName(dto.FirstName, dto.LastName),
-            CreatedAtUtc      = DateTime.UtcNow,
+            CreatedAtUtc      = DateTime.Now,
             IsActive          = true
         };
 
@@ -408,7 +408,7 @@ public class UsersController(
         var pwd = await signInManager.CheckPasswordSignInAsync(user, dto.Password, true);
         if (!pwd.Succeeded) return Unauthorized();
 
-        user.LastLoginAtUtc = DateTime.UtcNow;
+        user.LastLoginAtUtc = DateTime.Now;
 
         var token = await GenerateJwtToken(user);
 
@@ -517,7 +517,7 @@ public class UsersController(
             Profile           = dto.Profile,
             Address           = dto.Address,
             FullName          = BuildFullName(dto.FirstName, dto.LastName),
-            CreatedAtUtc      = DateTime.UtcNow,
+            CreatedAtUtc      = DateTime.Now,
             IsActive          = true
         };
 
@@ -575,8 +575,8 @@ public class UsersController(
             JwtOptions.Issuer,
             JwtOptions.Audience,
             claims,
-            DateTime.UtcNow,
-            DateTime.UtcNow.Add(JwtOptions.AccessTokenLifetime),
+            DateTime.Now,
+            DateTime.Now.Add(JwtOptions.AccessTokenLifetime),
             creds
         );
 

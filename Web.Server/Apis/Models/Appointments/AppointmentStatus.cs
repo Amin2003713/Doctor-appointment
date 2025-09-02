@@ -1,4 +1,4 @@
-﻿namespace Api.Endpoints.Models.Apointments;
+﻿namespace Api.Endpoints.Models.Appointments;
 
 public enum AppointmentStatus
 {

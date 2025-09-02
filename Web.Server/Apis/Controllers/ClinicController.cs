@@ -4,7 +4,6 @@ using Api.Endpoints.Dtos.Clinic;
 using Api.Endpoints.Dtos.doctor;
 using Api.Endpoints.Dtos.Schedules;
 using Api.Endpoints.Dtos.Services;
-using Api.Endpoints.Models.Apointments;
 using Api.Endpoints.Models.Clinic;
 using Api.Endpoints.Models.Doctores;
 using Api.Endpoints.Models.MediaclService;

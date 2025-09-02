@@ -1,7 +1,7 @@
 ﻿using Api.Endpoints.Context;
 using Api.Endpoints.Dtos.Services;
+using Api.Endpoints.Models.Appointments;
 using Api.Endpoints.Models.MediaclService;
-using Api.Endpoints.Models.Apointments;
 using Api.Endpoints.Models.ValueObjects;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

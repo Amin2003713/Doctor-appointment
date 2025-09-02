@@ -1,4 +1,4 @@
-﻿namespace Api.Endpoints.Models.Apointments;
+﻿namespace Api.Endpoints.Models.Appointments;
 
 public class Appointment
 {
@@ -21,5 +21,5 @@ public class Appointment
     public string? Notes { get; set; }
 
     public Guid? CreatedByUserId { get; set; }
-    public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAtUtc { get; set; } = DateTime.Now;
 }

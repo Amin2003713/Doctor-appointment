@@ -1,4 +1,4 @@
-﻿using Api.Endpoints.Models.Apointments;
+﻿using Api.Endpoints.Models.Appointments;
 
 namespace Api.Endpoints.Dtos.doctor;
 

@@ -10,7 +10,7 @@ public class AppUser : IdentityUser<long>
     public string Address { get; set; }
     public string? FullName { get; set; }
 
-    public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
+    public DateTime CreatedAtUtc { get; set; } = DateTime.Now;
     public DateTime? LastLoginAtUtc { get; set; }
     public bool IsActive { get; set; } = true;
 }
