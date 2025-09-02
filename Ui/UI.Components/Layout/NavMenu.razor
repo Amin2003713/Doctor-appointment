@@ -1,11 +1,15 @@
 ﻿@using System.Security.Claims
 @using App.Applications.Doctor.Requests.Get
 @using App.Applications.Users.Queries.GetUserInfo
+@using App.Applications.Users.Requests.UserInfos
+@using App.Applications.Users.Requests.UserQueries
 @using Microsoft.AspNetCore.Components.Authorization
 @using UI.Components.Common.BaseComponents.Dialogs
 @using UI.Components.Common.BaseComponents.Picture
 @using UI.Components.Features.Apointments.Dialogs
 @using UI.Components.Features.Clinics
+@using UI.Components.Features.ClinicServices.Dialogs
+@using UI.Components.Features.Users.Dialogs
 @using UI.Components.Features.Doctors
 
 <MudNavMenu Class="app-nav" Margin="Margin.Normal" Rounded Bordered Dense>
@@ -18,96 +22,105 @@
     <AuthorizeView>
         <Authorized Context="auth">
             @{
-                var isDoctor    = auth.User.IsInRole("Doctor");
-                var isSecretary = auth.User.IsInRole("Secretary");
-                var isPatient   = auth.User.IsInRole("Patient");
+                // ---- Role Flags -------------------------------------------------
+                var isDoctor    = auth.User.IsInRole(Roles.Doctor);
+                var isSecretary = auth.User.IsInRole(Roles.Secretary);
+                var isPatient   = auth.User.IsInRole(Roles.Patient);
+
+                // ---- Convenience vars ------------------------------------------
+                var canSeePatientPanel   = isDoctor || isSecretary || isPatient;
+                var canUseSecretaryTools = isDoctor || isSecretary;
+                var isClinicAdmin        = isDoctor; // your current logic
             }
 
-            @* Doctor (super admin) *@
-            @if (isDoctor)
+            <!-- Common quick actions for staff -->
+            @if (isDoctor || isSecretary)
             {
-                <MudNavGroup Title="مدیریت کاربران" Icon="@MaterialIcons.Filled.PersonAdd" IconColor="Color.Tertiary">
+                <MudNavGroup Title="اقدام‌های سریع" Icon="@MaterialIcons.Filled.Bolt" IconColor="Color.Info"
+                             Expanded="true">
                     <MudNavLink OnClick="OpenRegisterDialog" Icon="@MaterialIcons.Filled.PersonAdd"
                                 IconColor="Color.Success">
-                        ثبت‌نام (بیمار / منشی)
+                        ثبت‌نام (کاربر)
                     </MudNavLink>
-                    <MudNavLink OnClick="() => OpenAddApoint(isPatient)" Icon="@MaterialIcons.Filled.CalendarMonth"
-                                IconColor="Color.Info">
+
+                    <!-- رزرو نوبت (برای خود/عمومی) -->
+                    <MudNavLink OnClick="@(() => OpenAddApoint(isPatient))"
+                                Icon="@MaterialIcons.Filled.CalendarMonth" IconColor="Color.Info">
                         رزرو نوبت
                     </MudNavLink>
                 </MudNavGroup>
             }
 
-            @* Patient panel (Doctor/Secretary/Patient) *@
-            @if (isDoctor || isSecretary || isPatient)
+            <!-- Patient panel (visible to Patient, Secretary, Doctor) -->
+            @if (canSeePatientPanel)
             {
                 <MudNavGroup Title="@GetPatientPanelTitle(isPatient, isSecretary)"
-                             Icon="@MaterialIcons.Filled.MedicalServices" IconColor="Color.Primary">
-                    <MudNavLink OnClick="@(() => Navigate("/patient/appointments"))"
+                             Icon="@MaterialIcons.Filled.MedicalServices" IconColor="Color.Success" Expanded="true">
+                    <MudNavLink OnClick="@(() => GotoPatientAppointment(isPatient))"
                                 Icon="@MaterialIcons.Filled.EventAvailable" IconColor="Color.Success">
-                        @(isPatient ? "نوبت‌های من" : "نوبت‌های بیماران")
+                        @(isPatient ? "نوبت‌های من" : "نوبت‌های بیمار")
                     </MudNavLink>
 
-                    <MudNavLink OnClick="@(() => Navigate("/patient/history"))"
-                                Icon="@MaterialIcons.Filled.History" IconColor="Color.Info">
-                        @(isPatient ? "سوابق نوبت من" : "سوابق نوبت بیماران")
-                    </MudNavLink>
-
-                    <MudNavLink OnClick="@(() => Navigate("/patient/cancel"))"
-                                Icon="@MaterialIcons.Filled.Cancel" IconColor="Color.Error">
-                        @(isPatient ? "لغو نوبت من" : "لغو نوبت بیماران")
+                    <MudNavLink OnClick="@(() => Navigate(Routes.ClinicServices))"
+                                Icon="@MaterialIcons.Filled.LocalHospital" IconColor="Color.Success">
+                        خدمات
                     </MudNavLink>
                 </MudNavGroup>
-
-                <MudNavLink OnClick="@(() => Navigate("/clinic-services"))"
-                            Icon="@MaterialIcons.Filled.LocalHospital" IconColor="Color.Success">
-                    خدمات
-                </MudNavLink>
             }
 
-            @* Secretary tools (Secretary & Doctor) *@
-            @if (isSecretary || isDoctor)
+            <!-- Secretary tools (Secretary & Doctor) -->
+            @if (canUseSecretaryTools)
             {
-                <MudNavGroup Title="دستیار" Icon="@MaterialIcons.Filled.PersonAddAlt1" IconColor="Color.Success">
+                <MudNavGroup Title="ابزارهای پذیرش" Icon="@MaterialIcons.Filled.Badge" IconColor="Color.Primary">
                     <MudNavLink OnClick="@(() => OpenAddApoint(isPatient))"
                                 Icon="@MaterialIcons.Filled.PersonAddAlt1" IconColor="Color.Success">
                         رزرو برای بیمار
                     </MudNavLink>
-                    <MudNavLink OnClick="@(() => Navigate("/users?Secretaries=false"))"
+
+                    <MudNavLink OnClick="@(() => Navigate(Routes.UsersList(secretaries: false)))"
                                 Icon="@MaterialIcons.Filled.Group" IconColor="Color.Info">
                         لیست بیماران
                     </MudNavLink>
                 </MudNavGroup>
             }
 
-            @* Doctor admin only *@
-            @if (isDoctor)
+            <!-- Clinic management (Doctor only) -->
+            @if (isClinicAdmin)
             {
                 <MudNavGroup Title="مدیریت کلینیک" Icon="@MaterialIcons.Filled.EditCalendar" IconColor="Color.Warning">
-                    <MudNavLink Href="/doctor/schedule" Icon="@MaterialIcons.Filled.Schedule" IconColor="Color.Info">
+                    <MudNavLink Href="@Routes.DoctorSchedule"
+                                Icon="@MaterialIcons.Filled.Schedule" IconColor="Color.Info">
                         تعریف بازه‌های زمانی
                     </MudNavLink>
-                    <MudNavLink Href="/doctor/agenda" Icon="@MaterialIcons.Filled.ViewAgenda" IconColor="Color.Primary">
+
+                    <MudNavLink
+                        Href="@Routes.AgendaFor(DateOnly.FromDateTime(DateTime.Now), DateOnly.FromDateTime(DateTime.Now))"
+                        Icon="@MaterialIcons.Filled.ViewAgenda" IconColor="Color.Primary">
                         لیست نوبت‌های روزانه
                     </MudNavLink>
-                    <MudNavLink OnClick="@(() => Navigate("/users?Secretaries=true"))"
+
+                    <MudNavLink OnClick="@(() => Navigate(Routes.UsersList(secretaries: true)))"
                                 Icon="@MaterialIcons.Filled.Group" IconColor="Color.Info">
-                        لیست منشی ها
+                        لیست منشی‌ها
                     </MudNavLink>
-                    <MudNavLink Href="/doctor/manage" Icon="@MaterialIcons.Filled.EditCalendar"
-                                IconColor="Color.Warning">
-                        مدیریت/جابجایی نوبت
+
+                    <MudNavLink OnClick="OpenAddServiceDialog"
+                                Icon="@MaterialIcons.Filled.PostAdd" IconColor="Color.Warning">
+                        خدمت جدید
                     </MudNavLink>
-                    <MudNavLink Href="/reports/appointments" Icon="@MaterialIcons.Filled.Assessment"
-                                IconColor="Color.Secondary">
+
+                    <MudNavLink Href="@Routes.AllAgendaReport"
+                                Icon="@MaterialIcons.Filled.Assessment" IconColor="Color.Secondary">
                         گزارش همه نوبت‌ها
                     </MudNavLink>
-                    <MudNavLink OnClick="OpenClinicDialog" Icon="@MaterialIcons.Filled.Settings"
-                                IconColor="Color.Error">
+
+                    <MudNavLink OnClick="OpenClinicDialog"
+                                Icon="@MaterialIcons.Filled.Settings" IconColor="Color.Error">
                         تنظیمات کلینیک
                     </MudNavLink>
-                    <MudNavLink OnClick="OpenDoctorInfo" Icon="@MaterialIcons.Filled.EnergySavingsLeaf"
-                                IconColor="Color.Error">
+
+                    <MudNavLink OnClick="OpenDoctorInfo"
+                                Icon="@MaterialIcons.Filled.EnergySavingsLeaf" IconColor="Color.Error">
                         اطلاعات دکتر
                     </MudNavLink>
                 </MudNavGroup>
@@ -116,26 +129,31 @@
             <MudDivider Class="my-2"/>
 
             <!-- User card -->
-            <MudNavLink OnClick="OpenUserInfo">
-                <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
-                    <MudAvatar Size="Size.Medium">
-                        <ServerImage Src="@StateProvider.User?.Profile"/>
-                    </MudAvatar>
-                    <MudStack Spacing="0">
-                        <MudText Typo="Typo.subtitle1" Bold="true">
-                            @($"{GetRoleName(auth.User)}: {StateProvider.User?.FirstName} {StateProvider.User?.LastName}")
-                        </MudText>
-                        <MudText Typo="Typo.caption" Color="Color.Secondary">
-                            @StateProvider.User?.UserName
-                        </MudText>
+            <MudNavGroup Title="حساب کاربری" Icon="@MaterialIcons.Filled.AccountCircle" IconColor="Color.Primary"
+                         Expanded="true">
+                <MudNavLink OnClick="OpenUserInfo">
+                    <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                        <MudAvatar Size="Size.Medium">
+                            <ServerImage Src="@StateProvider.User?.Profile"/>
+                        </MudAvatar>
+                        <MudStack Spacing="0">
+                            <MudText Typo="Typo.subtitle1" Bold="true">
+                                @($"{GetRoleDisplayName(auth.User)}: {StateProvider.User?.FirstName} {StateProvider.User?.LastName}")
+                            </MudText>
+                            <MudText Typo="Typo.caption" Color="Color.Secondary">
+                                @StateProvider.User?.UserName
+                            </MudText>
+                        </MudStack>
                     </MudStack>
-                </MudStack>
-            </MudNavLink>
+                </MudNavLink>
+            </MudNavGroup>
         </Authorized>
 
         <NotAuthorized>
             <MudDivider Class="my-2"/>
-            <MudText Class="px-2" Typo="Typo.caption" Color="Color.Secondary">برای دسترسی بیشتر وارد شوید</MudText>
+            <MudText Class="px-2" Typo="Typo.caption" Color="Color.Secondary">
+                برای دسترسی بیشتر وارد شوید
+            </MudText>
         </NotAuthorized>
     </AuthorizeView>
 </MudNavMenu>
@@ -160,54 +178,82 @@
 </style>
 
 @code {
+[CascadingParameter]
+    public Action UpdateUi { get; set; } = default!;
 
-    private static string GetPatientPanelTitle(bool isPatient, bool isSecretary)
-        => isPatient ? "پنل بیمار" : isSecretary ? "پنل بیمار (دستیار)" : "پنل بیمار";
-
-    private string GetRoleName(ClaimsPrincipal user)
+    private void TriggerParentUpdate()
     {
-        if (user.IsInRole("Doctor")) return "دکتر";
-        if (user.IsInRole("Secretary")) return "منشی";
-        if (user.IsInRole("Patient")) return "بیمار";
+        UpdateUi?.Invoke(); // Call the parent's UpdateUi method
+    }
 
+    // -------- Centralized routes & constants ---------------------------------
+    private static class Roles
+    {
+        public const string Doctor    = "Doctor";
+        public const string Secretary = "Secretary";
+        public const string Patient   = "Patient";
+    }
+
+    private static class Routes
+    {
+        public static string ClinicServices => "/clinic-services";
+        public static string DoctorSchedule => "/doctor/schedule";
+
+        public static string UsersList(bool secretaries)
+            => $"/users?Secretaries={(secretaries ? "true" : "false")}";
+
+        // Agenda (From/To via query string)
+        public static string AgendaFor(DateOnly from, DateOnly to)
+            => $"/doctor/agenda?From={from:yyyy-MM-dd}&To={to:yyyy-MM-dd}";
+
+        // “All” report: keep your existing sentinel values
+        public static string AllAgendaReport => $"/doctor/agenda?From={DateOnly.FromDateTime(DateTime.MinValue):yyyy-MM-dd}&To={DateOnly.FromDateTime(DateTime.MaxValue):yyyy-MM-dd}";
+    }
+
+    // -------- Role / labels ---------------------------------------------------
+    private static string GetPatientPanelTitle(bool isPatient, bool isSecretary)
+        => isPatient ? "پنل بیمار" : (isSecretary ? "پنل بیمار (دستیار)" : "پنل بیمار");
+
+    private string GetRoleDisplayName(ClaimsPrincipal user)
+    {
+        if (user.IsInRole(Roles.Doctor)) return "دکتر";
+        if (user.IsInRole(Roles.Secretary)) return "منشی";
+        if (user.IsInRole(Roles.Patient)) return "بیمار";
         return "کاربر";
     }
 
+    // -------- Navigation & Dialog helpers ------------------------------------
+    public void Navigate(string to, bool hard = true)
+        => NavigationManager.NavigateTo(to, forceLoad: false, replace: hard);
+
     private async Task OpenClinicDialog()
     {
-        var dialogOptions = new DialogOptions
+        var opts = new DialogOptions
         {
             CloseOnEscapeKey = true,
             FullWidth        = true,
             MaxWidth         = MaxWidth.Medium,
-            NoHeader         = true,
+            NoHeader         = true
         };
 
-
-        await DialogService.ShowAsync<ClinicInfoDialog>("", dialogOptions);
+        await DialogService.ShowAsync<ClinicInfoDialog>(string.Empty, opts);
     }
 
     private async Task OpenRegisterDialog()
     {
-        var options = new DialogOptions
+        var opts = new DialogOptions
         {
             CloseOnEscapeKey = true,
             FullWidth        = true,
             MaxWidth         = MaxWidth.Small
         };
 
-
-        await DialogService.ShowAsync<RegisterDialog>("ثبت‌نام", options);
-    }
-
-    public void Navigate(string to, bool hard = true)
-    {
-        NavigationManager.NavigateTo(to, false, hard);
+        await DialogService.ShowAsync<RegisterDialog>("ثبت‌نام", opts);
     }
 
     private async Task OpenDoctorInfo()
     {
-        var options = new DialogOptions
+        var opts = new DialogOptions
         {
             CloseOnEscapeKey = true,
             MaxWidth         = MaxWidth.Medium,
@@ -217,23 +263,19 @@
             NoHeader         = true
         };
 
-        var user = await Mediator.Send(new GetDoctorProfileRequest());
+        var model = await Mediator.Send(new GetDoctorProfileRequest());
 
-
-        var parameters = new DialogParameters
+        var prms = new DialogParameters
         {
-            {
-                "Model", user
-            }
+            ["Model"] = model
         };
 
-
-        await DialogService.ShowAsync<UpdateDoctorInfoDialog>("", parameters, options);
+        await DialogService.ShowAsync<UpdateDoctorInfoDialog>(string.Empty, prms, opts);
     }
 
     private async Task OpenUserInfo()
     {
-        var options = new DialogOptions
+        var opts = new DialogOptions
         {
             CloseOnEscapeKey = true,
             MaxWidth         = MaxWidth.Medium,
@@ -242,26 +284,21 @@
             Position         = DialogPosition.Center
         };
 
-        var user = await Mediator.Send(new GetUserInfoQuery());
+        var model     = await Mediator.Send(new GetUserInfoQuery());
+        var allowEdit = !StateProvider.User?.Roles?.Contains(Roles.Patient) ?? false;
 
-
-        var parameters = new DialogParameters
+        var prms = new DialogParameters
         {
-            {
-                "Model", user
-            },
-            {
-                "AllowEdit", !StateProvider.User?.Roles?.Contains("Patient") ?? false
-            }
+            ["Model"]     = model,
+            ["AllowEdit"] = allowEdit
         };
 
-
-        await DialogService.ShowAsync<ProfileInfoDialog>("اطلاعات کاربر", parameters, options);
+        await DialogService.ShowAsync<ProfileInfoDialog>("اطلاعات کاربر", prms, opts);
     }
 
     private async Task OpenAddApoint(bool isPatient)
     {
-        var options = new DialogOptions
+        var opts = new DialogOptions
         {
             CloseOnEscapeKey = true,
             MaxWidth         = MaxWidth.Small,
@@ -270,16 +307,53 @@
             Position         = DialogPosition.Center
         };
 
-        var parameters = new DialogParameters
+        var prms = new DialogParameters
         {
-            {
-                "IsPatient", isPatient
-            }
+            ["IsPatient"] = isPatient
         };
 
-
-        await DialogService.ShowAsync<CreateAppointment>("اطلاعات کاربر", parameters, options);
+        await DialogService.ShowAsync<CreateAppointment>("اطلاعات کاربر", prms, opts);
     }
 
+    private async Task OpenAddServiceDialog()
+    {
+        var opts = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            MaxWidth         = MaxWidth.Small,
+            FullWidth        = true,
+            CloseButton      = true,
+            Position         = DialogPosition.Center
+        };
+
+        await DialogService.ShowAsync<CreateClinicService>("اطلاعات کاربر", opts);
+    }
+
+    private async Task GotoPatientAppointment(bool isPatient)
+    {
+        if (isPatient)
+        {
+            var me = await Mediator.Send(new UserInfoRequest());
+            NavigationManager.NavigateTo($"{Routes.AllAgendaReport}&PatientUserId={me.Id}");
+            return;
+        }
+
+        // Secretary/Doctor: pick a user
+        var prms = new DialogParameters<SelectUserDialog>();
+
+        var opts = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            FullWidth        = true,
+            MaxWidth         = MaxWidth.Small,
+            NoHeader         = true
+        };
+
+        var dlg    = await DialogService.ShowAsync<SelectUserDialog>("انتخاب کاربر", prms, opts);
+        var result = await dlg.Result;
+
+        if (!result!.Canceled && result.Data is UserListItemResponse u)
+            NavigationManager.NavigateTo($"{Routes.AllAgendaReport}&PatientUserId={u.Id}");
+    }
 
 }

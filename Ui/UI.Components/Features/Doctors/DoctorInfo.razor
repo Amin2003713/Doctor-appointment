@@ -55,7 +55,7 @@
                         <MudChipSet T="string">
                             @foreach (var s in _doctor.Specialties)
                             {
-                                <MudChip T="string" Variant="Variant.Filled" Color="Color.Primary" Dense>@s</MudChip>
+                                <MudChip T="string" Variant="Variant.Filled" Color="Color.Primary">@s</MudChip>
                             }
                         </MudChipSet>
 
@@ -69,7 +69,7 @@
                         <MudChipSet T="string">
                             @foreach (var l in _doctor.Languages)
                             {
-                                <MudChip T="string" Variant="Variant.Outlined" Color="Color.Secondary" Dense>@l</MudChip>
+                                <MudChip T="string" Variant="Variant.Outlined" Color="Color.Secondary">@l</MudChip>
                             }
                         </MudChipSet>
 
@@ -139,10 +139,20 @@
         }
     }
 </div>
+
 @code {
+[CascadingParameter]
+    public Action UpdateUi { get; set; } = default!;
+
+    private void TriggerParentUpdate()
+    {
+        UpdateUi?.Invoke(); // Call the parent's UpdateUi method
+    }
     private DoctorProfileResponse? _doctor;
     private bool                   _loading = true;
     private bool                   _bioOpen = true;
+
+   
 
     protected override async Task OnInitializedAsync()
     {
@@ -174,27 +184,29 @@
         var digits = new string(input.Where(char.IsDigit).ToArray());
         return $"https://wa.me/{digits}";
     }
+
 }
 
 <style>
-/* Doctor-only page styles */
-.doctor-card {
-    border-radius: 14px;
-    overflow: hidden;
-}
-.doctor-card__header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: .75rem;
-    padding: 16px;
-    background: linear-gradient(135deg, rgba(99, 102, 241, .12), rgba(16, 185, 129, .12));
-    border-bottom: 1px solid rgba(255, 255, 255, .06);
-}
+    /* Doctor-only page styles */
+    .doctor-card {
+        border-radius: 14px;
+        overflow: hidden;
+    }
 
-.doctor-card__title {
-    display: flex;
-    align-items: center;
-    gap: .75rem;
-}
+    .doctor-card__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .75rem;
+        padding: 16px;
+        background: linear-gradient(135deg, rgba(99, 102, 241, .12), rgba(16, 185, 129, .12));
+        border-bottom: 1px solid rgba(255, 255, 255, .06);
+    }
+
+    .doctor-card__title {
+        display: flex;
+        align-items: center;
+        gap: .75rem;
+    }
 </style>

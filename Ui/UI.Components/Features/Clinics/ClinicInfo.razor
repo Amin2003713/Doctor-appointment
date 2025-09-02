@@ -1,6 +1,7 @@
 ﻿@page "/clinic"
 @using App.Applications.Clinic.Requests.Get
 @using App.Domain.ValueObjects
+@using Microsoft.AspNetCore.Components.Authorization
 
 <div>
     @if (_loading)
@@ -129,12 +130,16 @@
 
             <MudCardActions Class="justify-end">
                 <MudStack AlignItems="AlignItems.End" Justify="Justify.FlexEnd" Spacing="4" Row="true">
-                    <MudButton Color="Color.Primary" Variant="Variant.Text"
-                               StartIcon="@MaterialIcons.Filled.EventAvailable"
-                               OnClick="@GoToReservation">
-                        رزرو نوبت
-                    </MudButton>
+                    <AuthorizeView Roles="Patient">
+                        <Authorized>
+                            <MudButton Color="Color.Primary" Variant="Variant.Text"
+                                       StartIcon="@MaterialIcons.Filled.EventAvailable"
+                                       OnClick="@GoToReservation">
+                                رزرو نوبت
+                            </MudButton>
 
+                        </Authorized>
+                    </AuthorizeView>
                     <MudButton Color="Color.Secondary" Variant="Variant.Text"
                                StartIcon="@MaterialIcons.Filled.Directions"
                                OnClick="@OpenDirections">
@@ -154,6 +159,13 @@
 </div>
 
 @code {
+[CascadingParameter]
+    public Action UpdateUi { get; set; } = default!;
+
+    private void TriggerParentUpdate()
+    {
+        UpdateUi?.Invoke(); // Call the parent's UpdateUi method
+    }
     private ClinicSettingsResponse? _clinic;
     private bool                    _loading = true;
     private bool                    _noteOpen;
@@ -237,8 +249,27 @@
                _                            => "نامشخص"
            };
 
-    private void GoToReservation()
-        => NavigationManager.NavigateTo("/appointments", forceLoad: false);
+    private async Task GoToReservation()
+    {
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            MaxWidth         = MaxWidth.Small,
+            FullWidth        = true,
+            CloseButton      = true,
+            Position         = DialogPosition.Center
+        };
+
+        var parameters = new DialogParameters
+        {
+            {
+                "IsPatient", StateProvider.User!.Roles.Contains("Patient")
+            }
+        };
+
+
+        await DialogService.ShowAsync<CreateAppointment>("ایجاد نوبت جدید", parameters, options);
+    }
 
 
     private void OpenDirections()

@@ -4,8 +4,10 @@ using Api.Endpoints.Dtos.doctor;
 using Api.Endpoints.Models.Appointments;
 using Api.Endpoints.Models.Clinic;
 using Api.Endpoints.Models.Schedule;
+using Api.Endpoints.Models.User;
 using Api.Endpoints.Models.ValueObjects;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,7 +17,8 @@ namespace Api.Endpoints.Controllers;
 [Route("api/appointments")]
 [Authorize]
 public class AppointmentsController(
-    AppDbContext db
+    AppDbContext         db,
+    UserManager<AppUser> userManager
 ) : ControllerBase
 {
     [Authorize(Roles = "Doctor,Secretary,Patient")]
@@ -25,8 +28,7 @@ public class AppointmentsController(
         if (body.ServiceId == Guid.Empty) return BadRequest("ServiceId required.");
         if (string.IsNullOrWhiteSpace(body.Start)) return BadRequest("Start required (HH:mm).");
 
-        var service = await db.MedicalServices.AsNoTracking()
-            .FirstOrDefaultAsync(x => x.Id == body.ServiceId, ct);
+        var service = await db.MedicalServices.AsNoTracking().FirstOrDefaultAsync(x => x.Id == body.ServiceId, ct);
 
         if (service is null) return NotFound("Service not found.");
 
@@ -37,7 +39,10 @@ public class AppointmentsController(
 
         string patientName;
         string patientPhone;
-        Guid?  patientUserId = null;
+        long?  patientUserId = (await userManager.FindByNameAsync(body.PatientPhone!))?.Id;
+
+        if (!patientUserId.HasValue)
+            return BadRequest("patient not Found.");
 
         if (role is "Secretary" or "Doctor")
         {
@@ -50,14 +55,12 @@ public class AppointmentsController(
         else
         {
             patientUserId = userId;
-            patientName  = string.IsNullOrWhiteSpace(body.PatientFullName) ? "Patient" : body.PatientFullName.Trim();
-            patientPhone = string.IsNullOrWhiteSpace(body.PatientPhone) ? "-" : body.PatientPhone.Trim();
+            patientName   = string.IsNullOrWhiteSpace(body.PatientFullName) ? "Patient" : body.PatientFullName.Trim();
+            patientPhone  = string.IsNullOrWhiteSpace(body.PatientPhone) ? "-" : body.PatientPhone.Trim();
         }
 
 
-        var schedule = await db.WorkSchedules.AsNoTracking()
-                           .Include(x => x.Overrides)
-                           .FirstOrDefaultAsync(ct) ??
+        var schedule = await db.WorkSchedules.AsNoTracking().Include(x => x.Overrides).FirstOrDefaultAsync(ct) ??
                        new WorkSchedule();
 
         var intervals = ResolveIntervalsForDate(schedule, body.Date);
@@ -71,50 +74,50 @@ public class AppointmentsController(
         if (!insideWorkingHours) return BadRequest("Selected time is outside working hours.");
 
 
-        var serviceOverlap = await db.Appointments.AsNoTracking()
-            .AnyAsync(a =>
-                    a.Date == body.Date &&
-                    a.ServiceId == body.ServiceId &&
-                    a.Status == AppointmentStatus.Booked &&
-                    // overlap check: start < a.End && a.Start < end
-                    start < a.End &&
-                    a.Start < end,
-                ct);
+        var serviceOverlap = await db.Appointments.AsNoTracking().
+                                      AnyAsync(a =>
+                                                   a.Date      == body.Date                &&
+                                                   a.ServiceId == body.ServiceId           &&
+                                                   a.Status    == AppointmentStatus.Booked &&
+                                                   // overlap check: start < a.End && a.Start < end
+                                                   start   < a.End &&
+                                                   a.Start < end,
+                                               ct);
 
 
         if (serviceOverlap) return Conflict("Selected time overlaps another appointment for this service.");
 
 
-        var patientOverlap = await db.Appointments.AsNoTracking()
-            .AnyAsync(a =>
-                    a.Date == body.Date &&
-                    a.Status == AppointmentStatus.Booked &&
-                    (
-                        (patientUserId.HasValue && a.PatientUserId == patientUserId) ||
-                        (!patientUserId.HasValue && a.PatientUserId == null && a.PatientPhone == patientPhone)
-                    ) &&
-                    // overlap check
-                    start < a.End &&
-                    a.Start < end,
-                ct);
+        var patientOverlap = await db.Appointments.AsNoTracking().
+                                      AnyAsync(a =>
+                                                   a.Date   == body.Date                &&
+                                                   a.Status == AppointmentStatus.Booked &&
+                                                   (
+                                                       (patientUserId.HasValue  && a.PatientUserId == patientUserId) ||
+                                                       (!patientUserId.HasValue && a.PatientUserId == null && a.PatientPhone == patientPhone)
+                                                   ) &&
+                                                   // overlap check
+                                                   start   < a.End &&
+                                                   a.Start < end,
+                                               ct);
 
         if (patientOverlap) return Conflict("This patient already has an appointment that overlaps this time.");
 
 
         var ap = new Appointment
         {
-            ServiceId        = body.ServiceId,
-            PatientUserId    = patientUserId,
-            PatientFullName  = patientName,
-            PatientPhone     = patientPhone,
-            Date             = body.Date,
-            Start            = start,
-            End              = end,
-            PriceAmount      = service.Price.Amount,
-            PriceCurrency    = string.IsNullOrWhiteSpace(service.Price.Currency) ? "IRR" : service.Price.Currency,
-            Notes            = body.Notes,
-            Status           = AppointmentStatus.Booked,
-            CreatedByUserId  = userId
+            ServiceId       = body.ServiceId,
+            PatientUserId   = patientUserId ?? 0,
+            PatientFullName = patientName,
+            PatientPhone    = patientPhone,
+            Date            = body.Date,
+            Start           = start,
+            End             = end,
+            PriceAmount     = service.Price.Amount,
+            PriceCurrency   = string.IsNullOrWhiteSpace(service.Price.Currency) ? "IRR" : service.Price.Currency,
+            Notes           = body.Notes,
+            Status          = AppointmentStatus.Booked,
+            CreatedByUserId = userId
         };
 
         db.Appointments.Add(ap);
@@ -128,8 +131,8 @@ public class AppointmentsController(
     public async Task<ActionResult<List<AppointmentResponse>>> List(
         [FromQuery] DateOnly? from,
         [FromQuery] DateOnly? to,
-        [FromQuery] Guid? patientUserId,
-        CancellationToken ct)
+        [FromQuery] long?     patientUserId,
+        CancellationToken     ct)
     {
         var (uid, role) = GetUserIdAndRole();
 
@@ -145,30 +148,30 @@ public class AppointmentsController(
         }
 
         if (from.HasValue) q = q.Where(a => a.Date >= from.Value);
-        if (to.HasValue) q = q.Where(a => a.Date <= to.Value);
+        if (to.HasValue) q   = q.Where(a => a.Date <= to.Value);
 
 
-        var services = await db.MedicalServices.AsNoTracking()
-            .ToDictionaryAsync(s => s.Id, s => s.Title, ct);
+        var services = await db.MedicalServices.AsNoTracking().ToDictionaryAsync(s => s.Id, s => s.Title, ct);
 
-        var list = await q.OrderBy(a => a.Date)
-            .ThenBy(a => a.Start)
-            .Select(a => new AppointmentResponse
-            {
-                Id = a.Id,
-                ServiceId = a.ServiceId,
-                ServiceTitle = "",
-                Date = a.Date,
-                Start = a.Start.ToString("HH:mm"),
-                End = a.End.ToString("HH:mm"),
-                Status = a.Status,
-                PatientFullName = a.PatientFullName,
-                PatientPhone = a.PatientPhone,
-                PriceAmount = a.PriceAmount,
-                PriceCurrency = a.PriceCurrency,
-                Notes = a.Notes
-            })
-            .ToListAsync(ct);
+        var list = await q.OrderBy(a => a.Date).
+                           ThenBy(a => a.Start).
+                           Select(a => new AppointmentResponse
+                           {
+                               Id              = a.Id,
+                               ServiceId       = a.ServiceId,
+                               ServiceTitle    = "",
+                               Date            = a.Date,
+                               Start           = a.Start.ToString("HH:mm"),
+                               End             = a.End.ToString("HH:mm"),
+                               Status          = a.Status,
+                               PatientFullName = a.PatientFullName,
+                               PatientPhone    = a.PatientPhone,
+                               PriceAmount     = a.PriceAmount,
+                               PriceCurrency   = a.PriceCurrency,
+                               Notes           = a.Notes,
+                               PatientId       = a.PatientUserId ?? 0
+                           }).
+                           ToListAsync(ct);
 
         foreach (var r in list)
             if (services.TryGetValue(r.ServiceId, out var name))
@@ -195,18 +198,20 @@ public class AppointmentsController(
 
         return Ok(new AppointmentResponse
         {
-            Id = a.Id,
-            ServiceId = a.ServiceId,
-            ServiceTitle = svc!.Code + " " + svc.Title ?? "",
-            Date = a.Date,
-            Start = a.Start.ToString("HH:mm"),
-            End = a.End.ToString("HH:mm"),
-            Status = a.Status,
+            Id              = a.Id,
+            ServiceId       = a.ServiceId,
+            ServiceTitle    = svc!.Code + " " + svc.Title ?? "",
+            Date            = a.Date,
+            Start           = a.Start.ToString("HH:mm"),
+            End             = a.End.ToString("HH:mm"),
+            Status          = a.Status,
             PatientFullName = a.PatientFullName,
-            PatientPhone = a.PatientPhone,
-            PriceAmount = a.PriceAmount,
-            PriceCurrency = a.PriceCurrency,
-            Notes = a.Notes
+            PatientPhone    = a.PatientPhone,
+            PriceAmount     = a.PriceAmount,
+            PriceCurrency   = a.PriceCurrency,
+            Notes           = a.Notes,
+            PatientId       = a.PatientUserId ?? 0
+
         });
     }
 
@@ -251,11 +256,11 @@ public class AppointmentsController(
     {
         var ap = await db.Appointments.FirstOrDefaultAsync(a => a.Id == id, ct);
         if (ap is null) return NotFound();
-        if (ap.Status != AppointmentStatus.Booked) return BadRequest("Only Booked can be rescheduled.");
+        if (ap.Status    != AppointmentStatus.Booked) return BadRequest("Only Booked can be rescheduled.");
         if (ap.ServiceId != body.ServiceId) return BadRequest("Service cannot be changed here.");
 
         var service  = await db.MedicalServices.AsNoTracking().FirstOrDefaultAsync(x => x.Id == ap.ServiceId, ct)!;
-        var settings = await db.ClinicSettings.AsNoTracking().FirstOrDefaultAsync(ct) ?? new ClinicSettings();
+        var settings = await db.ClinicSettings.AsNoTracking().FirstOrDefaultAsync(ct)                          ?? new ClinicSettings();
         var schedule = await db.WorkSchedules.AsNoTracking().Include(x => x.Overrides).FirstOrDefaultAsync(ct) ?? new WorkSchedule();
 
         var intervals = ResolveIntervalsForDate(schedule, body.Date);
@@ -269,33 +274,33 @@ public class AppointmentsController(
         if (!inside) return BadRequest("Selected time is outside working hours.");
 
 
-        var svcConflict = await db.Appointments.AsNoTracking()
-            .AnyAsync(a =>
-                    a.Date == body.Date &&
-                    a.ServiceId == ap.ServiceId &&
-                    a.Status == AppointmentStatus.Booked &&
-                    a.Id != ap.Id &&
-                    // overlap check
-                    newStart < a.End &&
-                    a.Start < newEnd,
-                ct);
+        var svcConflict = await db.Appointments.AsNoTracking().
+                                   AnyAsync(a =>
+                                                a.Date      == body.Date                &&
+                                                a.ServiceId == ap.ServiceId             &&
+                                                a.Status    == AppointmentStatus.Booked &&
+                                                a.Id        != ap.Id                    &&
+                                                // overlap check
+                                                newStart < a.End &&
+                                                a.Start  < newEnd,
+                                            ct);
 
         if (svcConflict) return Conflict("Selected time overlaps another appointment for this service.");
 
         // NEW RULE: patient-level overlap across ANY service (exclude current ap)
-        var patientConflict = await db.Appointments.AsNoTracking()
-            .AnyAsync(a =>
-                    a.Date == body.Date &&
-                    a.Status == AppointmentStatus.Booked &&
-                    a.Id != ap.Id &&
-                    (
-                        (ap.PatientUserId.HasValue && a.PatientUserId == ap.PatientUserId) ||
-                        (!ap.PatientUserId.HasValue && a.PatientUserId == null && a.PatientPhone == ap.PatientPhone)
-                    ) &&
-                    // overlap check
-                    newStart < a.End &&
-                    a.Start < newEnd,
-                ct);
+        var patientConflict = await db.Appointments.AsNoTracking().
+                                       AnyAsync(a =>
+                                                    a.Date   == body.Date                &&
+                                                    a.Status == AppointmentStatus.Booked &&
+                                                    a.Id     != ap.Id                    &&
+                                                    (
+                                                        (ap.PatientUserId.HasValue  && a.PatientUserId == ap.PatientUserId) ||
+                                                        (!ap.PatientUserId.HasValue && a.PatientUserId == null && a.PatientPhone == ap.PatientPhone)
+                                                    ) &&
+                                                    // overlap check
+                                                    newStart < a.End &&
+                                                    a.Start  < newEnd,
+                                                ct);
 
         if (patientConflict) return Conflict("This patient already has an appointment that overlaps this time.");
 
@@ -325,12 +330,12 @@ public class AppointmentsController(
         return day.Intervals;
     }
 
-    private (Guid? userId, string role) GetUserIdAndRole()
+    private(long? userId, string role) GetUserIdAndRole()
     {
-        var   role = User.FindFirstValue(ClaimTypes.Role) ?? User.FindFirstValue("role") ?? User.FindFirstValue("roles") ?? "";
-        var   sub  = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
-        Guid? uid  = null;
-        if (Guid.TryParse(sub, out var parsed)) uid = parsed;
+        var   role                                  = User.FindFirstValue(ClaimTypes.Role) ?? User.FindFirstValue("role") ?? User.FindFirstValue("roles") ?? "";
+        var   sub                                   = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+        long? uid                                   = null;
+        if (long.TryParse(sub, out var parsed)) uid = parsed;
         return (uid, role);
     }
 }

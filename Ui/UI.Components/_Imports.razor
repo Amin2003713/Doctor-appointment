@@ -32,6 +32,14 @@
 @using App.Domain.ClientPreferences
 @using UI.Components.Common.BaseComponents.Progresses
 
+@using App.Applications.ClinicServices.Requests.Get
+@using App.Applications.ClinicServices.Requests.ListClinicServices
+@using App.Applications.ClinicServices.Requests.Update
+@using Microsoft.AspNetCore.Components.Authorization
+@using UI.Components.Features.Apointments.Dialogs
+@using UI.Components.Features.ClinicServices.Dialogs
+
+
 @inject NavigationManager NavigationManager
 @inject ClientStateProvider StateProvider
 @inject IMediator Mediator

@@ -5,54 +5,58 @@
 @using Microsoft.AspNetCore.Components.Authorization
 @using UI.Components.Features.Apointments.Dialogs
 
-
-
 <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="pt-4">
 
     <!-- Filters (same as before)… -->
-    <MudPaper Class="rounded-xl mb-3 px-3 py-2 p-2">
-        <MudStack Row Spacing="2" AlignItems="AlignItems.Center">
-            <MudText Typo="Typo.h6" Class="fw-bold">برنامه‌ی نوبت‌ها</MudText>
-            <MudSpacer/>
-            <MudDateRangePicker @bind-DateRange="_dateRange"
-                                Label="بازهٔ زمانی"
-                                Variant="Variant.Text"
-                                Adornment="Adornment.Start"
-                                AdornmentIcon="@MaterialIcons.Filled.DateRange"
-                                Class="min-w-64"
-                                Culture="@(new CultureInfo("fa-IR"))"
-            />
+    @if (ShowFilters)
+    {
+        <MudPaper Class="rounded-xl mb-3 px-3 py-2 p-2">
+            <MudStack Row Spacing="2" AlignItems="AlignItems.Center">
+                <MudText Typo="Typo.h6" Class="fw-bold">برنامه‌ی نوبت‌ها</MudText>
+                <MudSpacer/>
+                @if (!PatientUserId.HasValue)
+                {
+                    <MudDateRangePicker @bind-DateRange="_dateRange"
+                                        Label="بازهٔ زمانی"
+                                        Variant="Variant.Text"
+                                        Adornment="Adornment.Start"
+                                        AdornmentIcon="@MaterialIcons.Filled.DateRange"
+                                        Class="min-w-64"
+                                        Culture="@(new CultureInfo("fa-IR"))"/>
+                }
+                <MudSelect T="AppointmentStatus?" @bind-Value="_status" Dense="true"
+                           Variant="Variant.Text"
+                           OnBlur="RefreshTable"
+                           Label="وضعیت">
+                    <MudSelectItem T="AppointmentStatus?" Value="@((AppointmentStatus?)null)">همه</MudSelectItem>
+                    <MudSelectItem T="AppointmentStatus?" Value="@AppointmentStatus.Booked">رزروشده</MudSelectItem>
+                    <MudSelectItem T="AppointmentStatus?" Value="@AppointmentStatus.Completed">انجام‌شده</MudSelectItem>
+                    <MudSelectItem T="AppointmentStatus?" Value="@AppointmentStatus.Cancelled">لغوشده</MudSelectItem>
+                </MudSelect>
 
-            <MudSelect T="AppointmentStatus?" @bind-Value="_status" Dense="true" OnBlur="RefreshTable"
-                       Variant="Variant.Text"
-                       Label="وضعیت">
-                <MudSelectItem T="AppointmentStatus?" Value="@((AppointmentStatus?)null)">همه</MudSelectItem>
-                <MudSelectItem T="AppointmentStatus?" Value="@AppointmentStatus.Booked">رزروشده</MudSelectItem>
-                <MudSelectItem T="AppointmentStatus?" Value="@AppointmentStatus.Completed">انجام‌شده</MudSelectItem>
-                <MudSelectItem T="AppointmentStatus?" Value="@AppointmentStatus.Cancelled">لغوشده</MudSelectItem>
-            </MudSelect>
+                <MudTextField @bind-Value="_search"
+                              Placeholder="جستجو (بیمار/خدمت/توضیحات/شماره)"
+                              Variant="Variant.Text"
+                              Adornment="Adornment.Start"
+                              AdornmentIcon="@MaterialIcons.Filled.Search"
+                              Immediate="true"
+                              DebounceInterval="400"
+                              Clearable="true"
+                              OnBlur="RefreshTable"
+                              Class="min-w-72"/>
 
-            <MudTextField @bind-Value="_search"
-                          Placeholder="جستجو (بیمار/خدمت/توضیحات/شماره)"
-                          Variant="Variant.Text"
-                          Adornment="Adornment.Start"
-                          AdornmentIcon="@MaterialIcons.Filled.Search"
-                          Immediate="true"
-                          DebounceInterval="400"
-                          Clearable="true"
-                          OnBlur="RefreshTable"
-                          Class="min-w-72"/>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="RefreshTable"
-                       StartIcon="@MaterialIcons.Filled.Refresh">اعمال
-            </MudButton>
-            <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="ClearFilters"
-                       StartIcon="@MaterialIcons.Filled.Restore">بازنشانی
-            </MudButton>
-        </MudStack>
-    </MudPaper>
+                <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="RefreshTable"
+                           StartIcon="@MaterialIcons.Filled.Refresh">اعمال
+                </MudButton>
+                <MudButton Variant="Variant.Text" Color="Color.Secondary" OnClick="ClearFilters"
+                           StartIcon="@MaterialIcons.Filled.Restore">بازنشانی
+                </MudButton>
+            </MudStack>
+        </MudPaper>
+    }
 
     <!-- Table -->
-    <MudPaper Elevation="2" Class="rounded-xl overflow-hidden">
+    <MudPaper Elevation="2" Class="rounded-xl overflow-hidden ">
         <MudTable T="AppointmentResponse"
                   ServerData="LoadServerData"
                   Class="rounded-xl"
@@ -60,7 +64,7 @@
                   Hover
                   Virtualize
                   FixedHeader
-                  GroupBy="@(new TableGroupDefinition<AppointmentResponse>(response => response.ServiceId))"
+                  RowClass="text-center"
                   Breakpoint="Breakpoint.MdAndDown"
                   Height="68vh"
                   CanCancelEdit
@@ -75,120 +79,170 @@
                     </MudText>
                 </MudText>
                 <MudSpacer/>
-                <MudText Typo="Typo.caption" Color="Color.Secondary">@ToolbarCaption</MudText>
+                @if (!PatientUserId.HasValue)
+                {
+                    <MudText Typo="Typo.caption" Color="Color.Secondary">@ToolbarCaption</MudText>
+                }
             </ToolBarContent>
 
             <HeaderContent>
-                <MudTh>خدمت</MudTh>
-                <MudTh>تاریخ</MudTh>
-                <MudTh>ساعت</MudTh>
-                <MudTh>وضعیت</MudTh>
-                <MudTh>نام بیمار</MudTh>
-                <MudTh>تلفن</MudTh>
-                <MudTh>هزینه</MudTh>
-                <MudTh>یادداشت</MudTh>
-                <MudTh class="text-center">اقدامات</MudTh>
+                @if (ShowFilters)
+                {
+                    <MudTh Class="text-center">خدمت</MudTh>
+
+                    <MudTh Class="text-center">تاریخ</MudTh>
+
+                    <MudTh Class="text-center">ساعت</MudTh>
+
+                    <MudTh Class="text-center">وضعیت</MudTh>
+
+                    <MudTh Class="text-center">نام بیمار</MudTh>
+
+                    <MudTh Class="text-center">تلفن</MudTh>
+
+                    <MudTh Class="text-center">هزینه</MudTh>
+
+                    <MudTh Class="text-center">یادداشت</MudTh>
+
+                    <MudTh Class="text-center">اقدامات</MudTh>
+                }
+                else
+                {
+                    <MudTh Class="text-center">خدمت</MudTh>
+
+                    <MudTh Class="text-center">ساعت</MudTh>
+
+                    <MudTh Class="text-center">وضعیت</MudTh>
+
+                    <MudTh Class="text-center">نام بیمار</MudTh>
+
+                    <MudTh Class="text-center">تلفن</MudTh>
+                }
             </HeaderContent>
 
             <RowTemplate>
+                @if (ShowFilters)
+                {
+                    <MudTd Class="text-center" DataLabel="خدمت">
+                        <MudText>@context.ServiceTitle</MudText>
+                    </MudTd>
 
-                <MudTd DataLabel="خدمت">
-                    <MudText>@context.ServiceTitle</MudText>
-                </MudTd>
-                <MudTd DataLabel="تاریخ">
-                    <MudRTLProvider RightToLeft="false">
-                        <MudText
-                            Align="Align.Left">@context.Date.ToDateTime(TimeOnly.MinValue).ToString("yyyy/MM/dd")</MudText>
-                    </MudRTLProvider>
-                </MudTd>
-                <MudTd DataLabel="ساعت">
-                    <MudRTLProvider RightToLeft="false">
+                    <MudTd Class="text-center" DataLabel="تاریخ">
+                        <MudRTLProvider>
+                            <MudText
+                                Align="Align.Left">@context.Date.ToDateTime(TimeOnly.MinValue).ToString("yyyy/MM/dd")</MudText>
+                        </MudRTLProvider>
+                    </MudTd>
+
+                    <MudTd Class="text-center" DataLabel="ساعت">
+                        <MudRTLProvider RightToLeft="false">
+                            <MudText Align="Align.Left">@context.Start - @context.End</MudText>
+                        </MudRTLProvider>
+                    </MudTd>
+
+                    <MudTd Class="text-center" DataLabel="وضعیت">
+                        <MudChip T="string" Color="@StatusColor(context.Status)" Variant="Variant.Filled"
+                                 Size="Size.Small"
+                                 Icon="@StatusIcon(context.Status)">
+                            @StatusText(context.Status)
+                        </MudChip>
+                    </MudTd>
+
+                    <MudTd Class="text-center" DataLabel="نام بیمار">
+                        <MudText>@(string.IsNullOrWhiteSpace(context.PatientFullName) ? "-" : context.PatientFullName)</MudText>
+                    </MudTd>
+
+                    <MudTd Class="text-center" DataLabel="تلفن">
+                        <MudRTLProvider RightToLeft="false">
+                            <MudText Align="Align.Left">@NormalizePhone(context.PatientPhone)</MudText>
+                        </MudRTLProvider>
+                    </MudTd>
+
+                    <MudTd Class="text-center" HideSmall DataLabel="هزینه">
+                        <MudText>@context.PriceAmount.ToString("N0") @context.PriceCurrency</MudText>
+                    </MudTd>
+
+                    <MudTd Class="text-center" HideSmall DataLabel="یادداشت">
+                        <MudText>@(string.IsNullOrWhiteSpace(context.Notes) ? "-" : context.Notes)</MudText>
+                    </MudTd>
+
+                    <!-- ACTIONS (role-based) -->
+
+                    <MudTd Class="text-center" DataLabel="اقدامات">
+                        <MudStack Row Spacing="1" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd">
+                            <!-- view details: everyone -->
+                            <MudIconButton Icon="@MaterialIcons.Filled.Visibility"
+                                           Color="Color.Primary"
+                                           Size="Size.Small"
+                                           OnClick="@(() => ViewDetails(context))"
+                                           Title="جزئیات"/>
+
+                            <MudIconButton Icon="@MaterialIcons.Filled.Schedule"
+                                           Color="Color.Info"
+                                           Size="Size.Small"
+                                           OnClick="@(() => OpenRescheduleDialog(context))">
+                                تغییر زمان
+                            </MudIconButton>
+                            @if (IsBooked(context))
+                            {
+                                <MudIconButton Icon="@MaterialIcons.Filled.Cancel"
+                                               Color="Color.Error"
+                                               Size="Size.Small"
+                                               OnClick="@(() => ConfirmAndCancel(context))">
+                                    لغو نوبت
+                                </MudIconButton>
+                            }
+
+                            <!-- Doctor/Secretary: complete, reschedule, cancel (when Booked) -->
+                            <AuthorizeView Roles="Doctor,Secretary">
+                                <Authorized Context="Auth">
+                                    @if (IsBooked(context))
+                                    {
+                                        <MudIconButton Icon="@MaterialIcons.Filled.CheckCircle"
+                                                       Color="Color.Success"
+                                                       Size="Size.Small"
+                                                       OnClick="@(() => MarkComplete(context))">
+                                            علامت‌گذاری انجام‌شده
+                                        </MudIconButton>
+                                    }
+                                </Authorized>
+                            </AuthorizeView>
+                        </MudStack>
+                    </MudTd>
+                }
+                else
+                {
+                    <MudTd Class="text-center" DataLabel="خدمت">
+                        <MudText>@context.ServiceTitle</MudText>
+                    </MudTd>
+
+                    <MudTd Class="text-center" DataLabel="ساعت">
                         <MudText Align="Align.Left">@context.Start - @context.End</MudText>
-                    </MudRTLProvider>
-                </MudTd>
-                <MudTd DataLabel="وضعیت">
-                    <MudChip T="string" Color="@StatusColor(context.Status)" Variant="Variant.Filled" Size="Size.Small"
-                             Icon="@StatusIcon(context.Status)">
-                        @StatusText(context.Status)
-                    </MudChip>
-                </MudTd>
-                <MudTd DataLabel="نام بیمار">
-                    <MudText>@(string.IsNullOrWhiteSpace(context.PatientFullName) ? "-" : context.PatientFullName)</MudText>
-                </MudTd>
-                <MudTd DataLabel="تلفن">
-                    <MudRTLProvider RightToLeft="false">
-                        <MudText Align="Align.Left">@NormalizePhone(context.PatientPhone)</MudText>
-                    </MudRTLProvider>
-                </MudTd>
-                <MudTd HideSmall DataLabel="هزینه">
-                    <MudText>@context.PriceAmount.ToString("N0") @context.PriceCurrency</MudText>
-                </MudTd>
-                <MudTd HideSmall DataLabel="یادداشت">
-                    <MudText>@(string.IsNullOrWhiteSpace(context.Notes) ? "-" : context.Notes)</MudText>
-                </MudTd>
+                    </MudTd>
 
-                <!-- ACTIONS (role-based) -->
-                <MudTd DataLabel="اقدامات">
-                    <MudStack Row Spacing="1" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd">
+                    <MudTd Class="text-center" DataLabel="وضعیت">
+                        <MudChip T="string" Color="@StatusColor(context.Status)" Variant="Variant.Filled"
+                                 Size="Size.Small"
+                                 Icon="@StatusIcon(context.Status)">
+                            @StatusText(context.Status)
+                        </MudChip>
+                    </MudTd>
 
-                        <!-- view details: everyone -->
-                        <MudIconButton Icon="@MaterialIcons.Filled.Visibility"
-                                       Color="Color.Primary"
-                                       Size="Size.Small"
-                                       OnClick="@(() => ViewDetails(context))"
-                                       Title="جزئیات"/>
+                    <MudTd Class="text-center" DataLabel="نام بیمار">
+                        <MudText>@(string.IsNullOrWhiteSpace(context.PatientFullName) ? "-" : context.PatientFullName)</MudText>
+                    </MudTd>
 
-                        <!-- Patient: can cancel own Booked -->
-                        <AuthorizeView Roles="Patient">
-                            <Authorized Context="Auth">
-                                @if (IsBooked(context))
-                                {
-                                    <MudIconButton Icon="@MaterialIcons.Filled.Cancel"
-                                                   Color="Color.Error"
-                                                   Size="Size.Small"
-                                                   OnClick="@(() => ConfirmAndCancel(context))">
-                                        لغو نوبت
-                                    </MudIconButton>
-                                }
-                            </Authorized>
-                        </AuthorizeView>
-
-                        <!-- Doctor/Secretary: complete, reschedule, cancel (when Booked) -->
-                        <AuthorizeView Roles="Doctor,Secretary">
-                            <Authorized Context="Auth">
-                                @if (IsBooked(context))
-                                {
-                                    <MudIconButton Icon="@MaterialIcons.Filled.CheckCircle"
-                                                   Color="Color.Success"
-                                                   Size="Size.Small"
-                                                   OnClick="@(() => MarkComplete(context))"
-                                    >
-                                        علامت‌گذاری انجام‌شده
-                                    </MudIconButton>
-
-                                    <MudIconButton Icon="@MaterialIcons.Filled.Schedule"
-                                                   Color="Color.Info"
-                                                   Size="Size.Small"
-                                                   OnClick="@(() => OpenRescheduleDialog(context))">
-                                        تغییر زمان
-                                    </MudIconButton>
-
-                                    <MudIconButton Icon="@MaterialIcons.Filled.Cancel"
-                                                   Color="Color.Error"
-                                                   Size="Size.Small"
-                                                   OnClick="@(() => ConfirmAndCancel(context))">
-                                        لغو نوبت
-                                    </MudIconButton>
-                                }
-                            </Authorized>
-                        </AuthorizeView>
-
-                    </MudStack>
-                </MudTd>
+                    <MudTd Class="text-center" DataLabel="تلفن">
+                        <MudRTLProvider RightToLeft="false">
+                            <MudText Align="Align.Left">@NormalizePhone(context.PatientPhone)</MudText>
+                        </MudRTLProvider>
+                    </MudTd>
+                }
             </RowTemplate>
 
             <LoadingContent>
-                <MudStack Spacing="1" Class="p-4">@for (var i = 0; i < 6; i++)
+                <MudStack Spacing="1" Class="p-4">
+                    @for (var i = 0; i < 6; i++)
                     {
                         <MudSkeleton Height="38px" Width="100%" Animation="Animation.Wave"/>
                     }
@@ -200,8 +254,7 @@
                     <MudIcon Icon="@MaterialIcons.Filled.SearchOff" Size="Size.Large" Color="Color.Default"/>
                     <MudText Typo="Typo.h6">موردی یافت نشد</MudText>
                     <MudText Typo="Typo.body2" Color="Color.Secondary">فیلترها را تغییر دهید یا بازنشانی کنید.</MudText>
-                    <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="ClearFilters">بازنشانی
-                        فیلترها
+                    <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="ClearFilters">بازنشانی فیلترها
                     </MudButton>
                 </MudStack>
             </NoRecordsContent>
@@ -214,28 +267,33 @@
 </MudContainer>
 
 @code {
-    private MudTable<AppointmentResponse>? _table;
+    [CascadingParameter] public Action UpdateUi { get; set; } = default!;
 
+    private void TriggerParentUpdate()
+    {
+        UpdateUi?.Invoke(); // Call the parent's UpdateUi method
+    }
+
+    private MudTable<AppointmentResponse>? _table;
 
     private DateRange?         _dateRange = new(DateTime.Today, DateTime.Today.AddDays(7));
     private AppointmentStatus? _status;
     private string?            _search;
 
-
     private List<AppointmentResponse> _all = null!;
     private long                      _totalCount;
 
-
-    [Parameter] [SupplyParameterFromQuery] public Guid? PatientUserId { get; set; }
-    [Parameter] [SupplyParameterFromQuery] public DateOnly? From      { get; set; }
-    [Parameter] [SupplyParameterFromQuery] public DateOnly? To        { get; set; }
+    [Parameter] [SupplyParameterFromQuery] public long? PatientUserId { get; set; }
+    [Parameter] [SupplyParameterFromQuery] public DateOnly? From { get; set; }
+    [Parameter] [SupplyParameterFromQuery] public DateOnly? To { get; set; }
+    [Parameter] public bool ShowFilters { get; set; } = true;
 
     protected override async Task OnParametersSetAsync()
     {
         if (From.HasValue || To.HasValue)
         {
             var start = From?.ToDateTime(TimeOnly.MinValue) ?? _dateRange?.Start ?? DateTime.Today;
-            var end   = To?.ToDateTime   (TimeOnly.MinValue) ?? _dateRange?.End   ?? DateTime.Today;
+            var end   = To?.ToDateTime(TimeOnly.MinValue)   ?? _dateRange?.End   ?? DateTime.Today;
             _dateRange = new DateRange(start, end);
         }
 
@@ -245,7 +303,7 @@
     private async Task<TableData<AppointmentResponse>> LoadServerData(TableState state, CancellationToken ct)
     {
         // اگر هنوز داده‌ای لود نشده، یک‌بار لود کن
-        if (_all is null || _all.Count == 0)
+        if (_all is null)
             await ReloadData();
 
         IEnumerable<AppointmentResponse> q = _all!;
@@ -256,42 +314,42 @@
         if (!string.IsNullOrWhiteSpace(_search))
         {
             var s = _search.Trim();
+
             q = q.Where(a =>
-                (a.PatientFullName?.Contains(s, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (a.PatientPhone?.Contains(s, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (a.ServiceTitle?.Contains(s, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (a.Notes?.Contains(s, StringComparison.OrdinalIgnoreCase) ?? false));
+                            (a.PatientFullName?.Contains(s, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (a.PatientPhone?.Contains(s, StringComparison.OrdinalIgnoreCase)    ?? false) ||
+                            (a.ServiceTitle?.Contains(s, StringComparison.OrdinalIgnoreCase)    ?? false) ||
+                            (a.Notes?.Contains(s, StringComparison.OrdinalIgnoreCase)           ?? false));
         }
 
-        q = q.OrderBy(a => a.Date).ThenBy(a => a.Start);
+        q           = q.OrderBy(a => a.Date).ThenBy(a => a.Start);
         _totalCount = q.LongCount();
 
         var pageItems = q.Skip(state.Page * state.PageSize).Take(state.PageSize).ToList();
 
         return new TableData<AppointmentResponse>
         {
-            Items = pageItems,
+            Items      = pageItems,
             TotalItems = (int)Math.Min(int.MaxValue, _totalCount)
         };
     }
-
 
     private async Task ReloadData()
     {
         try
         {
             var fromDo = _dateRange?.Start is not null ? DateOnly.FromDateTime(_dateRange!.Start!.Value) : (From ?? DateOnly.FromDateTime(DateTime.Today));
-            var toDo   = _dateRange?.End   is not null ? DateOnly.FromDateTime(_dateRange!.End!.Value)   : (To   ?? DateOnly.FromDateTime(DateTime.Today.AddDays(7)));
+            var toDo   = _dateRange?.End is not null ? DateOnly.FromDateTime(_dateRange!.End!.Value) : (To       ?? DateOnly.FromDateTime(DateTime.Today.AddDays(7)));
 
             var list = await Mediator.Send(new GetAppointmentsQuery(fromDo, toDo, PatientUserId));
-            _all = list ?? [];
+            _all        = list ?? [];
             _totalCount = _all.Count;
             await _table!.ReloadServerData();
             StateHasChanged();
         }
         catch
         {
-            _all = new();
+            _all        = new();
             _totalCount = 0;
             Snackbar.ShowError("خطا در دریافت نوبت‌ها");
         }
@@ -303,36 +361,33 @@
     private void ClearFilters()
     {
         _dateRange = new DateRange(DateTime.Today, DateTime.Today.AddDays(7));
-        _status = null;
-        _search = null;
-        _ = ReloadData();
+        _status    = null;
+        _search    = null;
+        _          = ReloadData();
     }
 
     private string ToolbarCaption => _dateRange is { Start: not null, End: not null }
         ? $"از {_dateRange!.Start:yyyy/MM/dd} تا {_dateRange!.End:yyyy/MM/dd}"
         : "بازهٔ زمانی انتخاب‌شده";
 
-
     // ===== Row action handlers =====
-
     private async Task ViewDetails(AppointmentResponse appt)
     {
-        // You can reuse your existing user info dialog or show a quick summary
         var md = new DialogOptions
         {
             CloseOnEscapeKey = true,
-            MaxWidth = MaxWidth.Small,
-            FullWidth = true,
+            MaxWidth         = MaxWidth.Small,
+            FullWidth        = true,
         };
 
         var parameters = new DialogParameters<ApointmentInfoDialog>
         {
             {
-                x => x.Model , appt
+                x => x.Model, appt
             }
         };
 
-        await DialogService.ShowAsync<ApointmentInfoDialog>("" , parameters  , md);
+        await DialogService.ShowAsync<ApointmentInfoDialog>("", parameters, md);
     }
 
     private async Task ConfirmAndCancel(AppointmentResponse appt)
@@ -356,6 +411,7 @@
             await Mediator.Send(new CancelAppointmentCommand(appt.Id), CancellationToken.None);
             Snackbar.ShowSuccess("نوبت لغو شد.");
             await ReloadData();
+            TriggerParentUpdate();
         }
         catch (Exception ex)
         {
@@ -372,10 +428,11 @@
             await Mediator.Send(new CompleteAppointmentCommand(appt.Id), CancellationToken.None);
             Snackbar.ShowSuccess("نوبت با موفقیت انجام‌شده علامت خورد.");
             await ReloadData();
+            TriggerParentUpdate();
         }
         catch (Exception ex)
         {
-            Snackbar.ShowError($"خطا در ثبت انجام‌شده: { ex.Message}");
+            Snackbar.ShowError($"خطا در ثبت انجام‌شده: {ex.Message}");
         }
     }
 
@@ -391,7 +448,8 @@
                     ServiceId = appt.ServiceId,
                     Date = appt.Date,
                     Start = appt.Start,
-                    Notes = appt.Notes
+                    Notes = appt.Notes,
+                    PatientUserId = appt.PatientId
                 }
             }
         };
@@ -412,19 +470,19 @@
             try
             {
                 await Mediator.Send(new RescheduleAppointmentCommand
-                    {
-                        ServiceId = m.ServiceId,
-                        Date = m.Date,
-                        Start = m.Start,
-                        Notes = m.Notes,
-                        Id = appt.Id,
-                        PatientFullName = appt.PatientFullName,
-                        PatientPhone = appt.PatientPhone
-                    },
-                    CancellationToken.None);
+                {
+                    ServiceId = m.ServiceId,
+                    Date = m.Date,
+                    Start = m.Start,
+                    Notes = m.Notes,
+                    Id = appt.Id,
+                    PatientFullName = appt.PatientFullName,
+                    PatientPhone = appt.PatientPhone
+                }, CancellationToken.None);
 
                 Snackbar.ShowSuccess("زمان نوبت با موفقیت تغییر کرد.");
                 await ReloadData();
+                TriggerParentUpdate();
             }
             catch (Exception ex)
             {
@@ -442,31 +500,29 @@
 
     private static Color StatusColor(AppointmentStatus s)
         => s switch
-           {
-               AppointmentStatus.Booked    => Color.Info,
-               AppointmentStatus.Completed => Color.Success,
-               AppointmentStatus.Cancelled => Color.Error,
-               // if your enum has "Cancelled" (double-l), treat same:
-               (AppointmentStatus)9999 => Color.Error, // placeholder if needed
-               _                       => Color.Default
-           };
+        {
+            AppointmentStatus.Booked => Color.Info,
+            AppointmentStatus.Completed => Color.Success,
+            AppointmentStatus.Cancelled => Color.Error,
+            (AppointmentStatus)9999 => Color.Error,
+            _ => Color.Default
+        };
 
     private static string StatusIcon(AppointmentStatus s)
         => s switch
-           {
-               AppointmentStatus.Booked    => MaterialIcons.Filled.Event,
-               AppointmentStatus.Completed => MaterialIcons.Filled.CheckCircle,
-               AppointmentStatus.Cancelled => MaterialIcons.Filled.Block,
-               _                           => MaterialIcons.Filled.Help
-           };
+        {
+            AppointmentStatus.Booked => MaterialIcons.Filled.Event,
+            AppointmentStatus.Completed => MaterialIcons.Filled.CheckCircle,
+            AppointmentStatus.Cancelled => MaterialIcons.Filled.Block,
+            _ => MaterialIcons.Filled.Help
+        };
 
     private static string StatusText(AppointmentStatus s)
         => s switch
-           {
-               AppointmentStatus.Booked    => "رزروشده",
-               AppointmentStatus.Completed => "انجام‌شده",
-               AppointmentStatus.Cancelled => "لغوشده",
-               _                           => "نامشخص"
-           };
-
+        {
+            AppointmentStatus.Booked => "رزروشده",
+            AppointmentStatus.Completed => "انجام‌شده",
+            AppointmentStatus.Cancelled => "لغوشده",
+            _ => "نامشخص"
+        };
 }

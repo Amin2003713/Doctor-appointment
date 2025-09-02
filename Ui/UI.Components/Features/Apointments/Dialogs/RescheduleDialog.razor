@@ -11,7 +11,7 @@
                 <MudIcon Icon="@MaterialIcons.Filled.Event" Size="Size.Medium"/>
             </MudStack>
 
-            <MudForm @ref="_form" Model="Model" >
+            <MudForm @ref="_form" Model="Model">
                 <MudGrid Class="mt-2">
                     <!-- تاریخ -->
                     <MudItem xs="12" sm="6">
@@ -100,6 +100,13 @@
 </MudDialog>
 
 @code {
+    [CascadingParameter] public Action UpdateUi { get; set; } = default!;
+
+    private void TriggerParentUpdate()
+    {
+        UpdateUi?.Invoke(); // Call the parent's UpdateUi method
+    }
+
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
     [Parameter] public RescheduleModel Model { get; set; } = new();
 
@@ -113,8 +120,8 @@
 
     private CancellationTokenSource? _slotCts;
 
-    private bool _disableSubmit => Model.ServiceId == Guid.Empty ||
-                                   !_dateValue.HasValue ||
+    private bool _disableSubmit => Model.ServiceId == Guid.Empty            ||
+                                   !_dateValue.HasValue                     ||
                                    string.IsNullOrWhiteSpace(_selectedSlot) ||
                                    !IsValidHHmm(_selectedSlot!);
 
@@ -135,18 +142,19 @@
     private void OnDateChanged(DateTime? dt)
     {
         _dateValue = dt;
+
         if (dt.HasValue)
             Model.Date = DateOnly.FromDateTime(dt.Value);
 
         _selectedSlot = null;
-        Model.Start = string.Empty;
-        _ = TryLoadSlotsAsync();
+        Model.Start   = string.Empty;
+        _             = TryLoadSlotsAsync();
     }
 
     private void OnSlotSelected(string? hhmm)
     {
         _selectedSlot = hhmm;
-        Model.Start = hhmm ?? string.Empty;
+        Model.Start   = hhmm ?? string.Empty;
     }
 
     private async Task TryLoadSlotsAsync()
@@ -168,20 +176,14 @@
 
         try
         {
-            var req    = new GetAvailableSlotsRequest(DateOnly.FromDateTime(_dateValue.Value), Model.ServiceId);
+            var req    = new GetAvailableSlotsRequest(DateOnly.FromDateTime(_dateValue.Value), Model.ServiceId, Model.PatientUserId);
             var result = await Mediator.Send(req, token);
 
             if (token.IsCancellationRequested) return;
 
-            _slots = (result ?? new List<string>())
-                .Where(s => !string.IsNullOrWhiteSpace(s))
-                .Select(NormalizeTimeString)
-                .Where(IsValidHHmm)
-                .Distinct()
-                .OrderBy(s => s)
-                .ToList();
+            _slots = (result ?? []).Where(s => !string.IsNullOrWhiteSpace(s.Key)).Select(a => NormalizeTimeString(a.Key)).Where(IsValidHHmm).Distinct().OrderBy(s => s).ToList();
 
-        
+
             if (!string.IsNullOrWhiteSpace(_selectedSlot) && _slots.Contains(_selectedSlot))
             {
                 Model.Start = _selectedSlot!;
@@ -189,14 +191,14 @@
             else
             {
                 _selectedSlot = _slots.FirstOrDefault();
-                Model.Start = _selectedSlot ?? string.Empty;
+                Model.Start   = _selectedSlot ?? string.Empty;
             }
         }
         catch (Exception ex)
         {
             _slots.Clear();
             _selectedSlot = null;
-            Model.Start = string.Empty;
+            Model.Start   = string.Empty;
         }
         finally
         {
@@ -242,11 +244,14 @@
     private static string NormalizeTimeString(string input)
     {
         var v = input.Trim();
+
         if (v.Length == 4 && !v.Contains(':')) // "1430" -> "14:30"
             v = $"{v[..2]}:{v[2..]}";
+
         // صفرگذاری دقیقه/ساعت تک‌رقمی (مثلاً "9:5" -> "09:05")
         if (TimeSpan.TryParse(v, out var t))
             return $"{(int)t.TotalHours:00}:{t.Minutes:00}";
+
         return v;
     }
 
@@ -259,5 +264,7 @@
         public DateOnly Date { get; set; }
         public string Start { get; set; } = "";
         public string? Notes { get; set; }
+        public long PatientUserId { get; set; }
     }
+
 }

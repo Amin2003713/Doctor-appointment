@@ -5,6 +5,7 @@
 @using App.Domain.Users
 @using UI.Components.Common.BaseComponents.Dialogs
 @using UI.Components.Common.BaseComponents.Picture
+@using UI.Components.Features.Apointments.Dialogs
 
 <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="pt-4">
 
@@ -25,25 +26,25 @@
                   @ref="_table">
 
             <ToolBarContent>
-                    <MudText Typo="Typo.h5" Class="fw-bold" Style="margin: 8px">
-                        @_title
-                        <MudText Typo="Typo.caption" Class="ms-2" Color="Color.Secondary">
-                            (@_totalCount.ToString("N0"))
-                        </MudText>
+                <MudText Typo="Typo.h5" Class="fw-bold" Style="margin: 8px">
+                    @_title
+                    <MudText Typo="Typo.caption" Class="ms-2" Color="Color.Secondary">
+                        (@_totalCount.ToString("N0"))
                     </MudText>
+                </MudText>
 
-                    <MudSpacer/>
+                <MudSpacer/>
 
-                    <MudTextField
-                        @bind-Value="_search"
-                        Placeholder="جستجوی کاربر…"
-                        Adornment="Adornment.Start"
-                        AdornmentIcon="@MaterialIcons.Filled.Search"
-                        Variant="Variant.Text"
-                        Immediate="true"
-                        Clearable="true"
-                        DebounceInterval="400"
-                        OnBlur="RefreshTable"/>
+                <MudTextField
+                    @bind-Value="_search"
+                    Placeholder="جستجوی کاربر…"
+                    Adornment="Adornment.Start"
+                    AdornmentIcon="@MaterialIcons.Filled.Search"
+                    Variant="Variant.Text"
+                    Immediate="true"
+                    Clearable="true"
+                    DebounceInterval="400"
+                    OnBlur="RefreshTable"/>
 
             </ToolBarContent>
 
@@ -68,7 +69,7 @@
 
                 <MudTd DataLabel="نام کاربری">
                     <MudRTLProvider RightToLeft="false">
-                        <MudText Align="Align.Left">@context.Username.Replace("+98" , "0")</MudText>
+                        <MudText Align="Align.Left">@context.Username.Replace("+98", "0")</MudText>
                     </MudRTLProvider>
                 </MudTd>
 
@@ -157,11 +158,21 @@
                 </MudTd>
 
                 <MudTd HideSmall>
-                    <MudIconButton Icon="@MaterialIcons.Filled.Visibility"
-                                   Color="Color.Primary"
-                                   OnClick="() => ViewUser(context)">
-                        مشاهده
-                    </MudIconButton>
+                    <MudTooltip Text="مشاهده" Placement="Placement.Top" Arrow="true">
+
+                        <MudIconButton Icon="@MaterialIcons.Filled.Visibility"
+                                       Color="Color.Primary"
+                                       OnClick="() => ViewUser(context)"/>
+                    
+                    </MudTooltip>
+
+                    <MudTooltip Text="رزرو نوبت" Placement="Placement.Top" Arrow="true">
+                        <MudIconButton Icon="@Icons.Outlined.PersonAdd"
+                                       Size="Size.Small"
+                                       Color="Color.Success"
+                                       Disabled="@(!context.IsActive)"
+                                       OnClick="@(() => Reserve(context))"/>
+                    </MudTooltip>
                 </MudTd>
             </RowTemplate>
 
@@ -197,11 +208,17 @@
 </MudContainer>
 
 @code {
+[CascadingParameter]
+    public Action UpdateUi { get; set; } = default!;
+
+    private void TriggerParentUpdate()
+    {
+        UpdateUi?.Invoke(); // Call the parent's UpdateUi method
+    }
     private MudTable<UserListItemResponse>? _table;
     private string?                         _search;
 
-    [ Parameter] [ SupplyParameterFromQuery]
-    public bool Secretaries { get; set; }
+    [Parameter] [SupplyParameterFromQuery] public bool Secretaries { get; set; }
 
     private string _title = "کاربران";
     private long   _totalCount;
@@ -214,7 +231,32 @@
     protected override void OnParametersSet()
     {
         _title = Secretaries ? "منشی‌ها" : "بیماران";
-        _ = _table?.ReloadServerData();
+        _      = _table?.ReloadServerData();
+    }
+
+    private async Task Reserve(UserListItemResponse context)
+    {
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            MaxWidth         = MaxWidth.Small,
+            FullWidth        = true,
+            CloseButton      = true,
+            Position         = DialogPosition.Center
+        };
+
+        var parameters = new DialogParameters
+        {
+            {
+                "UserId", context.Id
+            },
+            {
+                "IsPatient", StateProvider.User!.Roles.Contains("Patient")
+            }
+        };
+
+
+        await DialogService.ShowAsync<CreateAppointment>("ایجاد نوبت جدید", parameters, options);
     }
 
     private async Task<TableData<UserListItemResponse>> LoadServerData(TableState state, CancellationToken cancellationToken)
@@ -235,9 +277,10 @@
             if (resp?.Items is null)
             {
                 _totalCount = 0;
+
                 return new TableData<UserListItemResponse>
                 {
-                    Items = [],
+                    Items      = [],
                     TotalItems = 0
                 };
             }
@@ -246,16 +289,17 @@
 
             return new TableData<UserListItemResponse>
             {
-                Items = resp.Items.OrderBy(a => a.IsActive).ToList(),
+                Items      = resp.Items.OrderBy(a => a.IsActive).ToList(),
                 TotalItems = (int)Math.Min(int.MaxValue, resp.TotalCount)
             };
         }
         catch
         {
             _totalCount = 0;
+
             return new TableData<UserListItemResponse>
             {
-                Items = [],
+                Items      = [],
                 TotalItems = 0
             };
         }
@@ -298,7 +342,7 @@
 
 
         var dialog = DialogService.ShowAsync<UserInfoDialog>($"اطلاعات کاربر({userInfo.Username})", parameters, options);
-        var result = await  dialog.Result.Result;
+        var result = await dialog.Result.Result;
 
         if (!result!.Canceled)
         {
@@ -312,6 +356,8 @@
         await Mediator.Send(new ToggleUserRequest(userId));
         await _table!.ReloadServerData();
         StateHasChanged();
+        TriggerParentUpdate();
+
     }
 
 }

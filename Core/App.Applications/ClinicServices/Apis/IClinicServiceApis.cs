@@ -1,4 +1,5 @@
-﻿using App.Applications.ClinicServices.Requests.Get;
+﻿using App.Applications.ClinicServices.Requests.Create;
+using App.Applications.ClinicServices.Requests.Get;
 using App.Applications.ClinicServices.Requests.Update;
 using App.Common.General;
 using Refit;
@@ -14,7 +15,7 @@ public interface IClinicServiceApis
     Task<ApiResponse<ClinicServiceResponse>> GetById(Guid id, CancellationToken ct);
 
     [Post(ApiRoutes.Services.Create)]
-    Task<ApiResponse<Guid>> Create([Body] UpsertServiceRequest body, CancellationToken ct);
+    Task<ApiResponse<Guid>> Create([Body] CreateClinicServiceRequest body, CancellationToken ct);
 
     [Put(ApiRoutes.Services.Update)]
     Task<ApiResponse<object>> Update(Guid id, [Body] UpsertServiceRequest body, CancellationToken ct);

@@ -78,6 +78,7 @@
 </MudDialog>
 
 @code {
+
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
 
     [Parameter] public UserInfo? Model { get; set; }
@@ -92,6 +93,13 @@
     private string?              _newRole;
 
     public string[] Roles => GetRoles();
+
+    [CascadingParameter] public Action UpdateUi { get; set; } = default!;
+
+    private void TriggerParentUpdate()
+    {
+        UpdateUi?.Invoke(); // Call the parent's UpdateUi method
+    }
 
     private string[] GetRoles()
     {
@@ -160,6 +168,7 @@
                 _editModel = newInfo.Adapt<UpdateProfileRequest>();
                 _Editing = false;
                 StateHasChanged();
+                TriggerParentUpdate();
             }
         }
         else

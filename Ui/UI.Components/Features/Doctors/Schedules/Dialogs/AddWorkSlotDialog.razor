@@ -99,6 +99,13 @@
 </MudDialog>
 
 @code {
+[CascadingParameter]
+    public Action UpdateUi { get; set; } = default!;
+
+    private void TriggerParentUpdate()
+    {
+        UpdateUi?.Invoke(); // Call the parent's UpdateUi method
+    }
     [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
 
     // Incoming from page
@@ -288,6 +295,7 @@
         }
 
         await Mediator.Send(new UpdateWorkScheduleCommand(body));
+        TriggerParentUpdate();
         MudDialog.Close(DialogResult.Ok(true));
     }
 

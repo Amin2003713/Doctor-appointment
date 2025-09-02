@@ -17,8 +17,8 @@ public interface IWorkScheduleApis
 
 
     [Get(ApiRoutes.Schedule.Slots)]
-    Task<ApiResponse<List<string>>> GetSlots([Query] DateOnly date, [Query] Guid serviceId, CancellationToken ct = default);
+    Task<ApiResponse<List<string>>> GetSlots([Query] DateOnly date, [Query] Guid serviceId ,[Query] long patientUserId, CancellationToken ct = default);
 
     [Get(ApiRoutes.Schedule.SlotSummery)]
-    Task<ApiResponse<SlotsSummaryResponse>> GetSlotSummery([Query] DateOnly date, [Query] Guid serviceId, CancellationToken ct = default);
+    Task<ApiResponse<SlotsSummaryResponse>> GetSlotSummery([Query] DateOnly date, [Query] Guid serviceId, [Query] long patientUserId, CancellationToken ct = default);
 }

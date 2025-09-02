@@ -4,6 +4,7 @@ namespace App.Applications.Schedules.Requests.GetSlots;
 
 public record GetSlotsSummeryRequest(
     DateOnly Date,
-    Guid     ServiceId
+    Guid     ServiceId,
+    long patientUserId
 ) :
     IRequest<SlotsSummaryResponse>;

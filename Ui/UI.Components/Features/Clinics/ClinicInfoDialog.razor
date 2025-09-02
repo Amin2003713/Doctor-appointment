@@ -128,6 +128,13 @@
 </MudDialog>
 
 @code {
+[CascadingParameter]
+    public Action UpdateUi { get; set; } = default!;
+
+    private void TriggerParentUpdate()
+    {
+        UpdateUi?.Invoke(); // Call the parent's UpdateUi method
+    }
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
 
     [Parameter] public ClinicSettingsResponse? Model { get; set; }
@@ -223,6 +230,8 @@
             Model = await Mediator.Send(new GetClinicSettingsInfo());
             _Editing = false;
             StateHasChanged();
+            TriggerParentUpdate();
+
         }
         else
         {
