@@ -19,8 +19,8 @@ public class MedicalRecordsController(AppDbContext db) : ControllerBase
 {
     // GET /api/medical-records/{patientUserId}/ehr
     [Authorize(Roles = "Doctor,Secretary,Patient")]
-    [HttpGet("{patientUserId:guid}/ehr")]
-    public async Task<ActionResult<PatientEhrResponse>> GetEhr(Guid patientUserId, CancellationToken ct)
+    [HttpGet("{patientUserId:long}/ehr")]
+    public async Task<ActionResult<PatientEhrResponse>> GetEhr(long patientUserId, CancellationToken ct)
     {
         var (uid, role) = GetUserIdAndRole();
         if (role == "Patient" && uid != patientUserId) return Forbid();
@@ -179,14 +179,14 @@ public class MedicalRecordsController(AppDbContext db) : ControllerBase
         return Ok(list);
     }
 
-    private (Guid? userId, string role) GetUserIdAndRole()
+    private (long? userId, string role) GetUserIdAndRole()
     {
         var role = User.FindFirstValue(ClaimTypes.Role) ??
                    User.FindFirstValue("role") ??
                    User.FindFirstValue("roles") ?? "";
         var sub  = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
-        Guid? uid = null;
-        if (Guid.TryParse(sub, out var parsed)) uid = parsed;
+        long? uid = null;
+        if (long.TryParse(sub, out var parsed)) uid = parsed;
         return (uid, role);
     }
 }

@@ -20,7 +20,7 @@ public class PrescriptionsController(AppDbContext db) : ControllerBase
     public async Task<ActionResult<PrescriptionResponse>> Create([FromBody] CreatePrescriptionRequest body, CancellationToken ct)
     {
         if (body.AppointmentId == Guid.Empty) return BadRequest("AppointmentId required.");
-        if (body.PatientUserId == Guid.Empty) return BadRequest("PatientUserId required.");
+        if (body.PatientUserId == 0) return BadRequest("PatientUserId required.");
         if (body.Items is null || body.Items.Count == 0) return BadRequest("At least one item required.");
 
         var ap = await db.Appointments.AsNoTracking().FirstOrDefaultAsync(a => a.Id == body.AppointmentId, ct);
@@ -86,7 +86,7 @@ public class PrescriptionsController(AppDbContext db) : ControllerBase
     // GET /api/prescriptions/by-patient/{patientUserId}
     [Authorize(Roles = "Doctor,Secretary,Patient")]
     [HttpGet("by-patient/{patientUserId:guid}")]
-    public async Task<ActionResult<List<PrescriptionResponse>>> ListByPatient(Guid patientUserId, CancellationToken ct)
+    public async Task<ActionResult<List<PrescriptionResponse>>> ListByPatient(long patientUserId, CancellationToken ct)
     {
         var (uid, role) = GetUserIdAndRole();
         if (role == "Patient" && uid != patientUserId) return Forbid();
@@ -158,14 +158,14 @@ public class PrescriptionsController(AppDbContext db) : ControllerBase
     private static string GenerateErxCode() =>
         $"ERX-{Convert.ToHexString(Guid.NewGuid().ToByteArray())[..10]}";
 
-    private (Guid? userId, string role) GetUserIdAndRole()
+    private (long? userId, string role) GetUserIdAndRole()
     {
         var role = User.FindFirstValue(ClaimTypes.Role) ??
                    User.FindFirstValue("role") ??
                    User.FindFirstValue("roles") ?? "";
         var   sub = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
-        Guid? uid = null;
-        if (Guid.TryParse(sub, out var parsed)) uid = parsed;
+        long? uid = null;
+        if (long.TryParse(sub, out var parsed)) uid = parsed;
         return (uid, role);
     }
 }

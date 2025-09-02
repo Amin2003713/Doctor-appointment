@@ -4,8 +4,8 @@ public class Prescription
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public Guid AppointmentId { get; set; }
-    public Guid PatientUserId { get; set; }
-    public Guid PrescribedByUserId { get; set; }
+    public long PatientUserId { get; set; }
+    public long PrescribedByUserId { get; set; }
     public DateTime IssuedAtUtc { get; set; } = DateTime.UtcNow;
     public PrescriptionStatus Status { get; set; } = PrescriptionStatus.Draft;
     public IssueMethod IssueMethod { get; set; } = IssueMethod.Electronic;

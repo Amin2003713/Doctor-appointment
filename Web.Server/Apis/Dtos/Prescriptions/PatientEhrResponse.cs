@@ -2,7 +2,7 @@
 
 public sealed class PatientEhrResponse
 {
-    public Guid PatientUserId { get; set; }
+    public long PatientUserId { get; set; }
     public string FullName { get; set; } = default!;
     public string? PhoneNumber { get; set; }
     public string? Address { get; set; }
