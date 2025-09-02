@@ -2,8 +2,8 @@
 
 public sealed class PrescriptionItemRequest
 {
-    public string DrugName { get; set; } = default!;
-    public string? GenericName { get; set; }
+    public Guid? DrugId { get; set; }     // optional; when set, we resolve names from Drug
+    public string? DrugName { get; set; } // optional fallback when DrugId is null
     public string Dosage { get; set; } = default!;
     public string Frequency { get; set; } = default!;
     public string Duration { get; set; } = default!;

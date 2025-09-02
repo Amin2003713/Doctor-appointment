@@ -1,7 +1,6 @@
 ﻿using System.Security.Claims;
 using Api.Endpoints.Context;
 using Api.Endpoints.Dtos.doctor;
-using Api.Endpoints.Models.Apointments;
 using Api.Endpoints.Models.Appointments;
 using Api.Endpoints.Models.Clinic;
 using Api.Endpoints.Models.Schedule;

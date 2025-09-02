@@ -1,6 +1,4 @@
-﻿using Api.Endpoints.Models.Appointments;
-
-namespace Api.Endpoints.Models.Apointments;
+﻿namespace Api.Endpoints.Models.Appointments;
 
 public class Appointment
 {

@@ -1,8 +1,10 @@
-﻿using System.Security.Claims;
+﻿#nullable enable
+using System.Security.Claims;
 using Api.Endpoints.Context;
 using Api.Endpoints.Dtos.Prescriptions;
 using Api.Endpoints.Models.Appointments;
 using Api.Endpoints.Models.Prescriptions;
+using Api.Endpoints.Models.Drugs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +16,6 @@ namespace Api.Endpoints.Controllers.Prescriptions;
 [Authorize]
 public class PrescriptionsController(AppDbContext db) : ControllerBase
 {
-    // POST /api/prescriptions
     [Authorize(Roles = "Doctor")]
     [HttpPost]
     public async Task<ActionResult<PrescriptionResponse>> Create([FromBody] CreatePrescriptionRequest body, CancellationToken ct)
@@ -31,6 +32,24 @@ public class PrescriptionsController(AppDbContext db) : ControllerBase
         var (me, _) = GetUserIdAndRole();
         if (!me.HasValue) return Forbid();
 
+        // Preload catalog rows once
+        var drugIds = body.Items.Where(i => i.DrugId.HasValue).Select(i => i.DrugId!.Value).Distinct().ToList();
+        var drugMap = drugIds.Count == 0
+            ? new Dictionary<Guid, Drug>()
+            : await db.Drugs.AsNoTracking().Where(d => drugIds.Contains(d.Id)).ToDictionaryAsync(d => d.Id, ct);
+
+        // Per-item validation
+        foreach (var it in body.Items)
+        {
+            if (string.IsNullOrWhiteSpace(it.Dosage) || string.IsNullOrWhiteSpace(it.Frequency) || string.IsNullOrWhiteSpace(it.Duration))
+                return BadRequest("Dosage, Frequency and Duration are required for each item.");
+
+            if (it.DrugId.HasValue && !drugMap.ContainsKey(it.DrugId.Value))
+                return BadRequest($"Drug not found: {it.DrugId}");
+            if (!it.DrugId.HasValue && string.IsNullOrWhiteSpace(it.DrugName))
+                return BadRequest("Either DrugId or DrugName must be provided for each item.");
+        }
+
         var issueMethod = (IssueMethod)body.IssueMethod;
 
         var pres = new Prescription
@@ -46,10 +65,15 @@ public class PrescriptionsController(AppDbContext db) : ControllerBase
 
         foreach (var it in body.Items)
         {
+            Drug? d = it.DrugId.HasValue ? drugMap[it.DrugId.Value] : null;
+            var finalDrugName = !string.IsNullOrWhiteSpace(it.DrugName)
+                ? it.DrugName!.Trim()
+                : (d is not null ? d.BrandName : throw new InvalidOperationException("DrugName resolution failed."));
+
             pres.Items.Add(new PrescriptionItem
             {
-                DrugName     = it.DrugName.Trim(),
-                GenericName  = string.IsNullOrWhiteSpace(it.GenericName) ? null : it.GenericName.Trim(),
+                DrugId       = it.DrugId,
+                DrugName     = finalDrugName,
                 Dosage       = it.Dosage.Trim(),
                 Frequency    = it.Frequency.Trim(),
                 Duration     = it.Duration.Trim(),
@@ -62,10 +86,9 @@ public class PrescriptionsController(AppDbContext db) : ControllerBase
         db.Prescriptions.Add(pres);
         await db.SaveChangesAsync(ct);
 
-        return Ok(Map(pres));
+        return Ok(Map(pres, drugMap)); // includes GenericName from catalog
     }
 
-    // GET /api/prescriptions/{id}
     [Authorize(Roles = "Doctor,Secretary,Patient")]
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<PrescriptionResponse>> GetById(Guid id, CancellationToken ct)
@@ -80,12 +103,16 @@ public class PrescriptionsController(AppDbContext db) : ControllerBase
         if (pres is null) return NotFound();
         if (role == "Patient" && pres.PatientUserId != uid) return Forbid();
 
-        return Ok(Map(pres));
+        var drugIds = pres.Items.Where(i => i.DrugId.HasValue).Select(i => i.DrugId!.Value).Distinct().ToList();
+        var drugMap = drugIds.Count == 0
+            ? new Dictionary<Guid, Drug>()
+            : await db.Drugs.AsNoTracking().Where(d => drugIds.Contains(d.Id)).ToDictionaryAsync(d => d.Id, ct);
+
+        return Ok(Map(pres, drugMap));
     }
 
-    // GET /api/prescriptions/by-patient/{patientUserId}
     [Authorize(Roles = "Doctor,Secretary,Patient")]
-    [HttpGet("by-patient/{patientUserId:guid}")]
+    [HttpGet("by-patient/{patientUserId:long}")]
     public async Task<ActionResult<List<PrescriptionResponse>>> ListByPatient(long patientUserId, CancellationToken ct)
     {
         var (uid, role) = GetUserIdAndRole();
@@ -98,10 +125,14 @@ public class PrescriptionsController(AppDbContext db) : ControllerBase
             .OrderByDescending(p => p.IssuedAtUtc)
             .ToListAsync(ct);
 
-        return Ok(list.Select(Map).ToList());
+        var drugIds = list.SelectMany(p => p.Items).Where(i => i.DrugId.HasValue).Select(i => i.DrugId!.Value).Distinct().ToList();
+        var drugMap = drugIds.Count == 0
+            ? new Dictionary<Guid, Drug>()
+            : await db.Drugs.AsNoTracking().Where(d => drugIds.Contains(d.Id)).ToDictionaryAsync(d => d.Id, ct);
+
+        return Ok(list.Select(p => Map(p, drugMap)).ToList());
     }
 
-    // PUT /api/prescriptions/{id}/cancel
     [Authorize(Roles = "Doctor")]
     [HttpPut("{id:guid}/cancel")]
     public async Task<IActionResult> Cancel(Guid id, CancellationToken ct)
@@ -116,7 +147,6 @@ public class PrescriptionsController(AppDbContext db) : ControllerBase
         return NoContent();
     }
 
-    // PUT /api/prescriptions/{id}/dispense
     [Authorize(Roles = "Doctor,Secretary")]
     [HttpPut("{id:guid}/dispense")]
     public async Task<IActionResult> MarkDispensed(Guid id, CancellationToken ct)
@@ -130,40 +160,47 @@ public class PrescriptionsController(AppDbContext db) : ControllerBase
         return NoContent();
     }
 
-    private PrescriptionResponse Map(Prescription p) => new()
-    {
-        Id                 = p.Id,
-        AppointmentId      = p.AppointmentId,
-        PatientUserId      = p.PatientUserId,
-        PrescribedByUserId = p.PrescribedByUserId,
-        IssuedAtUtc        = p.IssuedAtUtc,
-        Status             = (int)p.Status,
-        IssueMethod        = (int)p.IssueMethod,
-        ErxCode            = p.ErxCode,
-        Notes              = p.Notes,
-        Items = p.Items.Select(i => new PrescriptionItemDto
+    // ------------ helpers ------------
+    private PrescriptionResponse Map(Prescription p, IReadOnlyDictionary<Guid, Drug> drugMap)
+        => new()
         {
-            Id           = i.Id,
-            DrugName     = i.DrugName,
-            GenericName  = i.GenericName,
-            Dosage       = i.Dosage,
-            Frequency    = i.Frequency,
-            Duration     = i.Duration,
-            Instructions = i.Instructions,
-            IsPRN        = i.IsPRN,
-            RefillCount  = i.RefillCount
-        }).ToList()
-    };
+            Id                 = p.Id,
+            AppointmentId      = p.AppointmentId,
+            PatientUserId      = p.PatientUserId,
+            PrescribedByUserId = p.PrescribedByUserId,
+            IssuedAtUtc        = p.IssuedAtUtc,
+            Status             = (int)p.Status,
+            IssueMethod        = (int)p.IssueMethod,
+            ErxCode            = p.ErxCode,
+            Notes              = p.Notes,
+            Items = p.Items.Select(i =>
+            {
+                drugMap.TryGetValue(i.DrugId ?? Guid.Empty, out var d);
+                return new PrescriptionItemDto
+                {
+                    Id           = i.Id,
+                    DrugId       = i.DrugId,
+                    DrugName     = i.DrugName,
+                    GenericName  = d?.GenericName, // derived from catalog
+                    Dosage       = i.Dosage,
+                    Frequency    = i.Frequency,
+                    Duration     = i.Duration,
+                    Instructions = i.Instructions,
+                    IsPRN        = i.IsPRN,
+                    RefillCount  = i.RefillCount
+                };
+            }).ToList()
+        };
 
-    private static string GenerateErxCode() =>
-        $"ERX-{Convert.ToHexString(Guid.NewGuid().ToByteArray())[..10]}";
+    private static string GenerateErxCode()
+        => $"ERX-{Convert.ToHexString(Guid.NewGuid().ToByteArray())[..10]}";
 
     private (long? userId, string role) GetUserIdAndRole()
     {
         var role = User.FindFirstValue(ClaimTypes.Role) ??
                    User.FindFirstValue("role") ??
                    User.FindFirstValue("roles") ?? "";
-        var   sub = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+        var sub  = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
         long? uid = null;
         if (long.TryParse(sub, out var parsed)) uid = parsed;
         return (uid, role);

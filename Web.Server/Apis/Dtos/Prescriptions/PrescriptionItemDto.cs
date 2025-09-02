@@ -3,8 +3,9 @@
 public sealed class PrescriptionItemDto
 {
     public Guid Id { get; set; }
+    public Guid? DrugId { get; set; }
     public string DrugName { get; set; } = default!;
-    public string? GenericName { get; set; }
+    public string? GenericName { get; set; }           // derived from Drug
     public string Dosage { get; set; } = default!;
     public string Frequency { get; set; } = default!;
     public string Duration { get; set; } = default!;

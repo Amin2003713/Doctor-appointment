@@ -58,5 +58,7 @@ public static class SeedHelper
                                 string.Join("; " , create.Errors.Select(e => e.Description)));
 
         await userManager.AddToRoleAsync(user , role);
+
+
     }
 }

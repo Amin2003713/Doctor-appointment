@@ -1,5 +1,4 @@
-﻿using Api.Endpoints.Models.Apointments;
-using Api.Endpoints.Models.Appointments;
+﻿using Api.Endpoints.Models.Appointments;
 using Api.Endpoints.Models.Clinic;
 using Api.Endpoints.Models.Doctores;
 using Api.Endpoints.Models.MediaclService;
@@ -28,6 +27,8 @@ public class AppDbContext (
     public DbSet<Prescription> Prescriptions => Set<Prescription>();
     public DbSet<PrescriptionItem> PrescriptionItems => Set<PrescriptionItem>();
     public DbSet<MedicalRecord> MedicalRecords => Set<MedicalRecord>();
+    public DbSet<Api.Endpoints.Models.Drugs.Drug> Drugs => Set<Api.Endpoints.Models.Drugs.Drug>();
+    public DbSet<Api.Endpoints.Models.Drugs.DrugSynonym> DrugSynonyms => Set<Api.Endpoints.Models.Drugs.DrugSynonym>();
 
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -147,6 +148,54 @@ public class AppDbContext (
                 x.PatientUserId,
                 x.IssuedAtUtc
             });
+        });
+
+
+        builder.Entity<Api.Endpoints.Models.Drugs.Drug>(cfg =>
+        {
+            cfg.HasKey(x => x.Id);
+            cfg.Property(x => x.BrandName).IsRequired().HasMaxLength(200);
+            cfg.Property(x => x.GenericName).IsRequired().HasMaxLength(200);
+            cfg.Property(x => x.StrengthUnit).HasMaxLength(40);
+            cfg.Property(x => x.ConcentrationText).HasMaxLength(100);
+            cfg.Property(x => x.Manufacturer).HasMaxLength(150);
+            cfg.Property(x => x.Country).HasMaxLength(100);
+            cfg.Property(x => x.Barcode).HasMaxLength(64);
+            cfg.Property(x => x.Tags).HasMaxLength(500);
+
+            cfg.HasMany(x => x.Synonyms)
+                .WithOne()
+                .HasForeignKey(s => s.DrugId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            cfg.HasIndex(x => new
+            {
+                x.GenericName,
+                x.BrandName
+            });
+
+            cfg.HasIndex(x => new
+                {
+                    x.BrandName,
+                    x.Form,
+                    x.StrengthValue,
+                    x.StrengthUnit
+                })
+                .IsUnique(false);
+
+            cfg.HasIndex(x => x.IsActive);
+        });
+
+        builder.Entity<Api.Endpoints.Models.Drugs.DrugSynonym>(cfg =>
+        {
+            cfg.HasKey(x => x.Id);
+            cfg.Property(x => x.Text).IsRequired().HasMaxLength(200);
+            cfg.HasIndex(x => new
+                {
+                    x.DrugId,
+                    x.Text
+                })
+                .IsUnique();
         });
     }
 }
