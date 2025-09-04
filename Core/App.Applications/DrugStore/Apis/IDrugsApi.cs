@@ -1,0 +1,33 @@
+﻿using App.Applications.DrugStore.Requests;
+using App.Applications.DrugStore.Responses;
+using Refit;
+
+namespace App.Applications.DrugStore.Apis;
+
+public interface IDrugsApi
+{
+    [Post("/api/drugs")]
+    Task<DrugResponse> Create([Body] UpsertDrugRequest body);
+
+    [Put("/api/drugs/{id}")]
+    Task<DrugResponse> Update(Guid id, [Body] UpsertDrugRequest body);
+
+    [Get("/api/drugs/{id}")]
+    Task<DrugResponse> GetById(Guid id);
+
+    [Get("/api/drugs/search")]
+    Task<DrugSearchResult> Search(
+        [Query] string? q,
+        [Query] int? form,
+        [Query] int? route,
+        [Query] int? rxClass,
+        [Query] bool? activeOnly,
+        [Query] int page = 1,
+        [Query] int pageSize = 20);
+
+    [Get("/api/drugs/autocomplete")]
+    Task<List<DrugAutocompleteItem>> Autocomplete([Query] string q, [Query] int limit = 10);
+
+    [Get("/api/drugs/most-used")]
+    Task<List<DrugAutocompleteItem>> MostUsed([Query] int days = 90, [Query] int limit = 15);
+}
