@@ -1,8 +1,6 @@
 using App.Applications.Users.Commands.Logout;
 using App.Applications.Users.Commands.Update;
 using App.Applications.Users.Queries.GetUserInfo;
-using Mapster;
-using MediatR;
 
 namespace App.Handlers.Users.Commands.Logout;
 

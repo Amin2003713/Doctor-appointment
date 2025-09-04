@@ -1,14 +1,6 @@
-﻿using App.Applications.Users.Apis;
-using App.Applications.Users.Requests.UserInfos;
-using App.Common.Utilities.Snackbar;
-using App.Common.Utilities.Storage;
+﻿using App.Applications.Users.Requests.UserInfos;
 using App.Domain.Users;
 using App.Handlers.Users.Requests.UpdateProfile;
-using App.Persistence.Services.AuthState;
-using App.Persistence.Services.Refit;
-using Mapster;
-using MediatR;
-using Microsoft.Extensions.Logging;
 
 namespace App.Handlers.Users.Requests.UserInfos;
 

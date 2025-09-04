@@ -1,9 +1,6 @@
 using App.Applications.ClientPreferences.Commands.Update;
 using App.Applications.ClientPreferences.Queries.Read;
-using App.Common.Utilities.Storage;
 using App.Domain.ClientPreferences;
-using Mapster;
-using MediatR;
 
 namespace App.Handlers.ClientPreferences.Queries.Read;
 

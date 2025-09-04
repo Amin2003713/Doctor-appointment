@@ -1,9 +1,4 @@
-﻿using App.Applications.Users.Apis;
-using App.Applications.Users.Requests.UpdateUser;
-using App.Common.Utilities.Snackbar;
-using App.Persistence.Services.Refit;
-using MediatR;
-using Microsoft.Extensions.Logging;
+﻿using App.Applications.Users.Requests.UpdateUser;
 
 namespace App.Handlers.Users.Requests.UpdateProfile;
 

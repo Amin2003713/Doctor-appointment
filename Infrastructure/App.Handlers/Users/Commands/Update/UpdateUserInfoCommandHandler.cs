@@ -1,9 +1,5 @@
 using App.Applications.Users.Commands.Update;
-using App.Common.Utilities.Storage;
 using App.Domain.Users;
-using App.Persistence.Services.AuthState;
-using Mapster;
-using MediatR;
 
 namespace App.Handlers.Users.Commands.Update;
 

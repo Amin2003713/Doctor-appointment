@@ -1,9 +1,6 @@
 ﻿using App.Applications.Schedules.Apis;
 using App.Applications.Schedules.Requests.Update;
-using App.Common.Utilities.Snackbar;
-using App.Persistence.Services.Refit;
 using FluentValidation;
-using MediatR;
 
 namespace App.Handlers.Schedules;
 

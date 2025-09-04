@@ -1,11 +1,4 @@
-﻿using App.Applications.Appointments.Apis;
-using App.Applications.Appointments.Requests;
-using App.Persistence.Services.Refit;
-using MediatR;
-using Microsoft.Extensions.Localization;
-using Microsoft.Extensions.Logging;
-using MudBlazor;
-using Refit;
+﻿using MudBlazor;
 
 namespace App.Handlers.Appointments;
 

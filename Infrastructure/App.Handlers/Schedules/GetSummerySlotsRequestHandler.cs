@@ -1,8 +1,5 @@
 ﻿using App.Applications.Schedules.Apis;
 using App.Applications.Schedules.Requests.GetSlots;
-using App.Common.Utilities.Snackbar;
-using App.Persistence.Services.Refit;
-using MediatR;
 
 namespace App.Handlers.Schedules;
 

@@ -1,8 +1,5 @@
 ﻿using App.Applications.Doctor.Apis;
 using App.Applications.Doctor.Requests.Get;
-using App.Common.Utilities.Snackbar;
-using App.Persistence.Services.Refit;
-using MediatR;
 
 namespace App.Handlers.Doctor.Requests.Get;
 

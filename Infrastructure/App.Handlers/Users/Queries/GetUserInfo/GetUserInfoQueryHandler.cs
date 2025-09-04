@@ -1,8 +1,5 @@
 using App.Applications.Users.Queries.GetUserInfo;
-using App.Common.Utilities.Storage;
 using App.Domain.Users;
-using MediatR;
-using Microsoft.Extensions.Logging;
 
 namespace App.Handlers.Users.Queries.GetUserInfo;
 

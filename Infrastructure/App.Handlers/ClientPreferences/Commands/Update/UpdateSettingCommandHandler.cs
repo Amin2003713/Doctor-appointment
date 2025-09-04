@@ -1,8 +1,5 @@
 using App.Applications.ClientPreferences.Commands.Update;
-using App.Common.Utilities.Storage;
 using App.Domain.ClientPreferences;
-using Mapster;
-using MediatR;
 
 namespace App.Handlers.ClientPreferences.Commands.Update;
 

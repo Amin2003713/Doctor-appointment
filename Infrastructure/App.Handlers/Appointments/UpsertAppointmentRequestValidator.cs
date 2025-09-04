@@ -1,5 +1,4 @@
-﻿using App.Applications.Appointments.Requests;
-using FluentValidation;
+﻿using FluentValidation;
 
 namespace App.Handlers.Appointments;
 

@@ -1,8 +1,4 @@
-﻿using App.Applications.Users.Apis;
-using App.Applications.Users.Requests.ToggleUsers;
-using App.Common.Utilities.Snackbar;
-using App.Persistence.Services.Refit;
-using MediatR;
+﻿using App.Applications.Users.Requests.ToggleUsers;
 
 namespace App.Handlers.Users.Requests.ToggleUsers;
 

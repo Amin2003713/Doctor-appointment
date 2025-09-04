@@ -1,11 +1,4 @@
-﻿using App.Applications.Users.Apis;
-using App.Applications.Users.Requests.UserInfos;
-using App.Common.Utilities.Snackbar;
-using App.Common.Utilities.Storage;
-using App.Persistence.Services.AuthState;
-using App.Persistence.Services.Refit;
-using MediatR;
-using Microsoft.Extensions.Logging;
+﻿using App.Applications.Users.Requests.UserInfos;
 
 namespace App.Handlers.Users.Requests.UserInfos;
 

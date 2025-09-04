@@ -1,9 +1,5 @@
-using App.Applications.Users.Apis;
 using App.Applications.Users.Requests.ForgotPassword;
 using App.Applications.Users.Requests.Login;
-using App.Common.Utilities.Snackbar;
-using App.Persistence.Services.Refit;
-using MediatR;
 
 namespace App.Handlers.Users.Requests.ForgotPassword;
 

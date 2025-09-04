@@ -1,11 +1,5 @@
-﻿using App.Applications.Users.Apis;
-using App.Applications.Users.Requests.Registers;
-using App.Common.Utilities.Snackbar;
-using App.Persistence.Services.AuthState;
-using App.Persistence.Services.Refit;
-using MediatR;
+﻿using App.Applications.Users.Requests.Registers;
 using Microsoft.AspNetCore.Components;
-using Refit;
 
 namespace App.Handlers.Users.Requests.Registers;
 

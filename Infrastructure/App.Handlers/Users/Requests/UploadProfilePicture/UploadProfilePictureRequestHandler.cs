@@ -1,9 +1,4 @@
-﻿using App.Applications.Users.Apis;
-using App.Applications.Users.Requests.UploadProfilePicture;
-using App.Common.Utilities.Snackbar;
-using App.Persistence.Services.Refit;
-using MediatR;
-using Refit;
+﻿using App.Applications.Users.Requests.UploadProfilePicture;
 
 namespace App.Handlers.Users.Requests.UploadProfilePicture;
 

@@ -1,8 +1,4 @@
-﻿using App.Applications.ClinicServices.Apis;
-using App.Applications.ClinicServices.Requests.Update;
-using App.Common.Utilities.Snackbar;
-using App.Persistence.Services.Refit;
-using MediatR;
+﻿using App.Applications.ClinicServices.Requests.Update;
 
 namespace App.Handlers.ClinicServices.Update;
 

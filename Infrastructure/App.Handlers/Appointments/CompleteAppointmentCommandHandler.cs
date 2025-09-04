@@ -1,13 +1,4 @@
-﻿using App.Applications.Appointments.Apis;
-using App.Applications.Appointments.Requests;
-using App.Common.Utilities.Snackbar;
-using App.Persistence.Services.Refit;
-using MediatR;
-using Microsoft.Extensions.Localization;
-using Microsoft.Extensions.Logging;
-using Refit;
-
-namespace App.Handlers.Appointments;
+﻿namespace App.Handlers.Appointments;
 
 public sealed class CompleteAppointmentCommandHandler(
     ApiFactory                                          apiFactory,

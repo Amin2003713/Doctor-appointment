@@ -1,8 +1,5 @@
-﻿using App.Applications.Users.Apis;
-using App.Applications.Users.Requests.UserQueries;
+﻿using App.Applications.Users.Requests.UserQueries;
 using App.Common.General.ApiResult;
-using App.Persistence.Services.Refit;
-using MediatR;
 
 namespace App.Handlers.Users.Requests.UserQueries;
 

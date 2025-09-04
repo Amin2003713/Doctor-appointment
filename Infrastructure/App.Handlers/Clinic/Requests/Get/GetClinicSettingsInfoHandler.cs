@@ -1,8 +1,5 @@
 ﻿using App.Applications.Clinic.Apis;
 using App.Applications.Clinic.Requests.Get;
-using App.Common.Utilities.Snackbar;
-using App.Persistence.Services.Refit;
-using MediatR;
 
 namespace App.Handlers.Clinic.Requests.Get;
 
