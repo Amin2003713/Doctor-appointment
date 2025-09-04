@@ -11,7 +11,7 @@ public class WorkingDayDtoValidator : AbstractValidator<WorkingDayDto>
         RuleForEach(x => x.Intervals).SetValidator(new TimeRangeDtoValidator());
         RuleForEach(x => x.Breaks).SetValidator(new TimeRangeDtoValidator());
 
-        
+
         When(x => x.Closed,
             () =>
             {
@@ -19,17 +19,17 @@ public class WorkingDayDtoValidator : AbstractValidator<WorkingDayDto>
                 RuleFor(x => x.Breaks).Empty().WithMessage("برای روزهای بسته، وقفه‌ای تعریف نکنید.");
             });
 
-        
+
         RuleFor(x => x.Intervals)
             .Must(list => !HasAnyOverlap(list))
             .WithMessage("بین بازه‌های کاری همپوشانی وجود دارد.");
 
-        
+
         RuleFor(x => x.Breaks)
             .Must(list => !HasAnyOverlap(list))
             .WithMessage("بین بازه‌های وقفه همپوشانی وجود دارد.");
 
-        
+
         RuleFor(x => x)
             .Must(BreaksAreWithinIntervals)
             .WithMessage("بازه‌های وقفه باید داخل بازه‌های کاری باشند.");
@@ -39,8 +39,8 @@ public class WorkingDayDtoValidator : AbstractValidator<WorkingDayDto>
     {
         if (list is null || list.Count <= 1) return false;
 
-        for (int i = 0; i < list.Count; i++)
-            for (int j = i + 1; j < list.Count; j++)
+        for (var i = 0; i < list.Count; i++)
+            for (var j = i + 1; j < list.Count; j++)
                 if (TimeParsing.Overlaps(list[i], list[j]))
                     return true;
 
@@ -63,8 +63,10 @@ public class WorkingDayDtoValidator : AbstractValidator<WorkingDayDto>
         }
 
         foreach (var br in d.Breaks)
+        {
             if (!d.Intervals.Any(iv => Inside(br, iv)))
                 return false;
+        }
 
         return true;
     }

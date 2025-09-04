@@ -13,7 +13,6 @@ public class UpdateProfileRequestHandler(
     ISnackbarService snackbarService
 ) : IRequestHandler<UpdateProfileRequest>
 {
-    
     private readonly IUserApis Apis = apiFactory.CreateApi<IUserApis>();
 
     public async Task Handle(UpdateProfileRequest request, CancellationToken cancellationToken)
@@ -34,7 +33,7 @@ public class UpdateProfileRequestHandler(
 
 
             snackbarService.ShowSuccess("اطلاعات پروفایل با موفقیت به‌روزرسانی شد.");
-            
+
             var me = await Apis.Me();
 
 

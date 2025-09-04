@@ -31,7 +31,6 @@ public sealed class RescheduleAppointmentCommandHandler(
             }
 
             snackbar.ShowError(localizer["Reschedule failed"]);
-            return;
         }
         catch (ApiException ex)
         {

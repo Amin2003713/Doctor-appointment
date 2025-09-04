@@ -1,7 +1,4 @@
-﻿
-
-
-using App.Domain.ValueObjects;
+﻿using App.Domain.ValueObjects;
 
 namespace App.Applications.Clinic.Requests.Get;
 

@@ -141,18 +141,17 @@
 </div>
 
 @code {
-[CascadingParameter]
-    public Action UpdateUi { get; set; } = default!;
+    [CascadingParameter] public Action UpdateUi { get; set; } = default!;
 
     private void TriggerParentUpdate()
     {
         UpdateUi?.Invoke(); // Call the parent's UpdateUi method
     }
-    private DoctorProfileResponse? _doctor;
-    private bool                   _loading = true;
-    private bool                   _bioOpen = true;
 
-   
+    private          DoctorProfileResponse? _doctor;
+    private          bool                   _loading = true;
+    private readonly bool                   _bioOpen = true;
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -174,6 +173,7 @@
     {
         if (string.IsNullOrWhiteSpace(url)) return "";
         if (Uri.TryCreate(url, UriKind.Absolute, out _)) return url;
+
         return "https://" + url.Trim();
     }
 
@@ -181,6 +181,7 @@
     {
         if (string.IsNullOrWhiteSpace(input)) return "";
         if (input.StartsWith("http", StringComparison.OrdinalIgnoreCase)) return input;
+
         var digits = new string(input.Where(char.IsDigit).ToArray());
         return $"https://wa.me/{digits}";
     }

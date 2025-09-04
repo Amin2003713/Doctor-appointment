@@ -3,15 +3,11 @@
 @using App.Applications.Users.Queries.GetUserInfo
 @using App.Applications.Users.Requests.UserInfos
 @using App.Applications.Users.Requests.UserQueries
-@using Microsoft.AspNetCore.Components.Authorization
 @using UI.Components.Common.BaseComponents.Dialogs
 @using UI.Components.Common.BaseComponents.Picture
-@using UI.Components.Features.Apointments.Dialogs
 @using UI.Components.Features.Clinics
-@using UI.Components.Features.ClinicServices.Dialogs
-@using UI.Components.Features.Users.Dialogs
 @using UI.Components.Features.Doctors
-
+@using UI.Components.Features.Users.Dialogs
 <MudNavMenu Class="app-nav" Margin="Margin.Normal" Rounded Bordered Dense>
 
     <!-- همیشه قابل نمایش -->
@@ -178,8 +174,7 @@
 </style>
 
 @code {
-[CascadingParameter]
-    public Action UpdateUi { get; set; } = default!;
+    [CascadingParameter] public Action UpdateUi { get; set; } = default!;
 
     private void TriggerParentUpdate()
     {
@@ -200,11 +195,15 @@
         public static string DoctorSchedule => "/doctor/schedule";
 
         public static string UsersList(bool secretaries)
-            => $"/users?Secretaries={(secretaries ? "true" : "false")}";
+        {
+            return $"/users?Secretaries={(secretaries ? "true" : "false")}";
+        }
 
         // Agenda (From/To via query string)
         public static string AgendaFor(DateOnly from, DateOnly to)
-            => $"/doctor/agenda?From={from:yyyy-MM-dd}&To={to:yyyy-MM-dd}";
+        {
+            return $"/doctor/agenda?From={from:yyyy-MM-dd}&To={to:yyyy-MM-dd}";
+        }
 
         // “All” report: keep your existing sentinel values
         public static string AllAgendaReport => $"/doctor/agenda?From={DateOnly.FromDateTime(DateTime.MinValue):yyyy-MM-dd}&To={DateOnly.FromDateTime(DateTime.MaxValue):yyyy-MM-dd}";
@@ -212,19 +211,24 @@
 
     // -------- Role / labels ---------------------------------------------------
     private static string GetPatientPanelTitle(bool isPatient, bool isSecretary)
-        => isPatient ? "پنل بیمار" : (isSecretary ? "پنل بیمار (دستیار)" : "پنل بیمار");
+    {
+        return isPatient ? "پنل بیمار" : (isSecretary ? "پنل بیمار (دستیار)" : "پنل بیمار");
+    }
 
     private string GetRoleDisplayName(ClaimsPrincipal user)
     {
         if (user.IsInRole(Roles.Doctor)) return "دکتر";
         if (user.IsInRole(Roles.Secretary)) return "منشی";
         if (user.IsInRole(Roles.Patient)) return "بیمار";
+
         return "کاربر";
     }
 
     // -------- Navigation & Dialog helpers ------------------------------------
     public void Navigate(string to, bool hard = true)
-        => NavigationManager.NavigateTo(to, forceLoad: false, replace: hard);
+    {
+        NavigationManager.NavigateTo(to, false, hard);
+    }
 
     private async Task OpenClinicDialog()
     {

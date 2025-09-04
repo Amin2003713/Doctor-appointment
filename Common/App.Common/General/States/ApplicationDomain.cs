@@ -7,10 +7,10 @@ public class ApplicationDomain : BaseState ,
 {
     private string? _domain;
 
-    
+
     private bool _isDialogShowing;
 
-    
+
     public Func<Task>? InvokeSelectCompanyDialog;
 
     public string? Domain
@@ -20,23 +20,19 @@ public class ApplicationDomain : BaseState ,
             if (_domain != null)
                 return _domain;
 
-            
+
             if (!_isDialogShowing && InvokeSelectCompanyDialog != null)
             {
                 _isDialogShowing = true;
 
-                
+
                 _ = InvokeSelectCompanyDialog()
                     .ContinueWith(t =>
                     {
-                        
                         _isDialogShowing = false;
 
-                        
-                        if (t.IsFaulted)
-                        {
-                            
-                        }
+
+                        if (t.IsFaulted) { }
                     });
             }
 
@@ -46,50 +42,14 @@ public class ApplicationDomain : BaseState ,
     }
 }
 
-
-
+//
 
 //
 
-
-
-
+//
 
 //
 
-
-
-
-
-
-
-
-
 //
 
-
 //
-
-
-
-
-
-//
-
-
-
-
-
-
-
-
-
-
-
-//
-
-
-
-
-
-

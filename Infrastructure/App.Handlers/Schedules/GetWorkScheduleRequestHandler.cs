@@ -1,12 +1,8 @@
-﻿
-
-using App.Applications.Schedules.Apis;
+﻿using App.Applications.Schedules.Apis;
 using App.Applications.Schedules.Requests.Get;
 using App.Common.Utilities.Snackbar;
 using App.Persistence.Services.Refit;
 using MediatR;
-
-
 
 namespace App.Handlers.Schedules;
 
@@ -25,6 +21,6 @@ public class GetWorkScheduleRequestHandler(
             return resp.Content;
 
         snackbar.ShowError("امکان دریافت برنامه کاری وجود ندارد.");
-        return new WorkScheduleResponse(); 
+        return new WorkScheduleResponse();
     }
 }

@@ -22,18 +22,16 @@ public class ClientStateProvider (
     {
         try
         {
-            
             User ??= await mediator.Send(new GetUserInfoQuery());
 
 
-            
             if (User?.Token is null)
             {
                 navigationManager.NavigateTo("/login");
                 return Anonymous();
             }
 
-            
+
             if (!IsTokenExpired(User.Token))
             {
                 var principal = CreatePrincipal(User.Token);
@@ -41,7 +39,6 @@ public class ClientStateProvider (
             }
 
 
-            
             navigationManager.NavigateTo("/login");
             return Anonymous();
         }
@@ -60,7 +57,7 @@ public class ClientStateProvider (
     private static bool IsTokenExpired(string token)
     {
         var jwt = new JwtSecurityTokenHandler().ReadJwtToken(token);
-        
+
         return jwt.ValidTo <= DateTime.UtcNow;
     }
 
@@ -89,7 +86,7 @@ public class ClientStateProvider (
         navigationManager.NavigateTo("/login");
     }
 
-    
+
     public Task SetUserAsync(UserInfo? user)
     {
         User = user;

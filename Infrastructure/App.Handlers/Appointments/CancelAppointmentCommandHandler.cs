@@ -31,12 +31,10 @@ public sealed class CancelAppointmentCommandHandler(
             }
 
             snackbar.Add(localizer["Cancel failed"], Severity.Error);
-            return;
         }
         catch (ApiException ex)
         {
             logger.LogWarning(ex, "Cancel appointment failed");
-            return;
         }
     }
 }

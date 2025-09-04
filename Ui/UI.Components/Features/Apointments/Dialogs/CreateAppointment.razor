@@ -1,13 +1,7 @@
-﻿@using System.Globalization
-@using App.Applications.Appointments.Requests
-@using App.Applications.ClinicServices.Requests.Get
-@using App.Applications.ClinicServices.Requests.ListClinicServices
+﻿@using App.Applications.Appointments.Requests
 @using App.Applications.Schedules.Requests.GetSlots
-@using App.Applications.Users.Queries.GetUserInfo
 @using App.Applications.Users.Requests.UserInfos
 @using App.Applications.Users.Requests.UserQueries
-@using MudBlazor
-
 <MudDialog>
     <TitleContent>ایجاد نوبت جدید</TitleContent>
 
@@ -130,7 +124,7 @@
                    Color="Color.Primary"
                    OnClick="Save"
                    Disabled="@IsInvalid()"
-                   StartIcon="@Icons.Filled.Save">
+                   StartIcon="@MaterialIcons.Filled.Save">
             ذخیره
         </MudButton>
     </DialogActions>
@@ -148,8 +142,8 @@
 
     public CreateAppointmentCommand Model { get; set; } = new();
     [Parameter] public bool IsPatient { get; set; } = true;
-    [Parameter] public Guid? ServiceId { get; set; } = null!;
-    [Parameter] public long? UserId { get; set; } = null!;
+    [Parameter] public Guid? ServiceId { get; set; }
+    [Parameter] public long? UserId { get; set; }
 
     private readonly List<ClinicServiceResponse> Services = new();
     public List<UserListItemResponse> Users { get; set; } = new();
@@ -161,10 +155,10 @@
     private bool _servicesLoaded;
 
     // تاریخ و اسلات‌ها
-    private DateTime?     _selectedDate;
-    private bool          _loadingSlots;
+    private DateTime?                 _selectedDate;
+    private bool                      _loadingSlots;
     private Dictionary<string , bool> _slots = new();
-    private string?       _selectedSlot; // HH:mm
+    private string?                   _selectedSlot; // HH:mm
 
     // لغو درخواست‌های قبلی اسلات
     private CancellationTokenSource? _slotCts;
@@ -222,7 +216,7 @@
                 {
                     IsSecretaries = false,
                     Page          = 1,
-                    PageSize      = int.MaxValue,
+                    PageSize      = int.MaxValue
                 });
 
                 Users        = usersRes?.Items?.Where(u => u is not null).ToList() ?? new List<UserListItemResponse>();
@@ -359,7 +353,9 @@
     /* ------------------- اکشن‌ها ------------------- */
 
     private void Cancel()
-        => MudDialog.Cancel();
+    {
+        MudDialog.Cancel();
+    }
 
     private async Task Save()
     {

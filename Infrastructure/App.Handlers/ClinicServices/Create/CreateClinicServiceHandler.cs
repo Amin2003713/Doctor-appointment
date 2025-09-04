@@ -24,6 +24,5 @@ public class CreateClinicServiceHandler(
         }
 
         snackbar.ShowApiResult(resp.StatusCode);
-        return ;
     }
 }

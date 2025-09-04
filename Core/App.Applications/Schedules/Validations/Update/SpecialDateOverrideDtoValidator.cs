@@ -31,8 +31,8 @@ public class SpecialDateOverrideDtoValidator : AbstractValidator<SpecialDateOver
     {
         if (list.Count <= 1) return false;
 
-        for (int i = 0; i < list.Count; i++)
-            for (int j = i + 1; j < list.Count; j++)
+        for (var i = 0; i < list.Count; i++)
+            for (var j = i + 1; j < list.Count; j++)
                 if (TimeParsing.Overlaps(list[i], list[j]))
                     return true;
 

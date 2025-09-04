@@ -1,6 +1,5 @@
 ﻿@page "/doctor/schedule"
 @using App.Applications.Schedules.Requests.Get
-@using MudBlazor.Extensions
 @using UI.Components.Features.Doctors.Schedules.Dialogs
 
 <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="pt-4">
@@ -114,13 +113,13 @@
 </MudContainer>
 
 @code {
-[CascadingParameter]
-    public Action UpdateUi { get; set; } = default!;
+    [CascadingParameter] public Action UpdateUi { get; set; } = default!;
 
     private void TriggerParentUpdate()
     {
         UpdateUi?.Invoke(); // Call the parent's UpdateUi method
     }
+
     private WorkScheduleResponse? _schedule;
 
     private     MudTable<ScheduleRow> _table;
@@ -136,13 +135,15 @@
         public List<TimeRangeDto> Breaks { get; init; } = new();
 
         public WorkingDayDto ToWorkingDay()
-            => new WorkingDayDto
+        {
+            return new WorkingDayDto
             {
                 Day       = Day ?? DayOfWeek.Saturday,
                 Closed    = Closed,
                 Intervals = Intervals.ToList(),
                 Breaks    = Breaks.ToList()
             };
+        }
     }
 
     private async Task<TableData<ScheduleRow>> LoadData(TableState state, CancellationToken cancellationToken)
@@ -168,8 +169,8 @@
                     IsOverride = false,
                     Day        = d.Day,
                     Closed     = d.Closed,
-                    Intervals  = d.Intervals ?? new(),
-                    Breaks     = d.Breaks    ?? new()
+                    Intervals  = d.Intervals ?? new List<TimeRangeDto>(),
+                    Breaks     = d.Breaks    ?? new List<TimeRangeDto>()
                 });
             }
 
@@ -181,8 +182,8 @@
                     IsOverride = true,
                     Date       = ov.Date,
                     Closed     = ov.Closed,
-                    Intervals  = ov.Intervals ?? new(),
-                    Breaks     = new() // usually breaks aren’t used for overrides; keep empty unless you support them
+                    Intervals  = ov.Intervals ?? new List<TimeRangeDto>(),
+                    Breaks     = new List<TimeRangeDto>() // usually breaks aren’t used for overrides; keep empty unless you support them
                 });
             }
 
@@ -213,10 +214,10 @@
                 "Day", day
             },
             {
-                "Days", _schedule?.Days ?? new()
+                "Days", _schedule?.Days ?? new List<WorkingDayDto>()
             },
             {
-                "Overrides", _schedule?.Overrides ?? new()
+                "Overrides", _schedule?.Overrides ?? new List<SpecialDateOverrideDto>()
             },
             {
                 "Mode", AddWorkSlotDialog.AddWorkSlotDialogMode.Weekly
@@ -228,10 +229,9 @@
 
         if (!result.Canceled)
         {
-             await _table.ReloadServerData();
+            await _table.ReloadServerData();
             StateHasChanged();
-             TriggerParentUpdate();
-
+            TriggerParentUpdate();
         }
     }
 
@@ -246,10 +246,10 @@
                 "Override", ov
             },
             {
-                "Days", _schedule?.Days ?? new()
+                "Days", _schedule?.Days ?? new List<WorkingDayDto>()
             },
             {
-                "Overrides", _schedule?.Overrides ?? new()
+                "Overrides", _schedule?.Overrides ?? new List<SpecialDateOverrideDto>()
             },
             {
                 "Mode", AddWorkSlotDialog.AddWorkSlotDialogMode.Override
@@ -266,7 +266,7 @@
         }
     }
 
-    private static readonly Dictionary<DayOfWeek, string> PersianDays = new()
+    private readonly static Dictionary<DayOfWeek, string> PersianDays = new()
     {
         {
             DayOfWeek.Saturday, "شنبه"

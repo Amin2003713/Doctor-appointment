@@ -3,7 +3,7 @@
 namespace App.Applications.Appointments.Requests;
 
 public class RescheduleAppointmentCommand : UpsertAppointmentRequest,
-                                            IRequest
+    IRequest
 {
     public Guid Id { get; set; }
 }

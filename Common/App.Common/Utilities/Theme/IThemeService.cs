@@ -5,13 +5,9 @@ namespace App.Common.Utilities.Theme;
 
 public interface IThemeService : IScopedDependency
 {
-    
-    
-    
     MudTheme CurrentTheme { get; }
 
-    
-    
+
     /// </summary>
     bool IsDarkMode { get; }
 

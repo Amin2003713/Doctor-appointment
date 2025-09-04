@@ -1,5 +1,4 @@
-﻿
-<MudAppBar Elevation="3"
+﻿<MudAppBar Elevation="3"
            Fixed
            Gutters>
 
@@ -26,13 +25,13 @@
 </MudAppBar>
 
 @code {
-[CascadingParameter]
-    public Action UpdateUi { get; set; } = default!;
+    [CascadingParameter] public Action UpdateUi { get; set; } = default!;
 
     private void TriggerParentUpdate()
     {
         UpdateUi?.Invoke(); // Call the parent's UpdateUi method
     }
+
     [Parameter] public EventCallback DrawerToggle { get; set; }
 
     private void GoToProfile()

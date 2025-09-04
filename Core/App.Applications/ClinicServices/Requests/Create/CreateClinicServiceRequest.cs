@@ -1,5 +1,4 @@
-﻿using App.Applications.ClinicServices.Requests.Update;
-using MediatR;
+﻿using MediatR;
 
 namespace App.Applications.ClinicServices.Requests.Create;
 
@@ -13,4 +12,3 @@ public class CreateClinicServiceRequest : IRequest
     public int VisitMinutes { get; set; } = 20;
     public bool IsActive { get; set; } = true;
 }
-

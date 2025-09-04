@@ -1,9 +1,5 @@
-﻿@using App.Applications.Clinic.Apis
-@using System.ComponentModel.DataAnnotations
-@using App.Applications.Clinic
-@using App.Applications.Clinic.Requests.Get
+﻿@using App.Applications.Clinic.Requests.Get
 @using App.Applications.Clinic.Requests.Update
-@using App.Persistence.Services.Refit
 @using App.Domain.ValueObjects
 @inject ISnackbar Snackbar
 
@@ -128,13 +124,13 @@
 </MudDialog>
 
 @code {
-[CascadingParameter]
-    public Action UpdateUi { get; set; } = default!;
+    [CascadingParameter] public Action UpdateUi { get; set; } = default!;
 
     private void TriggerParentUpdate()
     {
         UpdateUi?.Invoke(); // Call the parent's UpdateUi method
     }
+
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
 
     [Parameter] public ClinicSettingsResponse? Model { get; set; }
@@ -145,7 +141,7 @@
 
     private UpdateClinicSettingsRequest _editModel = new();
 
-    
+
     private IEnumerable<PaymentMethods> _acceptedPaymentItems = [];
 
     private readonly IEnumerable<PaymentMethods> _allPaymentValues =
@@ -187,7 +183,9 @@
 
 
     private void Cancel()
-        => MudDialog.Cancel();
+    {
+        MudDialog.Cancel();
+    }
 
     // ---- Helpers ----
     private static HashSet<PaymentMethods> FlagsToSet(PaymentMethods flags)
@@ -210,15 +208,17 @@
     }
 
     private static string ToPersian(PaymentMethods value)
-        => value switch
-           {
-               PaymentMethods.Cash          => "نقدی",
-               PaymentMethods.Card          => "کارت‌به‌کارت/کارتخوان",
-               PaymentMethods.OnlineGateway => "آنلاین",
-               PaymentMethods.Insurance     => "بیمه",
-               PaymentMethods.BankTransfer  => "انتقال پول",
-               _                            => value.ToString()
-           };
+    {
+        return value switch
+               {
+                   PaymentMethods.Cash          => "نقدی",
+                   PaymentMethods.Card          => "کارت‌به‌کارت/کارتخوان",
+                   PaymentMethods.OnlineGateway => "آنلاین",
+                   PaymentMethods.Insurance     => "بیمه",
+                   PaymentMethods.BankTransfer  => "انتقال پول",
+                   _                            => value.ToString()
+               };
+    }
 
     private async Task Submit()
     {
@@ -231,7 +231,6 @@
             _Editing = false;
             StateHasChanged();
             TriggerParentUpdate();
-
         }
         else
         {

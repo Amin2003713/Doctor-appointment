@@ -39,5 +39,7 @@ public class ClinicCalendarItem : CalendarItem
     }
 
     public static List<ClinicCalendarItem> FromAppointments(IEnumerable<AppointmentResponse> appointments)
-        => appointments.Select(FromAppointment).ToList();
+    {
+        return appointments.Select(FromAppointment).ToList();
+    }
 }

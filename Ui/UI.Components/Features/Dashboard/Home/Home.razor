@@ -1,9 +1,8 @@
 @page "/"
-@using UI.Components.Features.ClinicServices
-@using UI.Components.Features.Clinics
-@using UI.Components.Features.Doctors
-@using UI.Components.Features.Apointments
 @using UI.Components.Features.Apointments.List
+@using UI.Components.Features.Clinics
+@using UI.Components.Features.ClinicServices
+@using UI.Components.Features.Doctors
 <style>
     .equal-height-box {
         display: flex;
@@ -31,7 +30,7 @@
             <MudPaper Class="rounded-xl mb-3 px-3 py-2 p-2">
                 <ServiceInfoCard _canEdit="false"/>
             </MudPaper>
-           
+
         </MudItem>
 
         <!-- Row 1 -->
@@ -39,7 +38,7 @@
         <!-- Row 2 -->
         <MudItem md="12" lg="12">
             <MudPaper Class="rounded-xl mb-3 px-3 py-2 p-2">
-            <Apointments ShowFilters="false" From="DateOnly.FromDateTime(DateTime.Now)"
+                <Apointments ShowFilters="false" From="DateOnly.FromDateTime(DateTime.Now)"
                              To="DateOnly.FromDateTime(DateTime.Now)"/>
             </MudPaper>
         </MudItem>

@@ -18,13 +18,14 @@ public class UpdateWorkScheduleCommandHandler(
 
     public async Task Handle(UpdateWorkScheduleCommand request, CancellationToken ct)
     {
-        
         var v = await validator.ValidateAsync(request.Body, ct);
 
         if (!v.IsValid)
         {
             foreach (var err in v.Errors.DistinctBy(e => e.ErrorMessage))
+            {
                 snackbar.ShowError(err.ErrorMessage);
+            }
 
             return;
         }

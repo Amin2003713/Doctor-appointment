@@ -13,7 +13,6 @@ public class UpdateUserRequestHandler(
     ISnackbarService snackbarService
 ) : IRequestHandler<UpdateUserRequest>
 {
-    
     private readonly IUserApis Apis = apiFactory.CreateApi<IUserApis>();
 
     public async Task Handle(UpdateUserRequest request, CancellationToken cancellationToken)

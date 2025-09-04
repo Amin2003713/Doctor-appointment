@@ -125,7 +125,7 @@ public class ThemeService : IThemeService
                 Success                  = "#9DBF9E", // pastel green
                 Info                     = "#89AEB2", // muted cyan
                 Warning                  = "#E6C77E", // pastel amber
-                Error                    = "#D78E91", // soft rose red
+                Error                    = "#D78E91"  // soft rose red
             },
             Typography = new Typography
             {

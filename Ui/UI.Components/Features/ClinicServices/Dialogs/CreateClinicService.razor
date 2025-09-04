@@ -1,7 +1,4 @@
 ﻿@using App.Applications.ClinicServices.Requests.Create
-@using App.Applications.ClinicServices.Requests.Update
-@using MudBlazor
-
 <MudDialog>
     <TitleContent>ایجاد خدمت جدید</TitleContent>
 
@@ -36,7 +33,7 @@
                                      Min="0"
                                      Immediate="true"
                                      Adornment="Adornment.End"
-                                     AdornmentIcon="@Icons.Filled.AttachMoney"
+                                     AdornmentIcon="@MaterialIcons.Filled.AttachMoney"
                                      Required="true"
                                      RequiredError="هزینه الزامی است."
                                      HelperText="عددی وارد کنید"/>
@@ -87,20 +84,20 @@
                    Color="Color.Primary"
                    Disabled="@(_saving)"
                    OnClick="TrySubmit"
-                   StartIcon="@Icons.Filled.Save">
+                   StartIcon="@MaterialIcons.Filled.Save">
             ذخیره
         </MudButton>
     </DialogActions>
 </MudDialog>
 
 @code {
-[CascadingParameter]
-    public Action UpdateUi { get; set; } = default!;
+    [CascadingParameter] public Action UpdateUi { get; set; } = default!;
 
     private void TriggerParentUpdate()
     {
         UpdateUi?.Invoke(); // Call the parent's UpdateUi method
     }
+
     [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
 
     private MudForm? _form;
@@ -111,14 +108,16 @@
     private async Task TrySubmit()
     {
         if (_form is null) return;
-           await _form.Validate();
 
-            await Save();
+        await _form.Validate();
+
+        await Save();
     }
 
     private async Task Save()
     {
         if (_saving) return;
+
         _saving = true;
 
         try
@@ -140,7 +139,9 @@
     }
 
     private void Cancel()
-        => MudDialog.Cancel();
+    {
+        MudDialog.Cancel();
+    }
 
     protected override void OnAfterRender(bool firstRender)
     {

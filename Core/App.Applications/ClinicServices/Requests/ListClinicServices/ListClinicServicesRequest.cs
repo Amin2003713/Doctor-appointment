@@ -3,4 +3,4 @@ using MediatR;
 
 namespace App.Applications.ClinicServices.Requests.ListClinicServices;
 
-public record ListClinicServicesRequest() : IRequest<List<ClinicServiceResponse>>;
+public record ListClinicServicesRequest : IRequest<List<ClinicServiceResponse>>;

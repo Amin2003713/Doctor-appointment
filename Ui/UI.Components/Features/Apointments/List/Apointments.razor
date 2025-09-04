@@ -1,9 +1,5 @@
 ﻿@page "/doctor/agenda"
-@using System.Text
 @using App.Applications.Appointments.Requests
-@using Microsoft.AspNetCore.Components.Rendering
-@using Microsoft.AspNetCore.Components.Authorization
-@using UI.Components.Features.Apointments.Dialogs
 
 <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="pt-4">
 
@@ -316,10 +312,10 @@
             var s = _search.Trim();
 
             q = q.Where(a =>
-                            (a.PatientFullName?.Contains(s, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                            (a.PatientPhone?.Contains(s, StringComparison.OrdinalIgnoreCase)    ?? false) ||
-                            (a.ServiceTitle?.Contains(s, StringComparison.OrdinalIgnoreCase)    ?? false) ||
-                            (a.Notes?.Contains(s, StringComparison.OrdinalIgnoreCase)           ?? false));
+                (a.PatientFullName?.Contains(s, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (a.PatientPhone?.Contains(s, StringComparison.OrdinalIgnoreCase)    ?? false) ||
+                (a.ServiceTitle?.Contains(s, StringComparison.OrdinalIgnoreCase)    ?? false) ||
+                (a.Notes?.Contains(s, StringComparison.OrdinalIgnoreCase)           ?? false));
         }
 
         q           = q.OrderBy(a => a.Date).ThenBy(a => a.Start);
@@ -338,8 +334,8 @@
     {
         try
         {
-            var fromDo = _dateRange?.Start is not null ? DateOnly.FromDateTime(_dateRange!.Start!.Value) : (From ?? DateOnly.FromDateTime(DateTime.Today));
-            var toDo   = _dateRange?.End is not null ? DateOnly.FromDateTime(_dateRange!.End!.Value) : (To       ?? DateOnly.FromDateTime(DateTime.Today.AddDays(7)));
+            var fromDo = _dateRange?.Start is not null ? DateOnly.FromDateTime(_dateRange!.Start!.Value) : From ?? DateOnly.FromDateTime(DateTime.Today);
+            var toDo   = _dateRange?.End is not null ? DateOnly.FromDateTime(_dateRange!.End!.Value) : To       ?? DateOnly.FromDateTime(DateTime.Today.AddDays(7));
 
             var list = await Mediator.Send(new GetAppointmentsQuery(fromDo, toDo, PatientUserId));
             _all        = list ?? [];
@@ -349,14 +345,16 @@
         }
         catch
         {
-            _all        = new();
+            _all        = new List<AppointmentResponse>();
             _totalCount = 0;
             Snackbar.ShowError("خطا در دریافت نوبت‌ها");
         }
     }
 
     private void RefreshTable()
-        => _ = _table?.ReloadServerData();
+    {
+        _ = _table?.ReloadServerData();
+    }
 
     private void ClearFilters()
     {
@@ -377,7 +375,7 @@
         {
             CloseOnEscapeKey = true,
             MaxWidth         = MaxWidth.Small,
-            FullWidth        = true,
+            FullWidth        = true
         };
 
         var parameters = new DialogParameters<ApointmentInfoDialog>
@@ -397,7 +395,7 @@
         var confirm = await DialogService.ShowMessageBox(
             "تأیید لغو",
             $"آیا از لغو نوبت {appt.ServiceTitle} در تاریخ {appt.Date:yyyy/MM/dd} ساعت {appt.Start} مطمئن هستید؟",
-            yesText: "بله، لغو کن",
+            "بله، لغو کن",
             cancelText: "انصراف",
             options: new DialogOptions
             {
@@ -459,7 +457,7 @@
             CloseOnEscapeKey = true,
             MaxWidth = MaxWidth.ExtraSmall,
             FullWidth = true,
-            NoHeader = true,
+            NoHeader = true
         };
 
         var dlg = await DialogService.ShowAsync<RescheduleDialog>("تغییر زمان نوبت", parameters, options);
@@ -470,15 +468,16 @@
             try
             {
                 await Mediator.Send(new RescheduleAppointmentCommand
-                {
-                    ServiceId = m.ServiceId,
-                    Date = m.Date,
-                    Start = m.Start,
-                    Notes = m.Notes,
-                    Id = appt.Id,
-                    PatientFullName = appt.PatientFullName,
-                    PatientPhone = appt.PatientPhone
-                }, CancellationToken.None);
+                    {
+                        ServiceId = m.ServiceId,
+                        Date = m.Date,
+                        Start = m.Start,
+                        Notes = m.Notes,
+                        Id = appt.Id,
+                        PatientFullName = appt.PatientFullName,
+                        PatientPhone = appt.PatientPhone
+                    },
+                    CancellationToken.None);
 
                 Snackbar.ShowSuccess("زمان نوبت با موفقیت تغییر کرد.");
                 await ReloadData();
@@ -493,36 +492,47 @@
 
     // ===== Helpers =====
     private static bool IsBooked(AppointmentResponse a)
-        => a.Status == AppointmentStatus.Booked;
+    {
+        return a.Status == AppointmentStatus.Booked;
+    }
 
     private static string NormalizePhone(string? phone)
-        => string.IsNullOrWhiteSpace(phone) ? "-" : phone.Replace("+98", "0");
+    {
+        return string.IsNullOrWhiteSpace(phone) ? "-" : phone.Replace("+98", "0");
+    }
 
     private static Color StatusColor(AppointmentStatus s)
-        => s switch
-        {
-            AppointmentStatus.Booked => Color.Info,
-            AppointmentStatus.Completed => Color.Success,
-            AppointmentStatus.Cancelled => Color.Error,
-            (AppointmentStatus)9999 => Color.Error,
-            _ => Color.Default
-        };
+    {
+        return s switch
+               {
+                   AppointmentStatus.Booked    => Color.Info,
+                   AppointmentStatus.Completed => Color.Success,
+                   AppointmentStatus.Cancelled => Color.Error,
+                   (AppointmentStatus)9999     => Color.Error,
+                   _                           => Color.Default
+               };
+    }
 
     private static string StatusIcon(AppointmentStatus s)
-        => s switch
-        {
-            AppointmentStatus.Booked => MaterialIcons.Filled.Event,
-            AppointmentStatus.Completed => MaterialIcons.Filled.CheckCircle,
-            AppointmentStatus.Cancelled => MaterialIcons.Filled.Block,
-            _ => MaterialIcons.Filled.Help
-        };
+    {
+        return s switch
+               {
+                   AppointmentStatus.Booked    => MaterialIcons.Filled.Event,
+                   AppointmentStatus.Completed => MaterialIcons.Filled.CheckCircle,
+                   AppointmentStatus.Cancelled => MaterialIcons.Filled.Block,
+                   _                           => MaterialIcons.Filled.Help
+               };
+    }
 
     private static string StatusText(AppointmentStatus s)
-        => s switch
-        {
-            AppointmentStatus.Booked => "رزروشده",
-            AppointmentStatus.Completed => "انجام‌شده",
-            AppointmentStatus.Cancelled => "لغوشده",
-            _ => "نامشخص"
-        };
+    {
+        return s switch
+               {
+                   AppointmentStatus.Booked    => "رزروشده",
+                   AppointmentStatus.Completed => "انجام‌شده",
+                   AppointmentStatus.Cancelled => "لغوشده",
+                   _                           => "نامشخص"
+               };
+    }
+
 }

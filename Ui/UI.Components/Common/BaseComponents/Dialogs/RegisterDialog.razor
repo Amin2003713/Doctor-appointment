@@ -1,5 +1,4 @@
 ﻿@using App.Applications.Users.Requests.Registers
-@using Microsoft.AspNetCore.Components.Authorization
 <MudDialog Gutters>
     <TitleContent>ثبت‌نام</TitleContent>
     <DialogContent>
@@ -103,13 +102,13 @@
 </MudDialog>
 
 @code {
-[CascadingParameter]
-    public Action UpdateUi { get; set; } = default!;
+    [CascadingParameter] public Action UpdateUi { get; set; } = default!;
 
     private void TriggerParentUpdate()
     {
         UpdateUi?.Invoke(); // Call the parent's UpdateUi method
     }
+
     [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
 
     private bool ApiCalling { get; set; }
@@ -136,7 +135,6 @@
     {
         try
         {
-            
             Request.FullName = $"{Request.FirstName} {Request.LastName}".Trim();
             Console.WriteLine(Request);
             await Mediator.Send(Request);

@@ -15,23 +15,23 @@
 </MudDialog>
 
 @code {
-[CascadingParameter]
-    public Action UpdateUi { get; set; } = default!;
+    [CascadingParameter] public Action UpdateUi { get; set; } = default!;
 
     private void TriggerParentUpdate()
     {
         UpdateUi?.Invoke(); // Call the parent's UpdateUi method
     }
+
     [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
 
     [Parameter] public RenderFragment? BodyContent { get; set; }
     [Parameter] public TResult Result { get; set; }
 
-    
+
     [Parameter] public string ConfirmButtonText { get; set; } = "Confirm";
     [Parameter] public string CancelButtonText { get; set; } = "Cancel";
 
-    
+
     [Parameter] public Color ConfirmButtonColor { get; set; } = Color.Primary;
     [Parameter] public Color CancelButtonColor { get; set; } = Color.Secondary;
     [Parameter] public Variant ConfirmButtonVariant { get; set; } = Variant.Filled;

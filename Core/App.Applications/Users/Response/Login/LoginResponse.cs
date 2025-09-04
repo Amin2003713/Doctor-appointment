@@ -23,13 +23,13 @@
                 return jwtToken.Claims.FirstOrDefault(c => types.Contains(c.Type))?.Value ?? string.Empty;
             }
 
-            
+
             var id = Get(JwtRegisteredClaimNames.Sub , ClaimTypes.NameIdentifier);
 
-            
+
             var userName = Get(ClaimTypes.Name);
 
-            
+
             var firstName = Get("first_name");
             var lastName  = Get("last_name");
             var profile   = Get("profile");

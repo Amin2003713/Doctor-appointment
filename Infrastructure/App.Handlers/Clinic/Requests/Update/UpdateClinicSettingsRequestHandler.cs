@@ -1,43 +1,38 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using App.Applications.Clinic;
-using App.Applications.Clinic.Apis;
+﻿using App.Applications.Clinic.Apis;
 using App.Applications.Clinic.Requests.Update;
 using App.Common.Utilities.Snackbar;
 using App.Persistence.Services.Refit;
 using MediatR;
 
-namespace App.Handlers.Clinic.Requests.Update
+namespace App.Handlers.Clinic.Requests.Update;
+
+public class UpdateClinicSettingsRequestHandler(
+    ApiFactory factory,
+    ISnackbarService snackbar
+) : IRequestHandler<UpdateClinicSettingsRequest>
 {
-    public class UpdateClinicSettingsRequestHandler(
-        ApiFactory factory,
-        ISnackbarService snackbar
-    ) : IRequestHandler<UpdateClinicSettingsRequest>
+    private readonly IClinicApis _apis = factory.CreateApi<IClinicApis>();
+
+    public async Task Handle(UpdateClinicSettingsRequest request, CancellationToken cancellationToken)
     {
-        private readonly IClinicApis _apis = factory.CreateApi<IClinicApis>();
+        ArgumentNullException.ThrowIfNull(request);
 
-        public async Task Handle(UpdateClinicSettingsRequest request, CancellationToken cancellationToken)
+        try
         {
-            ArgumentNullException.ThrowIfNull(request);
+            var resp = await _apis.UpdateSettings(request, cancellationToken);
 
-            try
+            if (resp.IsSuccessStatusCode)
             {
-                var resp = await _apis.UpdateSettings(request, cancellationToken);
-
-                if (resp.IsSuccessStatusCode)
-                {
-                    snackbar.ShowSuccess("تنظیمات با موفقیت ذخیره شد.");
-                    return;
-                }
-
-                snackbar.ShowApiResult(resp.StatusCode);
+                snackbar.ShowSuccess("تنظیمات با موفقیت ذخیره شد.");
+                return;
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                snackbar.ShowError("خطا در ذخیره تنظیمات کلینیک");
-            }
+
+            snackbar.ShowApiResult(resp.StatusCode);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            snackbar.ShowError("خطا در ذخیره تنظیمات کلینیک");
         }
     }
 }

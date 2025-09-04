@@ -1,16 +1,16 @@
-﻿
-
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using App.Applications.Schedules.Requests.Get;
 
 namespace App.Applications.Schedules.Validations.Update;
 
 public static class TimeParsing
 {
-    private static readonly Regex HhMm = new(@"^(?:[01]\d|2[0-3]):[0-5]\d$", RegexOptions.Compiled);
+    private readonly static Regex HhMm = new(@"^(?:[01]\d|2[0-3]):[0-5]\d$", RegexOptions.Compiled);
 
     public static bool IsHhMm(string? s)
-        => !string.IsNullOrWhiteSpace(s) && HhMm.IsMatch(s!);
+    {
+        return !string.IsNullOrWhiteSpace(s) && HhMm.IsMatch(s!);
+    }
 
     public static bool TryParse(string s, out TimeOnly t)
     {
@@ -25,7 +25,9 @@ public static class TimeParsing
     }
 
     public static bool FromLessThanTo(TimeRangeDto r)
-        => TryParse(r.From, out var f) && TryParse(r.To, out var t) && f < t;
+    {
+        return TryParse(r.From, out var f) && TryParse(r.To, out var t) && f < t;
+    }
 
     public static bool Overlaps(TimeRangeDto a, TimeRangeDto b)
     {

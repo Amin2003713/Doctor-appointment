@@ -2,4 +2,6 @@
 
 namespace App.Applications.Appointments.Requests;
 
-public record CancelAppointmentCommand(Guid Id) : IRequest;
+public record CancelAppointmentCommand(
+    Guid Id
+) : IRequest;

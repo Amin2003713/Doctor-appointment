@@ -2,8 +2,6 @@
 @using App.Applications.Doctor.Requests.Update
 @using App.Applications.Users.Requests.UploadProfilePicture
 @* reuse your existing upload request *@
-@using Microsoft.AspNetCore.Components.Forms
-@using Microsoft.AspNetCore.Components.Web
 
 <MudDialog MaxWidth="MaxWidth.Large" FullWidth>
     <DialogContent>
@@ -167,13 +165,13 @@
 </MudDialog>
 
 @code {
-[CascadingParameter]
-    public Action UpdateUi { get; set; } = default!;
+    [CascadingParameter] public Action UpdateUi { get; set; } = default!;
 
     private void TriggerParentUpdate()
     {
         UpdateUi?.Invoke(); // Call the parent's UpdateUi method
     }
+
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
     [Parameter] public DoctorProfileResponse? Model { get; set; }
     [Parameter] public bool AllowEdit { get; set; } = true;
@@ -246,7 +244,7 @@
                 await Mediator.Send(_vm);
                 Snackbar.ShowSuccess("پروفایل ذخیره شد.");
                 _editing = false;
-                
+
                 TriggerParentUpdate();
                 MudDialog.Close();
             }
@@ -268,15 +266,19 @@
     }
 
     private static string?[] Clean(string[]? xs)
-        => (xs ??
-            [])
+    {
+        return (xs ??
+                [])
             .Select(s => s?.Trim())
             .Where(s => !string.IsNullOrWhiteSpace(s))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToArray();
+    }
 
     private void Cancel()
-        => MudDialog.Cancel();
+    {
+        MudDialog.Cancel();
+    }
 
     private void AddSpecialty()
     {
@@ -303,7 +305,9 @@
     }
 
     private void RemoveAt(ref string[] arr, int index)
-        => arr = arr.Where((_, i) => i != index).ToArray();
+    {
+        arr = arr.Where((_, i) => i != index).ToArray();
+    }
 
     private void OnSpecialtyKeyUp(KeyboardEventArgs e)
     {
@@ -321,12 +325,18 @@
     }
 
     private void RemoveEducation(int index)
-        => _vm.Education = _vm.Education.Where((_, i) => i != index).ToArray();
+    {
+        _vm.Education = _vm.Education.Where((_, i) => i != index).ToArray();
+    }
 
     private void RemoveSpecialty(int index)
-        => _vm.Specialties = _vm.Specialties.Where((_, i) => i != index).ToArray();
+    {
+        _vm.Specialties = _vm.Specialties.Where((_, i) => i != index).ToArray();
+    }
 
     private void RemoveLanguage(int index)
-        => _vm.Languages = _vm.Languages.Where((_, i) => i != index).ToArray();
+    {
+        _vm.Languages = _vm.Languages.Where((_, i) => i != index).ToArray();
+    }
 
 }

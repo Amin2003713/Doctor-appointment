@@ -20,7 +20,7 @@ public class GetAvailableSlotsRequestHandler(
         if (resp.IsSuccessStatusCode && resp.Content is not null) return ConvertToSlotsAvailability(resp.Content);
 
         snackbar.ShowError("امکان دریافت اسلات‌های خالی وجود ندارد.");
-        return new();
+        return new Dictionary<string, bool>();
     }
 
     private static Dictionary<string, bool> ConvertToSlotsAvailability(SlotsSummaryResponse summary)

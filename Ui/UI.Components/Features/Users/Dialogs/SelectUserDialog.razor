@@ -1,7 +1,4 @@
 ﻿@using App.Applications.Users.Requests.UserQueries
-@using App.Applications.Users.Queries.GetUserInfo
-@using MudBlazor
-
 <MudDialog>
     <TitleContent>انتخاب کاربر</TitleContent>
 
@@ -21,7 +18,7 @@
                 {
                     @foreach (var user in _users)
                     {
-                        <MudSelectItem  Value="@user">@ToUserDisplay(user)</MudSelectItem>
+                        <MudSelectItem Value="@user">@ToUserDisplay(user)</MudSelectItem>
                     }
                 }
             </MudSelect>
@@ -34,20 +31,20 @@
                    Color="Color.Primary"
                    Disabled="@(_selectedUser is null)"
                    OnClick="Submit"
-                   StartIcon="@Icons.Filled.Check">
+                   StartIcon="@MaterialIcons.Filled.Check">
             انتخاب
         </MudButton>
     </DialogActions>
 </MudDialog>
 
 @code {
-[CascadingParameter]
-    public Action UpdateUi { get; set; } = default!;
+    [CascadingParameter] public Action UpdateUi { get; set; } = default!;
 
     private void TriggerParentUpdate()
     {
         UpdateUi?.Invoke(); // Call the parent's UpdateUi method
     }
+
     [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
 
     private List<UserListItemResponse> _users = new();
@@ -74,10 +71,14 @@
     }
 
     private static string ToUserDisplay(UserListItemResponse user)
-        => $"{user.FullName} ({user.Username})";
+    {
+        return $"{user.FullName} ({user.Username})";
+    }
 
     private void Cancel()
-        => MudDialog.Cancel();
+    {
+        MudDialog.Cancel();
+    }
 
     private async Task Submit()
     {

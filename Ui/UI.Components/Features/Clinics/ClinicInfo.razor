@@ -1,7 +1,6 @@
 ﻿@page "/clinic"
 @using App.Applications.Clinic.Requests.Get
 @using App.Domain.ValueObjects
-@using Microsoft.AspNetCore.Components.Authorization
 
 <div>
     @if (_loading)
@@ -159,13 +158,13 @@
 </div>
 
 @code {
-[CascadingParameter]
-    public Action UpdateUi { get; set; } = default!;
+    [CascadingParameter] public Action UpdateUi { get; set; } = default!;
 
     private void TriggerParentUpdate()
     {
         UpdateUi?.Invoke(); // Call the parent's UpdateUi method
     }
+
     private ClinicSettingsResponse? _clinic;
     private bool                    _loading = true;
     private bool                    _noteOpen;
@@ -239,15 +238,17 @@
     }
 
     private static string ToPersian(PaymentMethods value)
-        => value switch
-           {
-               PaymentMethods.Cash          => "نقدی",
-               PaymentMethods.Card          => "کارت‌به‌کارت/کارتخوان",
-               PaymentMethods.OnlineGateway => "آنلاین",
-               PaymentMethods.Insurance     => "بیمه",
-               PaymentMethods.BankTransfer  => "انتقال بانکی",
-               _                            => "نامشخص"
-           };
+    {
+        return value switch
+               {
+                   PaymentMethods.Cash          => "نقدی",
+                   PaymentMethods.Card          => "کارت‌به‌کارت/کارتخوان",
+                   PaymentMethods.OnlineGateway => "آنلاین",
+                   PaymentMethods.Insurance     => "بیمه",
+                   PaymentMethods.BankTransfer  => "انتقال بانکی",
+                   _                            => "نامشخص"
+               };
+    }
 
     private async Task GoToReservation()
     {
@@ -276,11 +277,11 @@
     {
         if (_clinic is null) return;
 
-        var url = (_clinic.Latitude is not null && _clinic.Longitude is not null)
+        var url = _clinic.Latitude is not null && _clinic.Longitude is not null
             ? $"https://maps.google.com/?q={_clinic.Latitude},{_clinic.Longitude}"
             : $"https://maps.google.com/?q={Uri.EscapeDataString(_clinic.Address)}";
 
-        NavigationManager.NavigateTo(url, forceLoad: true);
+        NavigationManager.NavigateTo(url, true);
     }
 
 }

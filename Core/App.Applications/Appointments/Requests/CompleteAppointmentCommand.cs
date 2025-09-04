@@ -2,4 +2,6 @@
 
 namespace App.Applications.Appointments.Requests;
 
-public record CompleteAppointmentCommand(Guid Id) : IRequest;
+public record CompleteAppointmentCommand(
+    Guid Id
+) : IRequest;

@@ -10,7 +10,6 @@ namespace App.Persistence.Services.Exceptions;
 
 public class ExceptionHandlerService : IExceptionNotifier
 {
-    
     private const    int                                   ExceptionCooldownMilliseconds = 500;
     private readonly IDictionary<Type , Action<Exception>> _exceptionHandlers;
     private readonly ILogger<ExceptionHandlerService>      _logger;
@@ -65,7 +64,7 @@ public class ExceptionHandlerService : IExceptionNotifier
         };
     }
 
-    
+
     public void Notify(object sender , UnhandledExceptionEventArgs e)
     {
         HandleException(sender , (e.ExceptionObject as Exception)!);
@@ -78,7 +77,6 @@ public class ExceptionHandlerService : IExceptionNotifier
 
     public void Notify(Exception e)
     {
-        
         var source = string.IsNullOrEmpty(e.Source) ? "Unknown" : e.Source;
         HandleException(source , e);
     }
@@ -174,17 +172,15 @@ public class ExceptionHandlerService : IExceptionNotifier
 
     private void HandleException(object sender , Exception exception)
     {
-        
         if (ShouldSkipException(exception))
         {
-            
             return;
         }
 
-        
+
         MarkExceptionHandled(exception);
 
-        
+
         var exceptionType = exception.GetType();
 
         if (_exceptionHandlers.TryGetValue(exceptionType , out var handler))
@@ -197,20 +193,16 @@ public class ExceptionHandlerService : IExceptionNotifier
         HandleUnknownException(exception);
     }
 
-    
-    
-    
-    
+
     private bool ShouldSkipException(Exception ex)
     {
         var key = BuildExceptionKey(ex);
 
-        
+
         return _memoryCache.TryGetValue(key , out _);
     }
 
-    
-    
+
     /// </summary>
     private void MarkExceptionHandled(Exception ex)
     {

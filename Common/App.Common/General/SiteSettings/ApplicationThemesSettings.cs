@@ -10,13 +10,13 @@
     {
         public static PaletteDark GetPaletteDark => new()
         {
-            Primary          = "#00796B" , 
-            Secondary        = "#004D40" , 
-            Tertiary         = "#009688" , 
-            Info             = "#0288D1" , 
-            Success          = "#26A69A" , 
-            Warning          = "#FBC02D" , 
-            Error            = "#D32F2F" , 
+            Primary          = "#00796B" ,
+            Secondary        = "#004D40" ,
+            Tertiary         = "#009688" ,
+            Info             = "#0288D1" ,
+            Success          = "#26A69A" ,
+            Warning          = "#FBC02D" ,
+            Error            = "#D32F2F" ,
             Background       = "#121212" ,
             Surface    = "#1E1E1E" ,
             TextPrimary = "#FFFFFF" ,
@@ -30,13 +30,13 @@
 
         public static PaletteLight GetPaletteLight => new()
         {
-            Primary          = "#00796B" , 
-            Secondary        = "#009688" , 
-            Tertiary         = "#4DB6AC" , 
-            Info             = "#0288D1" , 
-            Success          = "#26A69A" , 
-            Warning          = "#FBC02D" , 
-            Error            = "#D32F2F" , 
+            Primary          = "#00796B" ,
+            Secondary        = "#009688" ,
+            Tertiary         = "#4DB6AC" ,
+            Info             = "#0288D1" ,
+            Success          = "#26A69A" ,
+            Warning          = "#FBC02D" ,
+            Error            = "#D32F2F" ,
             Background       = "#FFFFFF" ,
             Surface    = "#F5F5F5" ,
             TextPrimary = "#212121" ,

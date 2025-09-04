@@ -1,7 +1,4 @@
-﻿
-@using App.Applications.Schedules.Requests.GetSlots
-
-
+﻿@using App.Applications.Schedules.Requests.GetSlots
 <MudDialog>
     <DialogContent>
         <MudStack Spacing="2">
@@ -238,7 +235,9 @@
     }
 
     private void Cancel()
-        => MudDialog.Cancel();
+    {
+        MudDialog.Cancel();
+    }
 
 
     private static string NormalizeTimeString(string input)
@@ -256,7 +255,9 @@
     }
 
     private static bool IsValidHHmm(string v)
-        => TimeSpan.TryParse(v, out var t) && t >= TimeSpan.Zero && t < TimeSpan.FromDays(1);
+    {
+        return TimeSpan.TryParse(v, out var t) && t >= TimeSpan.Zero && t < TimeSpan.FromDays(1);
+    }
 
     public class RescheduleModel
     {

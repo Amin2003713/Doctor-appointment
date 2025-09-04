@@ -16,22 +16,21 @@ public sealed class CompleteAppointmentCommandHandler(
     ILogger<CompleteAppointmentCommandHandler>          logger
 ) : IRequestHandler<CompleteAppointmentCommand>
 {
-
     public IAppointmentsApi api = apiFactory.CreateApi<IAppointmentsApi>();
 
     public async Task Handle(CompleteAppointmentCommand request, CancellationToken ct)
     {
         try
         {
-            
             var res = await api.CompleteAsync(request.Id, ct);
+
             if (res.IsSuccessStatusCode)
             {
                 snackbar.ShowSuccess(localizer["Marked as completed"]);
                 return ;
             }
+
             snackbar.ShowError(localizer["Complete failed"]);
-            return ;
         }
         catch (ApiException ex)
         {

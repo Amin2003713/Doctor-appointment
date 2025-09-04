@@ -7,8 +7,9 @@
         <MudStack Spacing="2">
             <!-- Mode -->
             <MudRadioGroup T="AddWorkSlotDialogMode" bind-Value="_mode" Row="true">
-                <MudRadio T="AddWorkSlotDialogMode"  Value="AddWorkSlotDialogMode.Weekly">هفتگی</MudRadio>
-                <MudRadio T="AddWorkSlotDialogMode"  Value="AddWorkSlotDialogMode.Override">اورراید (تاریخ خاص)</MudRadio>
+                <MudRadio T="AddWorkSlotDialogMode" Value="AddWorkSlotDialogMode.Weekly">هفتگی</MudRadio>
+                <MudRadio T="AddWorkSlotDialogMode" Value="AddWorkSlotDialogMode.Override">اورراید (تاریخ خاص)
+                </MudRadio>
             </MudRadioGroup>
 
             @if (_mode == AddWorkSlotDialogMode.Weekly)
@@ -99,13 +100,13 @@
 </MudDialog>
 
 @code {
-[CascadingParameter]
-    public Action UpdateUi { get; set; } = default!;
+    [CascadingParameter] public Action UpdateUi { get; set; } = default!;
 
     private void TriggerParentUpdate()
     {
         UpdateUi?.Invoke(); // Call the parent's UpdateUi method
     }
+
     [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
 
     // Incoming from page
@@ -127,7 +128,7 @@
     private readonly List<TimeRangeDto> _intervals = new();
     private readonly List<TimeRangeDto> _breaks    = new();
 
-    private static readonly Dictionary<DayOfWeek, string> PersianDays = new()
+    private readonly static Dictionary<DayOfWeek, string> PersianDays = new()
     {
         {
             DayOfWeek.Saturday, "شنبه"
@@ -162,8 +163,8 @@
             _mode      = AddWorkSlotDialogMode.Weekly;
             _dayOfWeek = Day.Day;
             _closed    = Day.Closed;
-            _intervals.AddRange(Day.Intervals ?? new());
-            _breaks.AddRange(Day.Breaks       ?? new());
+            _intervals.AddRange(Day.Intervals ?? new List<TimeRangeDto>());
+            _breaks.AddRange(Day.Breaks       ?? new List<TimeRangeDto>());
         }
 
         if (Override is not null)
@@ -171,7 +172,7 @@
             _mode         = AddWorkSlotDialogMode.Override;
             _overrideDate = new DateTime(Override.Date.Year, Override.Date.Month, Override.Date.Day);
             _closed       = Override.Closed;
-            _intervals.AddRange(Override.Intervals ?? new());
+            _intervals.AddRange(Override.Intervals ?? new List<TimeRangeDto>());
             // (Breaks not modeled on SpecialDateOverrideDto; keep empty unless you add it)
         }
     }
@@ -179,6 +180,7 @@
     private void AddInterval()
     {
         if (_from is null || _to is null) return;
+
         var f = _from.Value.ToString(@"hh\:mm");
         var t = _to.Value.ToString(@"hh\:mm");
         if (string.Compare(f, t, StringComparison.Ordinal) >= 0) return;
@@ -196,6 +198,7 @@
     private void AddBreak()
     {
         if (_breakFrom is null || _breakTo is null) return;
+
         var f = _breakFrom.Value.ToString(@"hh\:mm");
         var t = _breakTo.Value.ToString(@"hh\:mm");
         if (string.Compare(f, t, StringComparison.Ordinal) >= 0) return;
@@ -211,7 +214,9 @@
     }
 
     private void Cancel()
-        => MudDialog.Cancel();
+    {
+        MudDialog.Cancel();
+    }
 
     private async Task Save()
     {
@@ -243,6 +248,7 @@
         else // Override
         {
             if (_overrideDate is null) return;
+
             var dateOnly = DateOnly.FromDateTime(_overrideDate.Value);
 
             // If editing an existing override (Override param provided), replace it

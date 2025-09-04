@@ -24,13 +24,13 @@ public record RegisterRequestHandler(
         {
             string profile = null!;
 
-            
+
             if (request.Profile is not null)
             {
                 await using var readStream = request.Profile.OpenReadStream(request.Profile.Size);
                 var             ms         = new MemoryStream();
                 await readStream.CopyToAsync(ms, cancellationToken);
-                ms.Position = 0; 
+                ms.Position = 0;
 
                 var imageUrl = await Apis.UploadAvatar(new StreamPart(ms, request.Profile.Name, request.Profile.ContentType));
 

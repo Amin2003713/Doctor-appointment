@@ -4,21 +4,13 @@ using Microsoft.Extensions.Localization;
 
 namespace App.Applications.Users.Validators.ForgotPassword;
 
-
-
-
-
 public class ForgotPasswordRequestValidator : AbstractValidator<ResetPasswordRequest>
 {
-    
-    
-    
     public ForgotPasswordRequestValidator(IStringLocalizer<ForgotPasswordRequestValidator> localizer)
     {
-        
         RuleFor(x => x.PhoneNumber).NotEmpty().WithMessage(localizer["PhoneNumberRequired"]).Matches(@"^\d{10,}$").WithMessage(localizer["PhoneNumberMinDigits"]);
 
-        
+
         RuleFor(x => x.Password)
             .NotEmpty()
             .WithMessage(localizer["PasswordRequired"])
@@ -33,7 +25,7 @@ public class ForgotPasswordRequestValidator : AbstractValidator<ResetPasswordReq
             .Matches(@"[\W_]")
             .WithMessage(localizer["PasswordSpecialRequired"]);
 
-        
+
         RuleFor(x => x.ConfirmPassword)
             .NotEmpty()
             .WithMessage(localizer["ConfirmPasswordRequired"])

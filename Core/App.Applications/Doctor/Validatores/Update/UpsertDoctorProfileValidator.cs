@@ -7,8 +7,6 @@ public class UpsertDoctorProfileValidator : AbstractValidator<UpsertDoctorProfil
 {
     public UpsertDoctorProfileValidator()
     {
-        
-
         RuleFor(x => x.FullName)
             .NotEmpty()
             .WithMessage("نام کامل الزامی است.")

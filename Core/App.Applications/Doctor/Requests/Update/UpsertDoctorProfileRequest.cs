@@ -4,6 +4,4 @@ using MediatR;
 namespace App.Applications.Doctor.Requests.Update;
 
 public class UpsertDoctorProfileRequest : DoctorProfileResponse,
-    IRequest
-{
-}
+    IRequest { }

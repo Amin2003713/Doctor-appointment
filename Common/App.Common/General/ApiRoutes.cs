@@ -50,7 +50,7 @@ public static class ApiRoutes
     {
         public const string Base = "/api/User";
 
-        
+
         public const string Register          = $"{Base}/register";
         public const string RegisterPatient   = $"{Base}/register/patient";
         public const string RegisterSecretary = $"{Base}/register/secretary";
@@ -59,11 +59,11 @@ public static class ApiRoutes
         public const string ForgotPassword    = $"{Base}/forgot-password";
         public const string Me                = $"{Base}/me";
 
-        
+
         public const string Users            = $"{Base}/users";
         public const string UsersSecretaries = $"{Base}/users/secretaries";
 
-        
+
         public const string UserByIdTemplate = $"{Base}/user/{{id}}";
         public const string ToggleTemplate   = $"{Base}/toggle";
     }

@@ -5,7 +5,6 @@
 @using App.Domain.Users
 @using UI.Components.Common.BaseComponents.Dialogs
 @using UI.Components.Common.BaseComponents.Picture
-@using UI.Components.Features.Apointments.Dialogs
 
 <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="pt-4">
 
@@ -163,11 +162,11 @@
                         <MudIconButton Icon="@MaterialIcons.Filled.Visibility"
                                        Color="Color.Primary"
                                        OnClick="() => ViewUser(context)"/>
-                    
+
                     </MudTooltip>
 
                     <MudTooltip Text="رزرو نوبت" Placement="Placement.Top" Arrow="true">
-                        <MudIconButton Icon="@Icons.Outlined.PersonAdd"
+                        <MudIconButton Icon="@MaterialIcons.Outlined.PersonAdd"
                                        Size="Size.Small"
                                        Color="Color.Success"
                                        Disabled="@(!context.IsActive)"
@@ -208,13 +207,13 @@
 </MudContainer>
 
 @code {
-[CascadingParameter]
-    public Action UpdateUi { get; set; } = default!;
+    [CascadingParameter] public Action UpdateUi { get; set; } = default!;
 
     private void TriggerParentUpdate()
     {
         UpdateUi?.Invoke(); // Call the parent's UpdateUi method
     }
+
     private MudTable<UserListItemResponse>? _table;
     private string?                         _search;
 
@@ -357,7 +356,6 @@
         await _table!.ReloadServerData();
         StateHasChanged();
         TriggerParentUpdate();
-
     }
 
 }

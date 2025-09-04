@@ -2,4 +2,4 @@
 
 namespace App.Applications.Doctor.Requests.Get;
 
-public record GetDoctorProfileRequest() : IRequest<DoctorProfileResponse>;
+public record GetDoctorProfileRequest : IRequest<DoctorProfileResponse>;
