@@ -1,15 +1,17 @@
-﻿namespace Api.Endpoints.Dtos.Drugs;
+﻿using Api.Endpoints.Models.Drugs;
+
+namespace Api.Endpoints.Dtos.Drugs;
 
 public sealed class UpsertDrugRequest
 {
     public string BrandName { get; set; } = default!;
     public string GenericName { get; set; } = default!;
-    public int Form { get; set; }  // DrugForm
-    public int Route { get; set; } // DrugRoute
+    public DrugForm Form { get; set; }  // DrugForm
+    public DrugRoute Route { get; set; } // DrugRoute
     public decimal? StrengthValue { get; set; }
     public string? StrengthUnit { get; set; }
     public string? ConcentrationText { get; set; }
-    public int RxClass { get; set; } = 1;          // Rx by default
+    public RxClass RxClass { get; set; } = RxClass.Rx;          // Rx by default
     public string? Manufacturer { get; set; }
     public string? Country { get; set; }
     public string? Barcode { get; set; }

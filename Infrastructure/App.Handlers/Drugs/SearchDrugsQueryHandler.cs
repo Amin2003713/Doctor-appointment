@@ -15,7 +15,9 @@ public class SearchDrugsQueryHandler (
             ArgumentNullException.ThrowIfNull(request, nameof(request));
             ArgumentNullException.ThrowIfNull(Apis,    nameof(Apis));
 
-            var result = await Apis.Search(request.Q, request.Form, request.Route, request.RxClass, request.ActiveOnly, request.Page, request.PageSize);
+            var result = await Apis.Search(request.Q, request.Form.HasValue ? (int)request.Form.Value : null,
+                                           request.Route.HasValue ? (int)request.Route.Value : null,
+                                           request.RxClass.HasValue ? (int)request.RxClass.Value : null, request.ActiveOnly, request.Page, request.PageSize);
 
             if (!result.IsSuccessStatusCode)
             {

@@ -1,5 +1,6 @@
 ﻿@page "/doctor/agenda"
 @using App.Applications.Appointments.Requests
+@using UI.Components.Features.Prescriptions.Dialogs
 
 <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="pt-4">
 
@@ -430,6 +431,37 @@
     {
         if (!IsBooked(appt)) return;
 
+        var parameters = new DialogParameters<CreatePrescriptionDialog>
+        {
+            {
+                x => x.AppointmentId, appt.Id
+            },
+            {
+                x => x.PatientUserId, appt.PatientId
+            },
+            {
+                x => x.IssueMethod, 0
+            },
+            {
+                x => x.PrefillNotes, appt.Notes
+            }
+        };
+
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            MaxWidth         = MaxWidth.Medium,
+            FullWidth        = true,
+            NoHeader         = false
+        };
+
+        var dlg = await DialogService.ShowAsync<CreatePrescriptionDialog>("نسخهٔ جدید", parameters, options);
+        var res = await dlg.Result;
+
+
+        if (res.Canceled)
+            return;
+
         try
         {
             await Mediator.Send(new CompleteAppointmentCommand(appt.Id), CancellationToken.None);
@@ -442,6 +474,7 @@
             Snackbar.ShowError($"خطا در ثبت انجام‌شده: {ex.Message}");
         }
     }
+
 
     private async Task OpenRescheduleDialog(AppointmentResponse appt)
     {

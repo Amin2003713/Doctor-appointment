@@ -5,12 +5,15 @@
 @using App.Applications.DrugStore.Requests
 @using UI.Components.Features.Drugs.Dialogs
 
+
 <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="pt-4">
 
-    <MudPaper Class="rounded-xl mb-3">
+    <MudPaper Class="rounded-xl mb-3 px-3 py-2 p-2" Elevation="2">
+        <!-- Toolbar -->
         <MudStack Row Spacing="2" AlignItems="AlignItems.Center">
             <MudText Typo="Typo.h6" Class="fw-bold">لیست داروها</MudText>
 
+            <!-- Autocomplete -->
             <MudAutocomplete T="DrugAutocompleteItem"
                              ToStringFunc="@(item => DefaultText(item!))"
                              Dense
@@ -24,6 +27,7 @@
                              SearchFunc="AutocompleteAsync"
                              Class="min-w-72"/>
 
+            <!-- Free text -->
             <MudTextField @bind-Value="_q"
                           Placeholder="جستجو آزاد"
                           Variant="Variant.Text"
@@ -37,9 +41,10 @@
 
             <MudSpacer/>
 
-            <MudButton Variant="Variant.Outlined"
+            <!-- Toggle collapse -->
+            <MudButton Variant="Variant.Text"
                        StartIcon="@MaterialIcons.Filled.Tune"
-                       OnClick="() => _filtersOpen = true">
+                       OnClick="() => _filtersOpen = !_filtersOpen">
                 فیلترها
             </MudButton>
 
@@ -50,10 +55,142 @@
                 افزودن دارو
             </MudButton>
         </MudStack>
+
+        <!-- Active filter chips -->
+        <MudStack Row Spacing="1" Class="mt-2">
+            @if (_form is not null)
+            {
+                <MudChip T="string" Variant="Variant.Text" OnClose="() => { _form = null; RefreshTable(); }"
+                         Closeable>
+                    فرم: @FaForm(_form.Value)
+                </MudChip>
+            }
+            @if (_route is not null)
+            {
+                <MudChip T="string?" Variant="Variant.Text" OnClose="() => { _route = null; RefreshTable(); }"
+                         Closeable>
+                    مسیر: @FaRoute(_route.Value)
+                </MudChip>
+            }
+            @if (_rxClass is not null)
+            {
+                <MudChip T="string" Variant="Variant.Text" OnClose="() => { _rxClass = null; RefreshTable(); }"
+                         Closeable>
+                    رده: @FaRxClass(_rxClass.Value)
+                </MudChip>
+            }
+            @if (_activeOnly)
+            {
+                <MudChip T="string" Variant="Variant.Text" OnClose="() => { _activeOnly = false; RefreshTable(); }"
+                         Closeable>
+                    فقط فعال
+                </MudChip>
+            }
+            @if (!string.IsNullOrWhiteSpace(_barcode))
+            {
+                <MudChip T="string" Variant="Variant.Text" OnClose="() => { _barcode = null; RefreshTable(); }"
+                         Closeable>
+                    بارکد: @_barcode
+                </MudChip>
+            }
+            @if (!string.IsNullOrWhiteSpace(_tags))
+            {
+                <MudChip T="string" Variant="Variant.Text" OnClose="() => { _tags = null; RefreshTable(); }"
+                         Closeable>
+                    تگ‌ها: @_tags
+                </MudChip>
+            }
+        </MudStack>
+
+        <!-- Inline Filters (collapsed) -->
+        <MudCollapse Expanded="@_filtersOpen" Class="mt-2">
+            <MudDivider Class="mb-3"/>
+            <MudGrid Spacing="2">
+                <MudItem Xs="12" Sm="6" Md="4">
+                    <MudSelect T="DrugForm?" @bind-Value="_form"
+                               Dense Clearable FullWidth="true"
+                               Variant="Variant.Text"
+                               Label="فرم (نوع)">
+                        <MudSelectItem T="DrugForm?" Value="@((DrugForm?)null)">همه</MudSelectItem>
+                        @foreach (var f in Enum.GetValues<DrugForm>())
+                        {
+                            <MudSelectItem T="DrugForm?" Value="@f">@FaForm(f)</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem Xs="12" Sm="6" Md="4">
+                    <MudSelect T="DrugRoute?" @bind-Value="_route"
+                               Dense Clearable FullWidth="true"
+                               Variant="Variant.Text"
+                               Label="روش مصرف">
+                        <MudSelectItem T="DrugRoute?" Value="@((DrugRoute?)null)">همه</MudSelectItem>
+                        @foreach (var r in Enum.GetValues<DrugRoute>())
+                        {
+                            <MudSelectItem T="DrugRoute?" Value="@r">@FaRoute(r)</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem Xs="12" Sm="6" Md="4">
+                    <MudSelect T="RxClass?" @bind-Value="_rxClass"
+                               Dense Clearable FullWidth="true"
+                               Variant="Variant.Text"
+                               Label="رده تجویزی">
+                        <MudSelectItem T="RxClass?" Value="@((RxClass?)null)">همه</MudSelectItem>
+                        @foreach (var c in Enum.GetValues<RxClass>())
+                        {
+                            <MudSelectItem T="RxClass?" Value="@c">@FaRxClass(c)</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem Xs="12" Sm="6" Md="4">
+                    <MudSwitch T="bool" bind-Value="_activeOnly"
+                               Color="Color.Primary"
+                               Label="فقط داروهای فعال"
+                               @onclick="@ApplyFilters"/>
+                </MudItem>
+
+                <MudItem Xs="12" Sm="6" Md="4">
+                    <MudTextField @bind-Value="_barcode"
+                                  Variant="Variant.Text" FullWidth
+                                  Adornment="Adornment.Start" AdornmentIcon="@MaterialIcons.Rounded.QrCode2"
+                                  Label="بارکد (اختیاری)"
+                                  Clearable
+                                  TextChanged="@ApplyFilters"/>
+                </MudItem>
+
+                <MudItem Xs="12" Sm="6" Md="4">
+                    <MudTextField @bind-Value="_tags"
+                                  Variant="Variant.Text" FullWidth
+                                  Adornment="Adornment.Start" AdornmentIcon="@MaterialIcons.Rounded.Tag"
+                                  Label="تگ‌ها (با کاما جدا کنید)"
+                                  Clearable
+                                  TextChanged="@ApplyFilters"/>
+                </MudItem>
+            </MudGrid>
+
+            <MudStack Row Spacing="1" Justify="Justify.FlexEnd" Class="mt-3">
+                <MudButton Variant="Variant.Text"
+                           Color="Color.Secondary"
+                           StartIcon="@MaterialIcons.Rounded.Restore"
+                           OnClick="ClearFilters">
+                    بازنشانی
+                </MudButton>
+
+                <MudButton Variant="Variant.Filled"
+                           Color="Color.Primary"
+                           StartIcon="@MaterialIcons.Rounded.FilterAlt"
+                           OnClick="ApplyFilters">
+                    اعمال فیلترها
+                </MudButton>
+            </MudStack>
+        </MudCollapse>
     </MudPaper>
 
 
-    <MudPaper Elevation="2" Class="rounded-xl overflow-hidden">
+    <MudPaper Elevation="2" Class="rounded-xl overflow-hidden ">
         <MudTabs @bind-ActivePanelIndex="_activeTab" Rounded="true">
             <!-- Most used tab -->
             <MudTabPanel Text="پرمصرف‌ها" Icon="@MaterialIcons.Filled.Star">
@@ -76,7 +213,7 @@
                         {
                             @foreach (var item in _mostUsed)
                             {
-                                <MudChip T="string" Variant="Variant.Outlined"
+                                <MudChip T="string" Variant="Variant.Text"
                                          OnClick="(() => UseMostUsed(item))" Class="cursor-pointer">
                                     @item.Label
                                     <MudText Color="Color.Secondary" Class="ms-1">(@item.GenericName)</MudText>
@@ -138,7 +275,7 @@
                             </MudChip>
                         </MudTd>
                         <MudTd DataLabel="اقدامات">
-                            <MudStack Row Spacing="1" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd">
+                            <MudStack Row Spacing="1" AlignItems="AlignItems.Center" Justify="Justify.FlexStart">
                                 <MudIconButton Icon="@MaterialIcons.Filled.Info" Color="Color.Info"
                                                Size="Size.Small" OnClick="(() => ViewDrug(context))"
                                                Title="جزئیات"/>
@@ -186,7 +323,7 @@
 
     // ===== State =====
     private bool _filtersOpen;
-    private int  _activeTab; // 0: most-used, 1: table
+    private int  _activeTab = 1; // 0: most-used, 1: table
 
     [Parameter] public bool ShowFilters { get; set; } = true;
 
@@ -199,6 +336,25 @@
     private MudTable<DrugResponse>?     _table;
     private int                         _total;
     private List<DrugAutocompleteItem>? _mostUsed;
+    private string?                     _barcode;
+    private string?                     _tags;
+
+    private void ApplyFilters()
+    {
+        RefreshTable();
+    }
+
+    private void ClearFilters()
+    {
+        _form       = null;
+        _route      = null;
+        _rxClass    = null;
+        _activeOnly = false;
+        _barcode    = null;
+        _tags       = null;
+        _q          = null;
+        RefreshTable();
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -260,15 +416,16 @@
         try
         {
             var res = await Mediator.Send(new SearchDrugsQuery
-            {
-                Q          = _q,
-                Form       = _form,
-                Route      = _route,
-                RxClass    = _rxClass,
-                ActiveOnly = _activeOnly,
-                Page       = page,
-                PageSize   = size
-            });
+                                          {
+                                              Q          = _q,
+                                              Form       = _form    ?? null,
+                                              Route      = _route   ?? null,
+                                              RxClass    = _rxClass ?? null,
+                                              ActiveOnly = _activeOnly,
+                                              Page       = page,
+                                              PageSize   = size
+                                          },
+                                          ct);
 
             _total = res.Total;
 
@@ -293,14 +450,6 @@
     private void RefreshTable()
         => _ = _table?.ReloadServerData();
 
-    private void ClearFilters()
-    {
-        _form       = null;
-        _route      = null;
-        _rxClass    = null;
-        _activeOnly = true;
-        RefreshTable();
-    }
 
     private string ToolbarCaption => _activeOnly ? "فقط داروهای فعال" : "همه داروها";
 
