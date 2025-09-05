@@ -1,0 +1,511 @@
+﻿@page "/drug-list"
+@using App.Applications.DrugStore.Commands
+@using App.Applications.DrugStore.Queries
+@using App.Applications.DrugStore.Responses
+@using App.Applications.DrugStore.Requests
+@using UI.Components.Features.Drugs.Dialogs
+
+<MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="pt-4">
+
+    <MudPaper Class="rounded-xl mb-3">
+        <MudStack Row Spacing="2" AlignItems="AlignItems.Center">
+            <MudText Typo="Typo.h6" Class="fw-bold">لیست داروها</MudText>
+
+            <MudAutocomplete T="DrugAutocompleteItem"
+                             ToStringFunc="@(item => DefaultText(item!))"
+                             Dense
+                             ResetValueOnEmptyText="true"
+                             Variant="Variant.Text"
+                             Clearable
+                             Adornment="Adornment.Start"
+                             AdornmentIcon="@MaterialIcons.Filled.Search"
+                             Placeholder="جستجو (نام/شرکت/بارکد/تگ)"
+                             ValueChanged="OnAutocompletePicked"
+                             SearchFunc="AutocompleteAsync"
+                             Class="min-w-72"/>
+
+            <MudTextField @bind-Value="_q"
+                          Placeholder="جستجو آزاد"
+                          Variant="Variant.Text"
+                          Adornment="Adornment.Start"
+                          AdornmentIcon="@MaterialIcons.Filled.Edit"
+                          Immediate
+                          DebounceInterval="400"
+                          Clearable
+                          OnBlur="RefreshTable"
+                          Class="min-w-60"/>
+
+            <MudSpacer/>
+
+            <MudButton Variant="Variant.Outlined"
+                       StartIcon="@MaterialIcons.Filled.Tune"
+                       OnClick="() => _filtersOpen = true">
+                فیلترها
+            </MudButton>
+
+            <MudButton Color="Color.Primary"
+                       Variant="Variant.Filled"
+                       StartIcon="@MaterialIcons.Filled.Add"
+                       OnClick="CreateNew">
+                افزودن دارو
+            </MudButton>
+        </MudStack>
+    </MudPaper>
+
+
+    <MudPaper Elevation="2" Class="rounded-xl overflow-hidden">
+        <MudTabs @bind-ActivePanelIndex="_activeTab" Rounded="true">
+            <!-- Most used tab -->
+            <MudTabPanel Text="پرمصرف‌ها" Icon="@MaterialIcons.Filled.Star">
+                <MudPaper Class="p-1">
+                    <MudText Typo="Typo.subtitle1" Class="fw-bold mb-2">پرمصرف‌های اخیر</MudText>
+                    <MudStack Spacing="1">
+                        @if (_mostUsed is null)
+                        {
+                            <MudSkeleton Height="28px" Width="80%"/>
+
+                            <MudSkeleton Height="28px" Width="60%"/>
+
+                            <MudSkeleton Height="28px" Width="70%"/>
+                        }
+                        else if (_mostUsed.Count == 0)
+                        {
+                            <MudText Color="Color.Secondary">موردی یافت نشد</MudText>
+                        }
+                        else
+                        {
+                            @foreach (var item in _mostUsed)
+                            {
+                                <MudChip T="string" Variant="Variant.Outlined"
+                                         OnClick="(() => UseMostUsed(item))" Class="cursor-pointer">
+                                    @item.Label
+                                    <MudText Color="Color.Secondary" Class="ms-1">(@item.GenericName)</MudText>
+                                </MudChip>
+                            }
+                        }
+                    </MudStack>
+                </MudPaper>
+            </MudTabPanel>
+
+            <!-- Table tab -->
+            <MudTabPanel Text="لیست داروها" Icon="@MaterialIcons.Filled.List">
+                <MudTable T="DrugResponse"
+                          ServerData="LoadServerData"
+                          Dense Hover FixedHeader Virtualize
+                          Breakpoint="Breakpoint.MdAndDown" Height="68vh"
+                          RowsPerPage="20"
+                          @ref="_table">
+
+                    <ToolBarContent>
+                        <MudBadge Content="@_total.ToString()" Origin="Origin.CenterLeft"
+                                  Color="Color.Transparent">
+                            <MudText Typo="Typo.h5" Class="fw-bold" Style="margin: 8px">داروها</MudText>
+                        </MudBadge>
+                        <MudSpacer/>
+                        <MudText Typo="Typo.caption" Color="Color.Secondary">@ToolbarCaption</MudText>
+                    </ToolBarContent>
+
+                    <HeaderContent>
+                        <MudTh>نام تجاری</MudTh>
+                        <MudTh>نام ژنریک</MudTh>
+                        <MudTh>فرم</MudTh>
+                        <MudTh>مسیر</MudTh>
+                        <MudTh>قدرت</MudTh>
+                        <MudTh>رده</MudTh>
+                        <MudTh>سازنده</MudTh>
+                        <MudTh>کشور</MudTh>
+                        <MudTh>وضعیت</MudTh>
+                        <MudTh>اقدامات</MudTh>
+                    </HeaderContent>
+
+                    <RowTemplate>
+                        <MudTd DataLabel="نام تجاری">@context.BrandName</MudTd>
+                        <MudTd DataLabel="نام ژنریک">@context.GenericName</MudTd>
+                        <MudTd DataLabel="فرم">@FaForm(context.Form)</MudTd>
+                        <MudTd DataLabel="مسیر">@FaRoute(context.Route)</MudTd>
+                        <MudTd DataLabel="قدرت">
+                            @((context.StrengthValue is not null ? context.StrengthValue?.ToString("0.##") : "-") + (string.IsNullOrWhiteSpace(context.StrengthUnit) ? string.Empty : $" {context.StrengthUnit}"))
+                        </MudTd>
+                        <MudTd DataLabel="رده">@FaRxClass(context.RxClass)</MudTd>
+                        <MudTd
+                            DataLabel="سازنده">@(string.IsNullOrWhiteSpace(context.Manufacturer) ? "-" : context.Manufacturer)</MudTd>
+                        <MudTd
+                            DataLabel="کشور">@(string.IsNullOrWhiteSpace(context.Country) ? "-" : context.Country)</MudTd>
+                        <MudTd DataLabel="وضعیت">
+                            <MudChip T="string" Color="@(context.IsActive ? Color.Success : Color.Default)"
+                                     Size="Size.Small" Variant="Variant.Filled">
+                                @(context.IsActive ? "فعال" : "غیرفعال")
+                            </MudChip>
+                        </MudTd>
+                        <MudTd DataLabel="اقدامات">
+                            <MudStack Row Spacing="1" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd">
+                                <MudIconButton Icon="@MaterialIcons.Filled.Info" Color="Color.Info"
+                                               Size="Size.Small" OnClick="(() => ViewDrug(context))"
+                                               Title="جزئیات"/>
+                                <MudIconButton Icon="@MaterialIcons.Filled.Edit" Color="Color.Primary"
+                                               Size="Size.Small" OnClick="(() => EditDrug(context))"
+                                               Title="ویرایش"/>
+                            </MudStack>
+                        </MudTd>
+                    </RowTemplate>
+
+                    <LoadingContent>
+                        <MudStack Spacing="1" Class="p-4">
+                            @for (var i = 0; i < 6; i++)
+                            {
+                                <MudSkeleton Height="38px" Width="100%" Animation="Animation.Wave"/>
+                            }
+                        </MudStack>
+                    </LoadingContent>
+
+                    <NoRecordsContent>
+                        <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Spacing="2"
+                                  Class="py-14">
+                            <MudIcon Icon="@MaterialIcons.Filled.SearchOff" Size="Size.Large"
+                                     Color="Color.Default"/>
+                            <MudText Typo="Typo.h6">موردی یافت نشد</MudText>
+                            <MudText Typo="Typo.body2" Color="Color.Secondary">فیلترها را تغییر دهید یا بازنشانی
+                                کنید.
+                            </MudText>
+                            <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="ClearFilters">
+                                بازنشانی فیلترها
+                            </MudButton>
+                        </MudStack>
+                    </NoRecordsContent>
+
+                    <PagerContent>
+                        <MudTablePager InfoFormat="نمایش {first_item}-{last_item} از {all_items}"/>
+                    </PagerContent>
+                </MudTable>
+            </MudTabPanel>
+        </MudTabs>
+    </MudPaper>
+</MudContainer>
+
+@code {
+
+    // ===== State =====
+    private bool _filtersOpen;
+    private int  _activeTab; // 0: most-used, 1: table
+
+    [Parameter] public bool ShowFilters { get; set; } = true;
+
+    private string?    _q;
+    private DrugForm?  _form;
+    private DrugRoute? _route;
+    private RxClass?   _rxClass;
+    private bool       _activeOnly = true;
+
+    private MudTable<DrugResponse>?     _table;
+    private int                         _total;
+    private List<DrugAutocompleteItem>? _mostUsed;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadMostUsed();
+    }
+
+    private async Task LoadMostUsed()
+    {
+        try
+        {
+            var res = await Mediator.Send(new MostUsedDrugsQuery
+            {
+                Days  = 90,
+                Limit = 15
+            });
+
+            _mostUsed = res;
+        }
+        catch
+        {
+            _mostUsed = new();
+        }
+
+        StateHasChanged();
+    }
+
+    // ==== Autocomplete ====
+    private async Task<IEnumerable<DrugAutocompleteItem>> AutocompleteAsync(string value, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return [];
+
+        try
+        {
+            var res = await Mediator.Send(new AutocompleteDrugsQuery
+                                          {
+                                              Limit = 50,
+                                              Q     = value
+                                          },
+                                          cancellationToken);
+
+            return res;
+        }
+        catch { return []; }
+    }
+
+    private void OnAutocompletePicked(DrugAutocompleteItem? picked)
+    {
+        if (picked is null) return;
+        _q = picked.GenericName;
+        RefreshTable();
+    }
+
+    // ==== Table Data ====
+    private async Task<TableData<DrugResponse>> LoadServerData(TableState state, CancellationToken ct)
+    {
+        var page = state.Page + 1;
+        var size = state.PageSize;
+
+        try
+        {
+            var res = await Mediator.Send(new SearchDrugsQuery
+            {
+                Q          = _q,
+                Form       = _form,
+                Route      = _route,
+                RxClass    = _rxClass,
+                ActiveOnly = _activeOnly,
+                Page       = page,
+                PageSize   = size
+            });
+
+            _total = res.Total;
+
+            return new TableData<DrugResponse>
+            {
+                Items      = res.Items,
+                TotalItems = res.Total
+            };
+        }
+        catch (Exception ex)
+        {
+            Snackbar.ShowError($"خطا: {ex.Message}");
+
+            return new TableData<DrugResponse>
+            {
+                Items      = [],
+                TotalItems = 0
+            };
+        }
+    }
+
+    private void RefreshTable()
+        => _ = _table?.ReloadServerData();
+
+    private void ClearFilters()
+    {
+        _form       = null;
+        _route      = null;
+        _rxClass    = null;
+        _activeOnly = true;
+        RefreshTable();
+    }
+
+    private string ToolbarCaption => _activeOnly ? "فقط داروهای فعال" : "همه داروها";
+
+    // ==== CRUD ====
+    private async Task CreateNew()
+    {
+        var req = new UpsertDrugRequest
+        {
+            IsActive = true,
+            Synonyms = new()
+        };
+
+        await OpenUpsertDialog(req, isEdit: false);
+    }
+
+    private async Task EditDrug(DrugResponse model)
+    {
+        var req = new UpsertDrugRequest
+        {
+            BrandName         = model.BrandName,
+            GenericName       = model.GenericName,
+            Form              = model.Form,
+            Route             = model.Route,
+            StrengthValue     = model.StrengthValue,
+            StrengthUnit      = model.StrengthUnit,
+            ConcentrationText = model.ConcentrationText,
+            RxClass           = model.RxClass,
+            Manufacturer      = model.Manufacturer,
+            Country           = model.Country,
+            Barcode           = model.Barcode,
+            Tags              = model.Tags,
+            Synonyms          = model.Synonyms?.ToList() ?? new(),
+            IsActive          = model.IsActive
+        };
+
+        await OpenUpsertDialog(req, isEdit: true, id: model.Id);
+    }
+
+    private async Task ViewDrug(DrugResponse model)
+    {
+        var opts = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            MaxWidth         = MaxWidth.Small,
+            FullWidth        = true
+        };
+
+        var pars = new DialogParameters<UpsertDrugDialog>
+        {
+            {
+                x => x.ReadOnly, true
+            },
+            {
+                x => x.Model, ModelFromResponse(model)
+            }
+        };
+
+        await DialogService.ShowAsync<UpsertDrugDialog>("جزئیات دارو", pars, opts);
+    }
+
+    private static UpsertDrugRequest ModelFromResponse(DrugResponse model)
+        => new()
+        {
+            BrandName         = model.BrandName,
+            GenericName       = model.GenericName,
+            Form              = model.Form,
+            Route             = model.Route,
+            StrengthValue     = model.StrengthValue,
+            StrengthUnit      = model.StrengthUnit,
+            ConcentrationText = model.ConcentrationText,
+            RxClass           = model.RxClass,
+            Manufacturer      = model.Manufacturer,
+            Country           = model.Country,
+            Barcode           = model.Barcode,
+            Tags              = model.Tags,
+            Synonyms          = model.Synonyms?.ToList() ?? new(),
+            IsActive          = model.IsActive
+        };
+
+    private async Task OpenUpsertDialog(UpsertDrugRequest req, bool isEdit, Guid? id = null)
+    {
+        var options = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            MaxWidth         = MaxWidth.Medium,
+            FullWidth        = true
+        };
+
+        var pars = new DialogParameters<UpsertDrugDialog>
+        {
+            {
+                x => x.Model, req
+            },
+            {
+                x => x.IsEdit, isEdit
+            }
+        };
+
+        var dlg    = await DialogService.ShowAsync<UpsertDrugDialog>(isEdit ? "ویرایش دارو" : "افزودن دارو", pars, options);
+        var result = await dlg.Result;
+
+        if (!result.Canceled && result.Data is UpsertDrugRequest submitted)
+        {
+            try
+            {
+                if (isEdit && id.HasValue)
+                {
+                    await Mediator.Send(submitted.Adapt<UpdateDrugCommand>());
+                    Snackbar.ShowSuccess("دارو بروزرسانی شد");
+                }
+                else
+                {
+                    await Mediator.Send(submitted.Adapt<CreateDrugCommand>());
+                    Snackbar.ShowSuccess("دارو ایجاد شد");
+                }
+            }
+            catch (Exception ex)
+            {
+                Snackbar.ShowError($"خطا: {ex.Message}");
+            }
+            finally
+            {
+                _activeTab = 1; // switch to table after upsert
+                RefreshTable();
+                await LoadMostUsed();
+            }
+        }
+    }
+
+    private void UseMostUsed(DrugAutocompleteItem item)
+    {
+        _q         = item.Label;
+        _activeTab = 1; // jump to table
+        RefreshTable();
+    }
+
+    // ====== Persian enum labels ======
+    private static string FaForm(DrugForm f)
+        => f switch
+           {
+               DrugForm.Tablet      => "قرص",
+               DrugForm.Capsule     => "کپسول",
+               DrugForm.Syrup       => "شربت",
+               DrugForm.Suspension  => "سوسپانسیون",
+               DrugForm.Injection   => "تزریقی",
+               DrugForm.Ointment    => "پماد",
+               DrugForm.Cream       => "کرم",
+               DrugForm.Drops       => "قطره",
+               DrugForm.Inhaler     => "استنشاقی",
+               DrugForm.Suppository => "شیاف",
+               DrugForm.Gel         => "ژل",
+               _                    => f.ToString()
+           };
+
+    private static string FaRoute(DrugRoute r)
+        => r switch
+           {
+               DrugRoute.Oral       => "خوراکی",
+               DrugRoute.IV         => "وریدی",
+               DrugRoute.IM         => "عضلانی",
+               DrugRoute.SC         => "زیرجلدی",
+               DrugRoute.Topical    => "موضعی",
+               DrugRoute.Ophthalmic => "چشمی",
+               DrugRoute.Otic       => "گوشی",
+               DrugRoute.Nasal      => "بینی",
+               DrugRoute.Inhalation => "استنشاقی",
+               DrugRoute.Rectal     => "رکتال",
+               DrugRoute.Vaginal    => "واژینال",
+               _                    => r.ToString()
+           };
+
+    private static string FaRxClass(RxClass c)
+        => c switch
+           {
+               RxClass.OTC        => "بدون نسخه",
+               RxClass.Rx         => "نسخه‌ای",
+               RxClass.Controlled => "کنترل‌شده",
+               _                  => c.ToString()
+           };
+
+    private static string DefaultText(DrugAutocompleteItem d)
+    {
+        try
+        {
+            string? brand    = d.GetType().GetProperty("BrandName")?.GetValue(d)?.ToString();
+            string? generic  = d.GetType().GetProperty("GenericName")?.GetValue(d)?.ToString();
+            string? label    = d.GetType().GetProperty("Label")?.GetValue(d)?.ToString();
+            string? form     = d.GetType().GetProperty("Form")?.GetValue(d)?.ToString();
+            string? strength = d.GetType().GetProperty("Strength")?.GetValue(d)?.ToString() ?? $"{d.GetType().GetProperty("StrengthValue")?.GetValue(d)} {d.GetType().GetProperty("StrengthUnit")?.GetValue(d)}".Trim();
+
+            var main = label ?? brand ?? generic ?? d.ToString() ?? string.Empty;
+
+            var extra = string.Join(" ",
+                                    new[]
+                                    {
+                                        strength,
+                                        form
+                                    }.Where(s => !string.IsNullOrWhiteSpace(s)));
+
+            return string.IsNullOrWhiteSpace(extra) ? main : $"{main} — {extra}";
+        }
+        catch
+        {
+            return d?.ToString() ?? string.Empty;
+        }
+    }
+
+}

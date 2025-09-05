@@ -5,12 +5,12 @@ public class DrugResponse
     public Guid Id { get; set; }
     public string BrandName { get; set; } = string.Empty;
     public string GenericName { get; set; } = string.Empty;
-    public int Form { get; set; }
-    public int Route { get; set; }
+    public DrugForm Form { get; set; }
+    public DrugRoute Route { get; set; }
     public decimal? StrengthValue { get; set; }
     public string? StrengthUnit { get; set; }
     public string? ConcentrationText { get; set; }
-    public int RxClass { get; set; }
+    public RxClass RxClass { get; set; }
     public string? Manufacturer { get; set; }
     public string? Country { get; set; }
     public string? Barcode { get; set; }

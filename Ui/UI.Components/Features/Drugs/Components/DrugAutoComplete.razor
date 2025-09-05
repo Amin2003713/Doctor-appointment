@@ -13,11 +13,20 @@
                  ResetValueOnEmptyText="true"
                  Clearable="true"
                  Dense="@Dense"
-                 Variant="Variant.Outlined"
+                 Variant="@Variant"
                  Placeholder="@Placeholder"
+                 ProgressIndicatorColor="Color.Warning"
                  Adornment="Adornment.Start"
                  AdornmentIcon="@Icons.Outlined.Medication"
-                 Class="w-full"/>
+                 Class="w-full">
+    <ProgressIndicatorInPopoverTemplate>
+        <MudList T="string" ReadOnly>
+            <MudListItem>
+                Loading...
+            </MudListItem>
+        </MudList>
+    </ProgressIndicatorInPopoverTemplate>
+</MudAutocomplete>
 
 
 @code {
@@ -42,6 +51,8 @@
     /// </summary>
     [Parameter] public Func<DrugAutocompleteItem, string>? TextSelector { get; set; }
 
+    [Parameter] public Variant Variant { get; set; } = Variant.Text;
+
 
     private string GetText(DrugAutocompleteItem item)
         => TextSelector?.Invoke(item) ?? DefaultText(item);
@@ -60,12 +71,13 @@
 
 
             var main = label ?? brand ?? generic ?? d.ToString() ?? string.Empty;
+
             var extra = string.Join(" ",
-                new[]
-                {
-                    strength,
-                    form
-                }.Where(s => !string.IsNullOrWhiteSpace(s)));
+                                    new[]
+                                    {
+                                        strength,
+                                        form
+                                    }.Where(s => !string.IsNullOrWhiteSpace(s)));
 
             return string.IsNullOrWhiteSpace(extra) ? main : $"{main} — {extra}";
         }
@@ -76,7 +88,7 @@
     }
 
 
-    private async Task<IEnumerable<DrugAutocompleteItem>> Search(string input , CancellationToken cancellation)
+    private async Task<IEnumerable<DrugAutocompleteItem>> Search(string input, CancellationToken cancellation)
     {
         if (string.IsNullOrWhiteSpace(input) || input.Trim().Length < MinCharacters)
             return [];
@@ -85,12 +97,12 @@
         try
         {
             var list = await Mediator.Send(new AutocompleteDrugsQuery
-                {
-                    Limit =
-                        Limit,
-                    Q =  input.Trim(),
-                },
-                cancellation);
+                                           {
+                                               Limit =
+                                                   Limit,
+                                               Q = input.Trim(),
+                                           },
+                                           cancellation);
 
             return (IEnumerable<DrugAutocompleteItem>)list ?? [];
         }

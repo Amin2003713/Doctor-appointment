@@ -64,6 +64,7 @@
                 </MudNavGroup>
             }
 
+
             <!-- Secretary tools (Secretary & Doctor) -->
             @if (canUseSecretaryTools)
             {
@@ -93,6 +94,14 @@
                         Href="@Routes.AgendaFor(DateOnly.FromDateTime(DateTime.Now), DateOnly.FromDateTime(DateTime.Now))"
                         Icon="@MaterialIcons.Filled.ViewAgenda" IconColor="Color.Primary">
                         لیست نوبت‌های روزانه
+                    </MudNavLink>
+
+                    <MudNavLink
+                        Href="/Drug-List"
+                        Icon="@MaterialIcons.Filled.MedicationLiquid" IconColor="Color.Primary">
+                        <MudTooltip Text="دارو های مورد نیاز برای تجویز">
+                            لیست داروهای مطب
+                        </MudTooltip>
                     </MudNavLink>
 
                     <MudNavLink OnClick="@(() => Navigate(Routes.UsersList(secretaries: true)))"

@@ -1,0 +1,199 @@
+﻿@using App.Applications.DrugStore.Responses
+@using App.Applications.DrugStore.Requests
+@using UI.Components.Features.Drugs.List
+
+<MudDialog>
+    <TitleContent>@(IsEdit ? "ویرایش دارو" : ReadOnly ? "جزئیات دارو" : "افزودن دارو")</TitleContent>
+
+    <DialogContent>
+        <MudForm @ref="_form" Model="@Model">
+            <MudStack Spacing="2">
+                <MudTextField @bind-Value="Model.BrandName" Label="نام تجاری" Variant="Variant.Text" Required
+                              ReadOnly="@ReadOnly"/>
+                <MudTextField @bind-Value="Model.GenericName" Label="نام ژنریک" Variant="Variant.Text" Required
+                              ReadOnly="@ReadOnly"/>
+
+                <MudGrid>
+                    <MudItem xs="12" md="4">
+                        <MudSelect T="DrugForm" @bind-Value="Model.Form" Label="فرم" Variant="Variant.Text"
+                                   Disabled="@ReadOnly">
+                            @foreach (var f in Enum.GetValues<DrugForm>())
+                            {
+                                <MudSelectItem Value="@(f)">@FaForm(f)</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12" md="4">
+                        <MudSelect T="DrugRoute" @bind-Value="Model.Route" Label="روش مصرف" Variant="Variant.Text"
+                                   Disabled="@ReadOnly">
+                            @foreach (var r in Enum.GetValues<DrugRoute>())
+                            {
+                                <MudSelectItem Value="@(r)">@FaRoute(r)</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12" md="4">
+                        <MudSelect T="RxClass" @bind-Value="Model.RxClass" Label="رده تجویزی" Variant="Variant.Text"
+                                   Disabled="@ReadOnly">
+                            @foreach (var c in Enum.GetValues<RxClass>())
+                            {
+                                <MudSelectItem Value="@(c)">@FaRxClass(c)</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                </MudGrid>
+
+                <MudGrid>
+                    <MudItem xs="6" md="4">
+                        <MudNumericField T="decimal?" @bind-Value="Model.StrengthValue" Label="قدرت (عدد)"
+                                         Variant="Variant.Text" ReadOnly="@ReadOnly"/>
+                    </MudItem>
+                    <MudItem xs="6" md="4">
+                        <MudTextField @bind-Value="Model.StrengthUnit" Label="واحد قدرت" Variant="Variant.Text"
+                                      ReadOnly="@ReadOnly"/>
+                    </MudItem>
+                    <MudItem xs="12" md="4">
+                        <MudTextField @bind-Value="Model.ConcentrationText" Label="غلظت (متن)" Variant="Variant.Text"
+                                      ReadOnly="@ReadOnly"/>
+                    </MudItem>
+                </MudGrid>
+
+                <MudGrid>
+                    <MudItem xs="12" md="4">
+                        <MudTextField @bind-Value="Model.Manufacturer" Label="سازنده" Variant="Variant.Text"
+                                      ReadOnly="@ReadOnly"/>
+                    </MudItem>
+                    <MudItem xs="12" md="4">
+                        <MudTextField @bind-Value="Model.Country" Label="کشور" Variant="Variant.Text"
+                                      ReadOnly="@ReadOnly"/>
+                    </MudItem>
+                    <MudItem xs="12" md="4"><MudTextField @bind-Value="Model.Barcode" Label="بارکد" Variant="Variant.Text" ReadOnly="@ReadOnly" /></MudItem>
+                </MudGrid>
+
+                <MudTextField @bind-Value="Model.Tags" Label="تگ‌ها (با , جدا کنید)" Variant="Variant.Text" ReadOnly="@ReadOnly" />
+
+
+                <MudItem xs="12" md="12">
+                    <MudText Typo="Typo.subtitle2">اسامی معادل</MudText>
+                    <MudStack Row Spacing="1">
+                        <MudTextField @bind-Value="_newSynonym" Placeholder="افزودن معادل…" @onkeyup="OnSynonymKeyUp"
+                                      Disabled="@ReadOnly"/>
+                        <MudButton Variant="Variant.Outlined" StartIcon="@MaterialIcons.Filled.Add" OnClick="AddSynonym"
+                                   Disabled="@ReadOnly">افزودن
+                        </MudButton>
+                    </MudStack>
+                    <MudChipSet T="string" Class="mt-2">
+                        @for (var i = 0; i < Model.Synonyms.Count; i++)
+                        {
+                            var idx = i;
+
+                            <MudChip T="string" Color="Color.Info" Variant="Variant.Outlined" Dense
+                                     OnClose="@(() => RemoveSynonym(idx))" Disabled="@ReadOnly">
+                                @Model.Synonyms[idx]
+                            </MudChip>
+                        }
+                    </MudChipSet>
+                </MudItem>
+                <MudSwitch T="bool" @bind-Value="Model.IsActive" Color="Color.Success" Disabled="@ReadOnly" />
+                <MudText Typo="Typo.caption" Color="Color.Secondary">@(Model.IsActive ? "فعال" : "غیرفعال")</MudText>
+            </MudStack>
+        </MudForm>
+    </DialogContent>
+
+    <DialogActions>
+        <MudSpacer/>
+        <MudButton Variant="Variant.Text" OnClick="Cancel">بستن</MudButton>
+        @if (!ReadOnly)
+        {
+            <MudButton Color="Color.Primary" OnClick="Submit">ثبت</MudButton>
+        }
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance Dialog { get; set; } = default!;
+
+    [Parameter] public UpsertDrugRequest Model { get; set; } = new();
+    [Parameter] public bool IsEdit { get; set; }
+    [Parameter] public bool ReadOnly { get; set; }
+    private string _newSynonym = string.Empty;
+
+    private MudForm _form       = null!;
+
+    private void Cancel() => Dialog.Cancel();
+
+    private async Task Submit()
+    {
+        await _form.Validate();
+        if (!_form.IsValid) return;
+        Dialog.Close(DialogResult.Ok(Model));
+    }
+
+    private void AddSynonym()
+    {
+        if (string.IsNullOrWhiteSpace(_newSynonym)) return;
+
+        if (!Model.Synonyms.Contains(_newSynonym))
+            Model.Synonyms.Add(_newSynonym.Trim());
+
+        _newSynonym = string.Empty;
+    }
+
+
+    private void OnSynonymKeyUp(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            AddSynonym();
+        }
+    }
+
+
+    private void RemoveSynonym(int idx)
+    {
+        if (idx >= 0 && idx < Model.Synonyms.Count)
+            Model.Synonyms.RemoveAt(idx);
+    }
+    private static string FaForm(DrugForm f)
+        => f switch
+           {
+               DrugForm.Tablet      => "قرص",
+               DrugForm.Capsule     => "کپسول",
+               DrugForm.Syrup       => "شربت",
+               DrugForm.Suspension  => "سوسپانسیون",
+               DrugForm.Injection   => "تزریقی",
+               DrugForm.Ointment    => "پماد",
+               DrugForm.Cream       => "کرم",
+               DrugForm.Drops       => "قطره",
+               DrugForm.Inhaler     => "استنشاقی",
+               DrugForm.Suppository => "شیاف",
+               DrugForm.Gel         => "ژل",
+               _                    => f.ToString()
+           };
+
+    private static string FaRoute(DrugRoute r)
+        => r switch
+           {
+               DrugRoute.Oral       => "خوراکی",
+               DrugRoute.IV         => "وریدی",
+               DrugRoute.IM         => "عضلانی",
+               DrugRoute.SC         => "زیرجلدی",
+               DrugRoute.Topical    => "موضعی",
+               DrugRoute.Ophthalmic => "چشمی",
+               DrugRoute.Otic       => "گوشی",
+               DrugRoute.Nasal      => "بینی",
+               DrugRoute.Inhalation => "استنشاقی",
+               DrugRoute.Rectal     => "رکتال",
+               DrugRoute.Vaginal    => "واژینال",
+               _                    => r.ToString()
+           };
+
+    private static string FaRxClass(RxClass c)
+        => c switch
+           {
+               RxClass.OTC        => "بدون نسخه",
+               RxClass.Rx         => "نسخه‌ای",
+               RxClass.Controlled => "کنترل‌شده",
+               _                  => c.ToString()
+           };
+}

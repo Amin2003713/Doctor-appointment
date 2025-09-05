@@ -18,9 +18,9 @@ public interface IDrugsApi
     [Get("/api/drugs/search")]
     Task<ApiResponse<DrugSearchResult>> Search(
         [Query] string? q,
-        [Query] int? form,
-        [Query] int? route,
-        [Query] int? rxClass,
+        [Query] DrugForm? form,
+        [Query] DrugRoute? route,
+        [Query] RxClass? rxClass,
         [Query] bool? activeOnly,
         [Query] int page = 1,
         [Query] int pageSize = 20);
