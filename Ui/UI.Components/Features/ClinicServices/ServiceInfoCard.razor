@@ -13,6 +13,8 @@
           SortLabel="مرتب‌سازی بر اساس"
           RowsPerPage="@(IsReadOnly ? 10 : 20)"
           CanCancelEdit
+          FixedFooter
+          FixedHeader
           RowEditPreview="BackupItem"
           RowEditCancel="RevertItem"
           RowEditCommit="@(async void (o) => await CommitEdit(o))"
@@ -31,9 +33,14 @@
                       AdornmentIcon="@MaterialIcons.Filled.Search"
                       Class="mb-4"/>
         <MudSpacer/>
-        <MudTooltip Text="درج خدمت">
-            <MudIconButton Icon="@MaterialIcons.Filled.Add" OnClick="OpenAddServiceDialog" Variant="Variant.Filled"/>
-        </MudTooltip>
+        <AuthorizeView Roles="Patient">
+            <Authorized>
+                <MudTooltip Text="درج خدمت">
+                    <MudIconButton Icon="@MaterialIcons.Filled.Add" OnClick="OpenAddServiceDialog"
+                                   Variant="Variant.Filled"/>
+                </MudTooltip>
+            </Authorized>
+        </AuthorizeView>
     </ToolBarContent>
 
     <HeaderContent>
@@ -62,7 +69,7 @@
             <MudTooltip Text="رزرو نوبت" Placement="Placement.Top" Arrow="true">
                 <MudIconButton Icon="@MaterialIcons.Outlined.PersonAdd"
                                Size="Size.Small"
-                               Color="Color.Success"
+                               Color="Color.Tertiary"
                                Disabled="@(!context.IsActive)"
                                OnClick="@(() => Reserve(context))"/>
             </MudTooltip>

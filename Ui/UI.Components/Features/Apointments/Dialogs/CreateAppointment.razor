@@ -1,23 +1,26 @@
-﻿@using App.Applications.Appointments.Requests
+﻿@using System.Globalization
+@using App.Applications.Appointments.Requests
 @using App.Applications.Schedules.Requests.GetSlots
 @using App.Applications.Users.Requests.UserInfos
 @using App.Applications.Users.Requests.UserQueries
+@implements IDisposable
+
 <MudDialog>
     <TitleContent>ایجاد نوبت جدید</TitleContent>
 
     <DialogContent>
         <MudStack Class="gap-2" Justify="Justify.SpaceBetween">
 
-
+            @* --- Patient field --- *@
             @if (IsPatient || UserId.HasValue)
             {
                 <MudTextField
                     Label="بیمار"
-                    Value="@($"{_selectedUser!.FullName} ({_selectedUser.Username})")"
+                    Value="@(_selectedUser is null ? string.Empty : $"{_selectedUser.FullName} ({_selectedUser.Username})")"
                     Variant="Variant.Text"
                     Required="true"
-                    ReadOnly="IsPatient"
-                    Disabled="@(!_usersLoaded && !IsPatient)"
+                    ReadOnly="true"
+                    Disabled="@(!_usersLoaded)"
                 />
             }
             else
@@ -26,10 +29,11 @@
                            Label="بیمار"
                            Variant="Variant.Text"
                            Required="true"
-                           ReadOnly="IsPatient"
-                           Disabled="@(!_usersLoaded && !IsPatient)"
+                           ReadOnly="false"
+                           Disabled="@(!_usersLoaded)"
+                           Value="_selectedUser"
                            ValueChanged="OnUserChanged">
-                    @if (Users.Count > 0)
+                    @if (_usersLoaded && Users.Count > 0)
                     {
                         @foreach (var user in Users)
                         {
@@ -39,15 +43,16 @@
                 </MudSelect>
             }
 
+            @* --- Service field --- *@
             @if (ServiceId.HasValue)
             {
                 <MudTextField
                     Label="خدمت / سرویس"
-                    Value="@($"{_selectedService!.Title}")"
+                    Value="@(_selectedService?.Title ?? string.Empty)"
                     Variant="Variant.Text"
                     Required="true"
-                    ReadOnly="IsPatient"
-                    Disabled="@(!_usersLoaded && !IsPatient)"/>
+                    ReadOnly="true"
+                    Disabled="@(!_servicesLoaded)"/>
             }
             else
             {
@@ -56,8 +61,9 @@
                            Variant="Variant.Text"
                            Required="true"
                            Disabled="@(!_servicesLoaded || ServiceId.HasValue)"
+                           Value="_selectedService"
                            ValueChanged="OnServiceChanged">
-                    @if (Services.Count > 0)
+                    @if (_servicesLoaded && Services.Count > 0)
                     {
                         @foreach (var service in Services)
                         {
@@ -67,12 +73,15 @@
                 </MudSelect>
             }
 
+            @* --- Date picker --- *@
             <MudDatePicker Label="تاریخ"
                            Variant="Variant.Text"
                            Culture="@(new CultureInfo("fa-IR"))"
+                           Date="_selectedDate"
                            DateChanged="OnDateChanged"
                            Required="true"/>
 
+            @* --- Slots --- *@
             <MudStack Spacing="1">
                 <MudText Typo="Typo.subtitle2">ساعت</MudText>
 
@@ -89,6 +98,7 @@
                                Label="انتخاب از زمان‌های خالی"
                                Variant="Variant.Text"
                                Required="true"
+                               Value="_selectedSlot"
                                ValueChanged="OnSlotSelected">
                         @foreach (var slot in _slots)
                         {
@@ -114,7 +124,6 @@
                           AutoGrow="true"
                           Placeholder="توضیحات اضافی..."/>
 
-
         </MudStack>
     </DialogContent>
 
@@ -132,12 +141,6 @@
 
 @code {
     [CascadingParameter] public Action UpdateUi { get; set; } = default!;
-
-    private void TriggerParentUpdate()
-    {
-        UpdateUi?.Invoke(); // Call the parent's UpdateUi method
-    }
-
     [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
 
     public CreateAppointmentCommand Model { get; set; } = new();
@@ -155,10 +158,10 @@
     private bool _servicesLoaded;
 
     // تاریخ و اسلات‌ها
-    private DateTime?                 _selectedDate;
-    private bool                      _loadingSlots;
-    private Dictionary<string , bool> _slots = new();
-    private string?                   _selectedSlot; // HH:mm
+    private DateTime?                _selectedDate;
+    private bool                     _loadingSlots;
+    private Dictionary<string, bool> _slots = new();
+    private string?                  _selectedSlot; // HH:mm
 
     // لغو درخواست‌های قبلی اسلات
     private CancellationTokenSource? _slotCts;
@@ -167,7 +170,7 @@
     {
         try
         {
-            // Services
+            // Load services
             if (!ServiceId.HasValue)
             {
                 var services = await Mediator.Send(new ListClinicServicesRequest());
@@ -180,15 +183,17 @@
             }
             else
             {
-                var services = await Mediator.Send(new GetClinicServiceByIdRequest(ServiceId.Value));
+                var svc = await Mediator.Send(new GetClinicServiceByIdRequest(ServiceId.Value));
                 Services.Clear();
 
-                if (services is not null)
-                    Services.Add(services!);
+                if (svc is not null)
+                {
+                    Services.Add(svc);
+                    _selectedService = svc;
+                    Model.ServiceId  = svc.Id;
+                }
 
-                _selectedService = services;
-                Model.ServiceId  = services!.Id;
-                _servicesLoaded  = true;
+                _servicesLoaded = true;
             }
 
             if (Services.Count == 0)
@@ -198,6 +203,7 @@
                 return;
             }
 
+            // Load user
             if (UserId.HasValue)
             {
                 var me = await Mediator.Send(new UserInfoByIdRequest(UserId.Value));
@@ -275,9 +281,9 @@
         _selectedDate = date;
 
         if (date.HasValue)
-            Model.Date = DateOnly.FromDateTime(date!.Value);
+            Model.Date = DateOnly.FromDateTime(date.Value);
         else
-            Model.Date = null!;
+            Model.Date = default; // if nullable: Model.Date = null;
 
         ResetSlots();
         await TryLoadSlotsAsync();
@@ -300,7 +306,9 @@
 
     private async Task TryLoadSlotsAsync()
     {
-        if (_selectedService is null || _selectedDate is null)
+        var userId = UserId ?? _selectedUser?.Id;
+
+        if (_selectedService is null || _selectedDate is null || userId is null)
         {
             _loadingSlots = false;
             StateHasChanged();
@@ -317,18 +325,18 @@
         try
         {
             var dateOnly = DateOnly.FromDateTime(_selectedDate.Value);
-            var req      = new GetAvailableSlotsRequest(dateOnly, _selectedService.Id, _selectedUser!.Id);
+            var req      = new GetAvailableSlotsRequest(dateOnly, _selectedService.Id, userId.Value);
 
             var result = await Mediator.Send(req, token);
             if (token.IsCancellationRequested) return;
 
-            _slots = result;
+            _slots = result ?? new();
 
             // Optional: پیش‌انتخاب اولین اسلات
             if (_slots.Count > 0)
             {
                 _selectedSlot = _slots.First().Key;
-                Model.Start   = _selectedSlot   ;
+                Model.Start   = _selectedSlot;
             }
         }
         catch (OperationCanceledException)
@@ -370,16 +378,25 @@
 
         await Mediator.Send(Model);
         MudDialog.Close();
-        TriggerParentUpdate();
+        UpdateUi?.Invoke(); // Trigger parent update
     }
 
-/* ------------------- اعتبارسنجی ------------------- */
+    /* ------------------- اعتبارسنجی ------------------- */
 
     private bool IsInvalid()
     {
         var hasTime = !string.IsNullOrWhiteSpace(Model.Start);
 
-        return Model.ServiceId == Guid.Empty || _selectedDate is null || !hasTime || string.IsNullOrWhiteSpace(Model.PatientFullName) || string.IsNullOrWhiteSpace(Model.PatientPhone);
+        return Model.ServiceId == Guid.Empty
+               || _selectedDate is null
+               || !hasTime
+               || string.IsNullOrWhiteSpace(Model.PatientFullName)
+               || string.IsNullOrWhiteSpace(Model.PatientPhone);
     }
 
+    public void Dispose()
+    {
+        _slotCts?.Cancel();
+        _slotCts?.Dispose();
+    }
 }

@@ -60,6 +60,7 @@
                   Hover
                   Virtualize
                   FixedHeader
+                  ContainerClass="text-center"
                   RowClass="text-center"
                   Breakpoint="Breakpoint.MdAndDown"
                   Height="68vh"
@@ -68,12 +69,12 @@
                   @ref="_table">
 
             <ToolBarContent>
-                <MudText Typo="Typo.h5" Class="fw-bold" Style="margin: 8px">
-                    نوبت‌ها
-                    <MudText Typo="Typo.caption" Class="ms-2" Color="Color.Secondary">
-                        (@_totalCount.ToString("N0"))
+                <MudBadge Content="@_totalCount.ToString()" Origin="Origin.CenterLeft" Color="Color.Transparent">
+                    <MudText Typo="Typo.h5" Class="fw-bold" Style="margin: 8px">
+                        نوبت‌ها
                     </MudText>
-                </MudText>
+                </MudBadge>
+
                 <MudSpacer/>
                 @if (!PatientUserId.HasValue)
                 {
@@ -84,59 +85,59 @@
             <HeaderContent>
                 @if (ShowFilters)
                 {
-                    <MudTh Class="text-center">خدمت</MudTh>
+                    <MudTh>خدمت</MudTh>
 
-                    <MudTh Class="text-center">تاریخ</MudTh>
+                    <MudTh>تاریخ</MudTh>
 
-                    <MudTh Class="text-center">ساعت</MudTh>
+                    <MudTh>ساعت</MudTh>
 
-                    <MudTh Class="text-center">وضعیت</MudTh>
+                    <MudTh>وضعیت</MudTh>
 
-                    <MudTh Class="text-center">نام بیمار</MudTh>
+                    <MudTh>نام بیمار</MudTh>
 
-                    <MudTh Class="text-center">تلفن</MudTh>
+                    <MudTh>تلفن</MudTh>
 
-                    <MudTh Class="text-center">هزینه</MudTh>
+                    <MudTh>هزینه</MudTh>
 
-                    <MudTh Class="text-center">یادداشت</MudTh>
+                    <MudTh>یادداشت</MudTh>
 
-                    <MudTh Class="text-center">اقدامات</MudTh>
+                    <MudTh>اقدامات</MudTh>
                 }
                 else
                 {
-                    <MudTh Class="text-center">خدمت</MudTh>
+                    <MudTh>خدمت</MudTh>
 
-                    <MudTh Class="text-center">ساعت</MudTh>
+                    <MudTh>ساعت</MudTh>
 
-                    <MudTh Class="text-center">وضعیت</MudTh>
+                    <MudTh>وضعیت</MudTh>
 
-                    <MudTh Class="text-center">نام بیمار</MudTh>
+                    <MudTh>نام بیمار</MudTh>
 
-                    <MudTh Class="text-center">تلفن</MudTh>
+                    <MudTh>تلفن</MudTh>
                 }
             </HeaderContent>
 
             <RowTemplate>
                 @if (ShowFilters)
                 {
-                    <MudTd Class="text-center" DataLabel="خدمت">
+                    <MudTd DataLabel="خدمت">
                         <MudText>@context.ServiceTitle</MudText>
                     </MudTd>
 
-                    <MudTd Class="text-center" DataLabel="تاریخ">
+                    <MudTd DataLabel="تاریخ">
                         <MudRTLProvider>
                             <MudText
-                                Align="Align.Left">@context.Date.ToDateTime(TimeOnly.MinValue).ToString("yyyy/MM/dd")</MudText>
+                                Align="Align.Start">@context.Date.ToDateTime(TimeOnly.MinValue).ToString("yyyy/MM/dd")</MudText>
                         </MudRTLProvider>
                     </MudTd>
 
-                    <MudTd Class="text-center" DataLabel="ساعت">
+                    <MudTd DataLabel="ساعت">
                         <MudRTLProvider RightToLeft="false">
-                            <MudText Align="Align.Left">@context.Start - @context.End</MudText>
+                            <MudText Align="Align.Start">@context.Start - @context.End</MudText>
                         </MudRTLProvider>
                     </MudTd>
 
-                    <MudTd Class="text-center" DataLabel="وضعیت">
+                    <MudTd DataLabel="وضعیت">
                         <MudChip T="string" Color="@StatusColor(context.Status)" Variant="Variant.Filled"
                                  Size="Size.Small"
                                  Icon="@StatusIcon(context.Status)">
@@ -144,27 +145,27 @@
                         </MudChip>
                     </MudTd>
 
-                    <MudTd Class="text-center" DataLabel="نام بیمار">
+                    <MudTd DataLabel="نام بیمار">
                         <MudText>@(string.IsNullOrWhiteSpace(context.PatientFullName) ? "-" : context.PatientFullName)</MudText>
                     </MudTd>
 
-                    <MudTd Class="text-center" DataLabel="تلفن">
+                    <MudTd DataLabel="تلفن">
                         <MudRTLProvider RightToLeft="false">
-                            <MudText Align="Align.Left">@NormalizePhone(context.PatientPhone)</MudText>
+                            <MudText Align="Align.Start">@NormalizePhone(context.PatientPhone)</MudText>
                         </MudRTLProvider>
                     </MudTd>
 
-                    <MudTd Class="text-center" HideSmall DataLabel="هزینه">
+                    <MudTd HideSmall DataLabel="هزینه">
                         <MudText>@context.PriceAmount.ToString("N0") @context.PriceCurrency</MudText>
                     </MudTd>
 
-                    <MudTd Class="text-center" HideSmall DataLabel="یادداشت">
+                    <MudTd HideSmall DataLabel="یادداشت">
                         <MudText>@(string.IsNullOrWhiteSpace(context.Notes) ? "-" : context.Notes)</MudText>
                     </MudTd>
 
                     <!-- ACTIONS (role-based) -->
 
-                    <MudTd Class="text-center" DataLabel="اقدامات">
+                    <MudTd DataLabel="اقدامات">
                         <MudStack Row Spacing="1" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd">
                             <!-- view details: everyone -->
                             <MudIconButton Icon="@MaterialIcons.Filled.Visibility"
@@ -208,15 +209,15 @@
                 }
                 else
                 {
-                    <MudTd Class="text-center" DataLabel="خدمت">
+                    <MudTd DataLabel="خدمت">
                         <MudText>@context.ServiceTitle</MudText>
                     </MudTd>
 
-                    <MudTd Class="text-center" DataLabel="ساعت">
-                        <MudText Align="Align.Left">@context.Start - @context.End</MudText>
+                    <MudTd DataLabel="ساعت">
+                        <MudText Align="Align.Start">@context.Start تا @context.End</MudText>
                     </MudTd>
 
-                    <MudTd Class="text-center" DataLabel="وضعیت">
+                    <MudTd DataLabel="وضعیت">
                         <MudChip T="string" Color="@StatusColor(context.Status)" Variant="Variant.Filled"
                                  Size="Size.Small"
                                  Icon="@StatusIcon(context.Status)">
@@ -224,13 +225,13 @@
                         </MudChip>
                     </MudTd>
 
-                    <MudTd Class="text-center" DataLabel="نام بیمار">
+                    <MudTd DataLabel="نام بیمار">
                         <MudText>@(string.IsNullOrWhiteSpace(context.PatientFullName) ? "-" : context.PatientFullName)</MudText>
                     </MudTd>
 
-                    <MudTd Class="text-center" DataLabel="تلفن">
+                    <MudTd DataLabel="تلفن">
                         <MudRTLProvider RightToLeft="false">
-                            <MudText Align="Align.Left">@NormalizePhone(context.PatientPhone)</MudText>
+                            <MudText Align="Align.End">@NormalizePhone(context.PatientPhone)</MudText>
                         </MudRTLProvider>
                     </MudTd>
                 }
@@ -249,8 +250,10 @@
                 <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Spacing="2" Class="py-14">
                     <MudIcon Icon="@MaterialIcons.Filled.SearchOff" Size="Size.Large" Color="Color.Default"/>
                     <MudText Typo="Typo.h6">موردی یافت نشد</MudText>
-                    <MudText Typo="Typo.body2" Color="Color.Secondary">فیلترها را تغییر دهید یا بازنشانی کنید.</MudText>
-                    <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="ClearFilters">بازنشانی فیلترها
+                    <MudText Typo="Typo.body2"
+                             Color="Color.Secondary">@(ShowFilters ? "فیلترها را تغییر دهید یا بازنشانی کنید." : "نوبتی برای امروز درج نشده")</MudText>
+                    <MudButton Variant="Variant.Text" Color="Color.Primary" OnClick="ClearFilters">
+                        @(ShowFilters ? "بازنشانی فیلترها" : "")
                     </MudButton>
                 </MudStack>
             </NoRecordsContent>
@@ -312,13 +315,19 @@
             var s = _search.Trim();
 
             q = q.Where(a =>
-                (a.PatientFullName?.Contains(s, StringComparison.OrdinalIgnoreCase) ?? false) ||
-                (a.PatientPhone?.Contains(s, StringComparison.OrdinalIgnoreCase)    ?? false) ||
-                (a.ServiceTitle?.Contains(s, StringComparison.OrdinalIgnoreCase)    ?? false) ||
-                (a.Notes?.Contains(s, StringComparison.OrdinalIgnoreCase)           ?? false));
+                            (a.PatientFullName?.Contains(s, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                            (a.PatientPhone?.Contains(s, StringComparison.OrdinalIgnoreCase)    ?? false) ||
+                            (a.ServiceTitle?.Contains(s, StringComparison.OrdinalIgnoreCase)    ?? false) ||
+                            (a.Notes?.Contains(s, StringComparison.OrdinalIgnoreCase)           ?? false));
         }
 
-        q           = q.OrderBy(a => a.Date).ThenBy(a => a.Start);
+        // Sort to prioritize today's appointments, then by date descending, then by start time
+        var today = DateTime.Today;
+
+        q = q.OrderBy(a => (a.Date == DateOnly.FromDateTime(today)) ? 0 : 1).
+              ThenByDescending(a => a.Date).
+              ThenBy(a => a.Start);
+
         _totalCount = q.LongCount();
 
         var pageItems = q.Skip(state.Page * state.PageSize).Take(state.PageSize).ToList();
@@ -338,7 +347,7 @@
             var toDo   = _dateRange?.End is not null ? DateOnly.FromDateTime(_dateRange!.End!.Value) : To       ?? DateOnly.FromDateTime(DateTime.Today.AddDays(7));
 
             var list = await Mediator.Send(new GetAppointmentsQuery(fromDo, toDo, PatientUserId));
-            _all        = list ?? [];
+            _all        = list.OrderBy(a => a.Start).ToList() ?? [];
             _totalCount = _all.Count;
             await _table!.ReloadServerData();
             StateHasChanged();
@@ -443,10 +452,10 @@
             {
                 x => x.Model, new RescheduleDialog.RescheduleModel
                 {
-                    ServiceId = appt.ServiceId,
-                    Date = appt.Date,
-                    Start = appt.Start,
-                    Notes = appt.Notes,
+                    ServiceId     = appt.ServiceId,
+                    Date          = appt.Date,
+                    Start         = appt.Start,
+                    Notes         = appt.Notes,
                     PatientUserId = appt.PatientId
                 }
             }
@@ -455,9 +464,9 @@
         var options = new DialogOptions
         {
             CloseOnEscapeKey = true,
-            MaxWidth = MaxWidth.ExtraSmall,
-            FullWidth = true,
-            NoHeader = true
+            MaxWidth         = MaxWidth.ExtraSmall,
+            FullWidth        = true,
+            NoHeader         = true
         };
 
         var dlg = await DialogService.ShowAsync<RescheduleDialog>("تغییر زمان نوبت", parameters, options);
@@ -468,16 +477,16 @@
             try
             {
                 await Mediator.Send(new RescheduleAppointmentCommand
-                    {
-                        ServiceId = m.ServiceId,
-                        Date = m.Date,
-                        Start = m.Start,
-                        Notes = m.Notes,
-                        Id = appt.Id,
-                        PatientFullName = appt.PatientFullName,
-                        PatientPhone = appt.PatientPhone
-                    },
-                    CancellationToken.None);
+                                    {
+                                        ServiceId       = m.ServiceId,
+                                        Date            = m.Date,
+                                        Start           = m.Start,
+                                        Notes           = m.Notes,
+                                        Id              = appt.Id,
+                                        PatientFullName = appt.PatientFullName,
+                                        PatientPhone    = appt.PatientPhone
+                                    },
+                                    CancellationToken.None);
 
                 Snackbar.ShowSuccess("زمان نوبت با موفقیت تغییر کرد.");
                 await ReloadData();
