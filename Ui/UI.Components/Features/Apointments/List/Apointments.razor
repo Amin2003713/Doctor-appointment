@@ -126,16 +126,16 @@
                     </MudTd>
 
                     <MudTd DataLabel="تاریخ">
-                        <MudRTLProvider>
+                       
                             <MudText
                                 Align="Align.Start">@context.Date.ToDateTime(TimeOnly.MinValue).ToString("yyyy/MM/dd")</MudText>
-                        </MudRTLProvider>
+                   
                     </MudTd>
 
                     <MudTd DataLabel="ساعت">
-                        <MudRTLProvider RightToLeft="false">
-                            <MudText Align="Align.Start">@context.Start - @context.End</MudText>
-                        </MudRTLProvider>
+                        
+                            <MudText  Align="Align.Start">@context.Start - @context.End</MudText>
+                        
                     </MudTd>
 
                     <MudTd DataLabel="وضعیت">
@@ -151,9 +151,9 @@
                     </MudTd>
 
                     <MudTd DataLabel="تلفن">
-                        <MudRTLProvider RightToLeft="false">
+                       
                             <MudText Align="Align.Start">@NormalizePhone(context.PatientPhone)</MudText>
-                        </MudRTLProvider>
+                      
                     </MudTd>
 
                     <MudTd HideSmall DataLabel="هزینه">
@@ -167,7 +167,7 @@
                     <!-- ACTIONS (role-based) -->
 
                     <MudTd DataLabel="اقدامات">
-                        <MudStack Row Spacing="1" AlignItems="AlignItems.Center" Justify="Justify.FlexEnd">
+                        <MudStack Row Spacing="1" AlignItems="AlignItems.Center" Justify="Justify.FlexStart">
                             <!-- view details: everyone -->
                             <MudIconButton Icon="@MaterialIcons.Filled.Visibility"
                                            Color="Color.Primary"
@@ -175,14 +175,15 @@
                                            OnClick="@(() => ViewDetails(context))"
                                            Title="جزئیات"/>
 
-                            <MudIconButton Icon="@MaterialIcons.Filled.Schedule"
-                                           Color="Color.Info"
-                                           Size="Size.Small"
-                                           OnClick="@(() => OpenRescheduleDialog(context))">
-                                تغییر زمان
-                            </MudIconButton>
+                           
                             @if (IsBooked(context))
                             {
+                                <MudIconButton Icon="@MaterialIcons.Filled.Schedule"
+                                               Color="Color.Info"
+                                               Size="Size.Small"
+                                               OnClick="@(() => OpenRescheduleDialog(context))">
+                                    تغییر زمان
+                                </MudIconButton>
                                 <MudIconButton Icon="@MaterialIcons.Filled.Cancel"
                                                Color="Color.Error"
                                                Size="Size.Small"
