@@ -557,12 +557,16 @@
             {
                 if (isEdit && id.HasValue)
                 {
-                    await Mediator.Send(submitted.Adapt<UpdateDrugCommand>());
+                    await Mediator.Send(new UpdateDrugCommand(){
+                        Body = submitted
+                    });
                     Snackbar.ShowSuccess("دارو بروزرسانی شد");
                 }
                 else
                 {
-                    await Mediator.Send(submitted.Adapt<CreateDrugCommand>());
+                    await Mediator.Send(new CreateDrugCommand(){
+                        Body = submitted
+                    });
                     Snackbar.ShowSuccess("دارو ایجاد شد");
                 }
             }
