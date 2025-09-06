@@ -1,0 +1,280 @@
+﻿@page "/PatientEHR"
+
+@using App.Applications.Appointments.Requests
+@using App.Applications.DrugStore.Responses
+@using App.Applications.MedicalRecords.Requests
+@using App.Applications.MedicalRecords.Responses
+@using App.Applications.Prescriptions.Responses
+<style>
+    .mud-table-cell-custom-group {
+        font-weight: 600;
+    }
+
+    .mud-table-cell-custom-group-footer {
+        padding-bottom: 12px;
+        text-align: end;
+    }
+</style>
+
+<MudTable T="EhrItem"
+          ServerData="LoadServerData"
+          Class="rounded-xl"
+         
+          Hover
+          Virtualize
+          FixedHeader
+          Height="68vh"
+          ContainerClass="text-center"
+          RowClass="text-center cursor-pointer"
+          Breakpoint="Breakpoint.MdAndDown"
+          RowsPerPage="20"
+          @ref="_table"
+          GroupBy="@_groupDefinition"
+          GroupHeaderStyle="background-color:var(--mud-palette-background-gray)"
+          GroupFooterClass="mb-0">
+
+    <ToolBarContent>
+        <MudBadge Content="@_totalCount.ToString()" Origin="Origin.CenterLeft" Color="Color.Transparent">
+            <MudText Typo="Typo.h5" Class="fw-bold" Style="margin: 8px">اقلام نسخه‌های بیمار</MudText>
+        </MudBadge>
+        <MudTextField @bind-Value="_search" Placeholder="جستجو..." DebounceInterval="300" Class="mx-4"/>
+        <MudSpacer/>
+        @if (_ehr is not null)
+        {
+            <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mx-2">
+                @_ehr.FullName — @NormalizePhone(_ehr.PhoneNumber)
+            </MudText>
+        }
+    </ToolBarContent>
+
+    <HeaderContent>
+        <MudTh SortLabel="DrugName">دارو</MudTh>
+        <MudTh SortLabel="Dosage">دوز</MudTh>
+        <MudTh SortLabel="Frequency">تکرار</MudTh>
+        <MudTh SortLabel="Duration">مدت</MudTh>
+        <MudTh SortLabel="IsPRN">PRN</MudTh>
+        <MudTh SortLabel="RefillCount">تمدید</MudTh>
+        <MudTh SortLabel="ErxCode">کُد نسخه</MudTh>
+        <MudTh SortLabel="IssuedAtUtc">تاریخ صدور</MudTh>
+        <MudTh SortLabel="Status">وضعیت</MudTh>
+    </HeaderContent>
+
+    <GroupHeaderTemplate>
+        <MudTh colspan="9" class="mud-table-cell-custom-group">
+            @($"نوبت: {context.Key} — {context.Items.Count()} قلم")
+        </MudTh>
+    </GroupHeaderTemplate>
+
+    <RowTemplate>
+        <MudTd>@context.DrugName</MudTd>
+        <MudTd>@context.Dosage</MudTd>
+        <MudTd>@context.Frequency</MudTd>
+        <MudTd>@context.Duration</MudTd>
+        <MudTd>@(context.IsPRN ? "بله" : "خیر")</MudTd>
+        <MudTd>@context.RefillCount</MudTd>
+        <MudTd>@(string.IsNullOrWhiteSpace(context.ErxCode) ? "—" : context.ErxCode)</MudTd>
+        <MudTd>@IssuedLocal(context.IssuedAtUtc)</MudTd>
+        <MudTd>@context.Status</MudTd>
+    </RowTemplate>
+
+    <GroupFooterTemplate>
+        <MudTh colspan="9" class="mud-table-cell-custom-group mud-table-cell-custom-group-footer">
+            @($"جمع این گروه: {context.Items.Count()} قلم — PRN: {context.Items.Count(i => i.IsPRN)} — تمدیدها: {context.Items.Sum(i => i.RefillCount)}")
+        </MudTh>
+    </GroupFooterTemplate>
+
+    <LoadingContent>
+        <MudStack Spacing="1" Class="p-4">
+            @for (var i = 0; i < 6; i++)
+            {
+                <MudSkeleton Height="38px" Width="100%" Animation="Animation.Pulse"/>
+            }
+        </MudStack>
+    </LoadingContent>
+
+    <NoRecordsContent>
+        <MudStack AlignItems="AlignItems.Center" Justify="Justify.Center" Spacing="2" Class="py-14">
+            <MudIcon Icon="@MaterialIcons.Filled.SearchOff" Size="Size.Large" Color="Color.Default"/>
+            <MudText Typo="Typo.h6">موردی یافت نشد</MudText>
+            <MudText Typo="Typo.body2" Color="Color.Secondary">برای این بیمار نسخه یا قلمی وجود ندارد.</MudText>
+        </MudStack>
+    </NoRecordsContent>
+
+    <PagerContent>
+        <MudTablePager InfoFormat="نمایش {first_item}-{last_item} از {all_items}"/>
+    </PagerContent>
+</MudTable>
+
+@code {
+    private MudTable<EhrItem>? _table;
+
+    private List<EhrItem> _allItems = new();
+    private long          _totalCount;
+
+    [Parameter, SupplyParameterFromQuery] public long? PatientUserId { get; set; }
+
+    private string? _search;
+
+    // EHR state
+    private PatientEhrResponse? _ehr;
+    private bool                _ehrLoading;
+
+    private TableGroupDefinition<EhrItem> _groupDefinition = new()
+    {
+        GroupName = "نوبت",
+        Indentation = false,
+        Expandable = true,
+        IsInitiallyExpanded = true,
+        Selector = e => e.AppointmentLabel
+    };
+
+    // ---------------- Lifecycle ----------------
+    protected override async Task OnParametersSetAsync()
+    {
+        await ReloadData();
+    }
+
+    private async Task ReloadData()
+    {
+        try
+        {
+            _ehrLoading = true;
+
+            if (PatientUserId is not null)
+            {
+                // Load one patient EHR
+                _ehr = await Mediator.Send(new GetEhrQuery
+                {
+                    PatientUserId = PatientUserId.Value
+                });
+
+                var apptMap = _ehr?.Appointments?.ToDictionary(
+                                  a => a.Id,
+                                  a => $"{a.Date:yyyy/MM/dd} {a.Start}-{a.End} - {a.Service?.Title ?? "—"}"
+                              ) ??
+                              new Dictionary<Guid, string>();
+
+                _allItems = _ehr?.Prescriptions?.SelectMany(rx => (rx.Items ?? Enumerable.Empty<PrescriptionItemDto>()).Select(it => new EhrItem
+                                {
+                                    DrugName = it.DrugName ?? string.Empty,
+                                    Dosage = it.Dosage ?? string.Empty,
+                                    Frequency = it.Frequency ?? string.Empty,
+                                    Duration = it.Duration ?? string.Empty,
+                                    IsPRN = it.IsPRN,
+                                    RefillCount = it.RefillCount,
+                                    ErxCode = rx.ErxCode ?? string.Empty,
+                                    IssuedAtUtc = rx.IssuedAtUtc,
+                                    Status = rx.Status.ToString(),
+                                    AppointmentLabel = apptMap.TryGetValue(rx.AppointmentId, out var label) ? label : "—"
+                                }))
+                                ?.ToList() ??
+                            new List<EhrItem>();
+            }
+            else
+            {
+                // No user id provided → show nothing
+                _ehr = null;
+                _allItems = new List<EhrItem>();
+            }
+
+            await _table!.ReloadServerData();
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            _ehr = null;
+            _allItems = new List<EhrItem>();
+            Snackbar.ShowError($"خطا در دریافت پروندهٔ بیمار: {ex.Message}");
+        }
+        finally
+        {
+            _ehrLoading = false;
+        }
+    }
+
+    // ---------------- Data load for the table ----------------
+    private async Task<TableData<EhrItem>> LoadServerData(TableState state, CancellationToken _)
+    {
+        if (!_allItems.Any())
+            await ReloadData();
+
+        IEnumerable<EhrItem> q = _allItems;
+
+        // Text search across item fields
+        if (!string.IsNullOrWhiteSpace(_search))
+        {
+            var s = _search.Trim();
+            q = q.Where(it =>
+                (it.DrugName?.Contains(s, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (it.Dosage?.Contains(s, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (it.Frequency?.Contains(s, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (it.Duration?.Contains(s, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (it.ErxCode?.Contains(s, StringComparison.OrdinalIgnoreCase) ?? false) ||
+                (it.Status?.Contains(s, StringComparison.OrdinalIgnoreCase) ?? false)
+            );
+        }
+
+        // Sorting
+        if (!string.IsNullOrEmpty(state.SortLabel))
+        {
+            q = SortQuery(q, state.SortLabel, state.SortDirection);
+        }
+
+        _totalCount = q.LongCount();
+
+        var pageItems = q.Skip(state.Page * state.PageSize)
+            .Take(state.PageSize)
+            .ToList();
+
+        return new TableData<EhrItem>
+        {
+            Items = pageItems,
+            TotalItems = (int)Math.Min(int.MaxValue, _totalCount)
+        };
+    }
+
+    private IEnumerable<EhrItem> SortQuery(IEnumerable<EhrItem> q, string sortLabel, SortDirection dir)
+    {
+        Func<EhrItem, object?> keySelector = sortLabel switch
+                                             {
+                                                 "DrugName"    => x => x.DrugName,
+                                                 "Dosage" => x => x.Dosage,
+            "Frequency" => x => x.Frequency,
+            "Duration" => x => x.Duration,
+            "IsPRN" => x => x.IsPRN,
+            "RefillCount" => x => x.RefillCount,
+            "ErxCode" => x => x.ErxCode,
+            "IssuedAtUtc" => x => x.IssuedAtUtc,
+            "Status" => x => x.Status,
+            _ => x => x.DrugName
+        };
+
+        return dir switch
+        {
+            SortDirection.Ascending => q.OrderBy(keySelector),
+            SortDirection.Descending => q.OrderByDescending(keySelector),
+            _ => q
+        };
+    }
+
+    // ---------------- Helpers ----------------
+    private static string IssuedLocal(DateTime utc)
+        => utc.ToLocalTime().ToString("yyyy/MM/dd HH:mm");
+
+    private static string NormalizePhone(string? phone)
+        => string.IsNullOrWhiteSpace(phone) ? "-" : phone.Replace("+98", "0");
+
+    private class EhrItem
+    {
+        public string DrugName { get; set; } = string.Empty;
+        public string Dosage { get; set; } = string.Empty;
+        public string Frequency { get; set; } = string.Empty;
+        public string Duration { get; set; } = string.Empty;
+        public bool IsPRN { get; set; }
+        public int RefillCount { get; set; }
+        public string ErxCode { get; set; } = string.Empty;
+        public DateTime IssuedAtUtc { get; set; }
+        public string Status { get; set; } = string.Empty;
+        public string AppointmentLabel { get; set; } = string.Empty;
+    }
+}

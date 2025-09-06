@@ -2,10 +2,11 @@
 @using MudBlazor
 @using App.Applications.DrugStore.Queries
 @using App.Applications.DrugStore.Responses
+@using System.Linq.Expressions
 
-
-<MudAutocomplete T="DrugAutocompleteItem"
-                 @bind-Value="Value"
+<MudAutocomplete @ref="Select" T="DrugAutocompleteItem"
+                 Value="Value"
+                 ValueChanged="OnInnerValueChanged"
                  ToStringFunc="GetText"
                  SearchFunc="Search"
                  MinCharacters="@MinCharacters"
@@ -17,101 +18,92 @@
                  Placeholder="@Placeholder"
                  ProgressIndicatorColor="Color.Warning"
                  Adornment="Adornment.Start"
+                 Label="@Label"
                  AdornmentIcon="@Icons.Outlined.Medication"
                  Class="w-full">
     <ProgressIndicatorInPopoverTemplate>
         <MudList T="string" ReadOnly>
-            <MudListItem>
-                Loading...
-            </MudListItem>
+            <MudListItem>Loading...</MudListItem>
         </MudList>
     </ProgressIndicatorInPopoverTemplate>
 </MudAutocomplete>
 
-
 @code {
 
-
-// ----- Binding -----
+    // ----- Binding -----
     [Parameter] public DrugAutocompleteItem? Value { get; set; }
     [Parameter] public EventCallback<DrugAutocompleteItem?> ValueChanged { get; set; }
+    [Parameter] public Expression<Func<DrugAutocompleteItem?>>? ValueExpression { get; set; }
 
-
-// ----- UX Tweaks -----
+    // ----- UX Tweaks -----
     [Parameter] public string Placeholder { get; set; } = "Search drugs…";
+    [Parameter] public string Label { get; set; } = "drug Search";
     [Parameter] public bool Dense { get; set; } = false;
     [Parameter] public int MinCharacters { get; set; } = 2;
     [Parameter] public int Debounce { get; set; } = 300;
     [Parameter] public int Limit { get; set; } = 10;
-
-
-    /// <summary>
-    /// Optional text selector for displaying each <see cref="DrugAutocompleteItem"/>.
-    /// If not provided, a resilient default is used.
-    /// </summary>
     [Parameter] public Func<DrugAutocompleteItem, string>? TextSelector { get; set; }
-
     [Parameter] public Variant Variant { get; set; } = Variant.Text;
+    private MudAutocomplete<DrugAutocompleteItem> Select { get ; set ; }
 
+    public async Task Reset()
+    {
+        await Select.ClearAsync();
+    }
+
+    private async Task OnInnerValueChanged(DrugAutocompleteItem? v)
+    {
+        if (!EqualityComparer<DrugAutocompleteItem?>.Default.Equals(Value, v))
+        {
+            Value = v;                         // keep local state in sync
+            await ValueChanged.InvokeAsync(v); // notify parent (enables @bind-Value on this component)
+        }
+    }
 
     private string GetText(DrugAutocompleteItem item)
         => TextSelector?.Invoke(item) ?? DefaultText(item);
 
-
     private static string DefaultText(DrugAutocompleteItem d)
     {
-// Tries common property names so this works regardless of your DTO shape.
         try
         {
-            string? brand    = d.GetType().GetProperty("BrandName")?.GetValue(d)?.ToString();
-            string? generic  = d.GetType().GetProperty("GenericName")?.GetValue(d)?.ToString();
-            string? label    = d.GetType().GetProperty("Label")?.GetValue(d)?.ToString();
-            string? form     = d.GetType().GetProperty("Form")?.GetValue(d)?.ToString();
-            string? strength = d.GetType().GetProperty("Strength")?.GetValue(d)?.ToString() ?? $"{d.GetType().GetProperty("StrengthValue")?.GetValue(d)} {d.GetType().GetProperty("StrengthUnit")?.GetValue(d)}".Trim();
+            var     t        = d.GetType();
+            string? brand    = t.GetProperty("BrandName")?.GetValue(d)?.ToString();
+            string? generic  = t.GetProperty("GenericName")?.GetValue(d)?.ToString();
+            string? label    = t.GetProperty("Label")?.GetValue(d)?.ToString();
+            string? form     = t.GetProperty("Form")?.GetValue(d)?.ToString();
+            string? strength = t.GetProperty("Strength")?.GetValue(d)?.ToString() ?? $"{t.GetProperty("StrengthValue")?.GetValue(d)} {t.GetProperty("StrengthUnit")?.GetValue(d)}".Trim();
 
-
-            var main = label ?? brand ?? generic ?? d.ToString() ?? string.Empty;
-
+            var main  = label ?? brand ?? generic ?? d.ToString() ?? string.Empty;
             var extra = string.Join(" ",
-                                    new[]
-                                    {
-                                        strength,
-                                        form
-                                    }.Where(s => !string.IsNullOrWhiteSpace(s)));
+                new[]
+                {
+                    strength,
+                    form
+                }.Where(s => !string.IsNullOrWhiteSpace(s)));
 
             return string.IsNullOrWhiteSpace(extra) ? main : $"{main} — {extra}";
         }
-        catch
-        {
-            return d?.ToString() ?? string.Empty;
-        }
+        catch { return d?.ToString() ?? string.Empty; }
     }
-
 
     private async Task<IEnumerable<DrugAutocompleteItem>> Search(string input, CancellationToken cancellation)
     {
         if (string.IsNullOrWhiteSpace(input) || input.Trim().Length < MinCharacters)
-            return [];
-
+            return Enumerable.Empty<DrugAutocompleteItem>();
 
         try
         {
             var list = await Mediator.Send(new AutocompleteDrugsQuery
-                                           {
-                                               Limit =
-                                                   Limit,
-                                               Q = input.Trim(),
-                                           },
-                                           cancellation);
+                {
+                    Limit = Limit,
+                    Q = input.Trim()
+                },
+                cancellation);
 
-            return (IEnumerable<DrugAutocompleteItem>)list ?? [];
+            return (IEnumerable<DrugAutocompleteItem>)list ?? Enumerable.Empty<DrugAutocompleteItem>();
         }
-        catch
-        {
-            return [];
-        }
+        catch { return Enumerable.Empty<DrugAutocompleteItem>(); }
     }
 
-
 }
-

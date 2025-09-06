@@ -61,6 +61,12 @@
                                 Icon="@MaterialIcons.Filled.LocalHospital" IconColor="Color.Success">
                         خدمات
                     </MudNavLink>
+
+                    <MudNavLink Icon="@MaterialIcons.Filled.FolderShared" Color="Color.Primary" Size="Size.Small"
+                         OnClick="@(() => OpenPatientEhr(isPatient))">
+                        پرونده بیمار
+                    </MudNavLink>
+
                 </MudNavGroup>
             }
 
@@ -216,6 +222,7 @@
 
         // “All” report: keep your existing sentinel values
         public static string AllAgendaReport => $"/doctor/agenda?From={DateOnly.FromDateTime(DateTime.MinValue):yyyy-MM-dd}&To={DateOnly.FromDateTime(DateTime.MaxValue):yyyy-MM-dd}";
+        public static string AllEHRReport => $"/PatientEHR?From={DateOnly.FromDateTime(DateTime.MinValue):yyyy-MM-dd}&To={DateOnly.FromDateTime(DateTime.MaxValue):yyyy-MM-dd}";
     }
 
     // -------- Role / labels ---------------------------------------------------
@@ -367,6 +374,33 @@
 
         if (!result!.Canceled && result.Data is UserListItemResponse u)
             NavigationManager.NavigateTo($"{Routes.AllAgendaReport}&PatientUserId={u.Id}");
+    }
+
+    private async Task OpenPatientEhr(bool isPatient)
+    {
+        if (isPatient)
+        {
+            var me = await Mediator.Send(new UserInfoRequest());
+            NavigationManager.NavigateTo($"{Routes.AllEHRReport}&PatientUserId={me.Id}");
+            return;
+        }
+
+        // Secretary/Doctor: pick a user
+        var prms = new DialogParameters<SelectUserDialog>();
+
+        var opts = new DialogOptions
+        {
+            CloseOnEscapeKey = true,
+            FullWidth        = true,
+            MaxWidth         = MaxWidth.Small,
+            NoHeader         = true
+        };
+
+        var dlg    = await DialogService.ShowAsync<SelectUserDialog>("انتخاب کاربر", prms, opts);
+        var result = await dlg.Result;
+
+        if (!result!.Canceled && result.Data is UserListItemResponse u)
+            NavigationManager.NavigateTo($"{Routes.AllEHRReport}&PatientUserId={u.Id}");
     }
 
 }

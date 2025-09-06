@@ -1,4 +1,5 @@
-﻿@using App.Applications.DrugStore.Responses
+﻿@using App.Applications.DrugStore.Queries
+@using App.Applications.DrugStore.Responses
 @using App.Applications.Prescriptions.Requests
 @using App.Applications.Prescriptions.Apis
 @using UI.Components.Features.Drugs.Components
@@ -7,65 +8,65 @@
     <TitleContent>نسخهٔ جدید</TitleContent>
 
     <DialogContent>
-        <MudForm @ref="_form" Model="@Vm" Validated="OnValidated">
+        <MudForm Model="@Vm">
             <MudStack Spacing="2">
 
-                <MudText Typo="Typo.subtitle2" Class="fw-bold">اطلاعات نسخه</MudText>
-
-                <MudTextField @bind-Value="Vm.Notes"
-                              Variant="Variant.Text"
-                              Label="یادداشت پزشک (اختیاری)"
-                              Lines="2"/>
-
-                <MudDivider Class="my-2"/>
+                <MudGrid Class="items-center">
+                    <MudItem xs="12" md="12">
+                        <MudTextField @bind-Value="Vm.Notes"
+                                      Variant="Variant.Text"
+                                      Label="یادداشت پزشک (اختیاری)"/>
+                    </MudItem>
+                </MudGrid>
 
                 <MudText Typo="Typo.subtitle2" Class="fw-bold">اقلام نسخه</MudText>
 
-                <!-- Quick add row -->
+                <!-- Add row -->
                 <MudGrid Class="items-center">
-                    <MudItem xs="12" md="4">
-                        <!-- Your DrugAutocomplete -->
+                    <MudItem xs="12" md="12">
+                        <!-- OPTION A: use MudAutocomplete directly (recommended for full control) -->
                         <DrugAutoComplete
-                            @bind-Value="_pickedDrug"
-                            Placeholder="جستجوی دارو…"
+                            @ref="DrugAutoComplete"
+                            ValueChanged="DrugSelected"
                             Dense="true"
+                            Label="دارو جدید"
                             Variant="Variant.Text"
-                            MinCharacters="2"
-                            Debounce="300"/>
+                            Placeholder="جستجوی دارو…"
+                            MinCharacters="2"/>
 
-                        <!-- Optional: free-text fallback if no selection -->
-                        <MudTextField @bind-Value="_fallbackDrugText"
-                                      Variant="Variant.Text"
-                                      Class="mt-2"
-                                      Label="نام داروی سفارشی (درصورت عدم وجود در فهرست)"
-                                      Placeholder="مثلا: آموکسی‌سیلین 500"
-                                      Immediate="true"/>
                     </MudItem>
-                    <MudItem xs="12" md="2">
+
+                    <MudItem xs="4" md="3">
                         <MudTextField @bind-Value="_newItem.Dosage"
                                       Variant="Variant.Text" Label="دوز" Placeholder="مثلا 500mg" Required/>
                     </MudItem>
-                    <MudItem xs="12" md="2">
+                    <MudItem xs="4" md="3">
                         <MudTextField @bind-Value="_newItem.Frequency"
                                       Variant="Variant.Text" Label="تکرار" Placeholder="مثلا هر 8 ساعت" Required/>
                     </MudItem>
-                    <MudItem xs="12" md="2">
+                    <MudItem xs="4" md="3">
                         <MudTextField @bind-Value="_newItem.Duration"
                                       Variant="Variant.Text" Label="مدت" Placeholder="مثلا 7 روز" Required/>
                     </MudItem>
-                    <MudItem xs="6" md="1">
-                        <MudSwitch T="bool" @bind-Checked="_newItem.IsPRN" Color="Color.Primary" Label="در صورت نیاز (PRN)"/>
+                    <MudItem xs="4" md="3">
+                        <MudSwitch T="bool" @bind-Value="_newItem.IsPRN" Color="Color.Primary"
+                                   Label="در صورت نیاز (PRN)"/>
                     </MudItem>
-                    <MudItem xs="6" md="1">
+
+
+                    <MudItem xs="4" md="2">
                         <MudNumericField @bind-Value="_newItem.RefillCount" Min="0" Max="12" Immediate="true"
                                          Label="تمدید"/>
                     </MudItem>
-                    <MudItem xs="12" md="1" Class="text-end">
-                        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="AddItem"
-                                   Disabled="@(!CanAddNewItem)">افزودن
+                    <MudItem xs="12" md="12" Class="text-end">
+                        <MudButton Color="Color.Primary" Variant="Variant.Filled"
+                                   Disabled="@(!CanAddNewItem)"
+                                   OnClick="AddItem">
+                            افزودن
                         </MudButton>
                     </MudItem>
                 </MudGrid>
+
 
                 <!-- Items table -->
                 <MudTable Items="Vm.Items" Dense Hover Class="mt-2">
@@ -87,7 +88,7 @@
                         <MudTd>@context.RefillCount</MudTd>
                         <MudTd Class="text-end">
                             <MudIconButton Icon="@MaterialIcons.Filled.Delete" Color="Color.Error" Size="Size.Small"
-                                           OnClick="@(() => RemoveItem(context))" Title="حذف"/>
+                                           Title="حذف" OnClick="@(() => RemoveItem(context))"/>
                         </MudTd>
                     </RowTemplate>
                     <NoRecordsContent>
@@ -111,82 +112,35 @@
 @code {
     [CascadingParameter] IMudDialogInstance MudDialog { get; set; } = default!;
 
-    // Required inputs
-    [Parameter] public Guid AppointmentId { get; set; }
-    [Parameter] public long PatientUserId { get; set; }
-    [Parameter] public int IssueMethod { get; set; } = 0; // e.g., 0 = Paper, 1 = E-Prescription (match your server)
+    [Parameter] public Guid   AppointmentId { get; set; }
+    [Parameter] public long   PatientUserId { get; set; }
+    [Parameter] public int    IssueMethod { get; set; } = 0; // 0=Paper, 1=E-Prescription
     [Parameter] public string? PrefillNotes { get; set; }
 
-    private MudForm? _form;
     private bool     _busy;
 
     private CreatePrescriptionRequest     Vm       = new();
     private CreatePrescriptionItemRequest _newItem = new();
 
-    // NEW: holds the selected suggestion
     private DrugAutocompleteItem? _pickedDrug;
+    private string                _drugText = string.Empty; // unified text (selected or custom)
 
-    // NEW: free-text fallback when nothing is selected
-    private string? _fallbackDrugText;
 
-    // Reuse in AddItem() to compute best display name
-    private static string DrugDisplayName(DrugAutocompleteItem d)
-    {
-        // mimic your DefaultText/getter logic, but be safe and short
-        var     t       = d?.GetType();
-        string? brand   = t?.GetProperty("BrandName")?.GetValue(d)?.ToString();
-        string? generic = t?.GetProperty("GenericName")?.GetValue(d)?.ToString();
-        string? label   = t?.GetProperty("Label")?.GetValue(d)?.ToString();
-        string  main    = label ?? brand ?? generic ?? d?.ToString() ?? string.Empty;
+    private bool CanAddNewItem => !string.IsNullOrWhiteSpace(_newItem.Dosage) && !string.IsNullOrWhiteSpace(_newItem.Frequency) && !string.IsNullOrWhiteSpace(_newItem.Duration) && (!string.IsNullOrWhiteSpace(_drugText) || _pickedDrug is not null);
+    private DrugAutoComplete? DrugAutoComplete { get ; set ; }
 
-        string? strength =
-            t?.GetProperty("Strength")?.GetValue(d)?.ToString() ?? $"{t?.GetProperty("StrengthValue")?.GetValue(d)} {t?.GetProperty("StrengthUnit")?.GetValue(d)}".Trim();
-
-        string? form = t?.GetProperty("Form")?.GetValue(d)?.ToString();
-
-        var extra = string.Join(" ",
-                                new[]
-                                {
-                                    strength,
-                                    form
-                                }.Where(s => !string.IsNullOrWhiteSpace(s)));
-
-        return string.IsNullOrWhiteSpace(extra) ? main : $"{main} — {extra}";
-    }
-
-    // Try to read Id (Guid?) from DTO without hard-coding property names elsewhere
-    private static Guid? TryGetDrugId(DrugAutocompleteItem? d)
-    {
-        if (d is null) return null;
-        var pi = d.GetType().GetProperty("Id");
-        if (pi == null) return null;
-        var val = pi.GetValue(d);
-        if (val is Guid g) return g;
-        if (Guid.TryParse(val?.ToString(), out var g2)) return g2;
-        return null;
-    }
-
-    private bool CanAddNewItem =>
-        // must have dosage/frequency/duration
-        !string.IsNullOrWhiteSpace(_newItem.Dosage)    &&
-        !string.IsNullOrWhiteSpace(_newItem.Frequency) &&
-        !string.IsNullOrWhiteSpace(_newItem.Duration)
-        // and either a picked drug OR a fallback text
-        &&
-        (_pickedDrug is not null || !string.IsNullOrWhiteSpace(_fallbackDrugText));
-
-    private void AddItem()
+    private async Task AddItem()
     {
         if (!CanAddNewItem) return;
 
-        // Prefer selected suggestion; otherwise use free-text
+        // prefer selected suggestion; otherwise use free text
         Guid?   drugId   = TryGetDrugId(_pickedDrug);
-        string? drugName = _pickedDrug is not null ? DrugDisplayName(_pickedDrug) : _fallbackDrugText?.Trim();
+        string? drugName = _pickedDrug is not null ? DefaultText(_pickedDrug) : _drugText.Trim();
 
         Vm.Items.Add(new CreatePrescriptionItemRequest
         {
             DrugId       = drugId,
-            DrugName     = drugName, // keep human-readable name even if DrugId present (useful for printouts)
+            DrugName     = drugName, // keep human-readable name even if DrugId present
             Dosage       = _newItem.Dosage.Trim(),
             Frequency    = _newItem.Frequency.Trim(),
             Duration     = _newItem.Duration.Trim(),
@@ -195,11 +149,16 @@
             RefillCount  = _newItem.RefillCount
         });
 
-        // reset row
-        _pickedDrug       = null;
-        _fallbackDrugText = null;
-        _newItem          = new();
+        await ResetNewRow();
         StateHasChanged();
+    }
+
+    private async Task ResetNewRow()
+    {
+        _pickedDrug = null;
+        _drugText   = string.Empty;
+        _newItem    = new();
+        await DrugAutoComplete!.Reset();
     }
 
     protected override void OnInitialized()
@@ -210,22 +169,13 @@
         Vm.Notes         = PrefillNotes;
     }
 
-
     private void RemoveItem(CreatePrescriptionItemRequest row)
-    {
-        Vm.Items.Remove(row);
-    }
+        => Vm.Items.Remove(row);
 
     private async Task Submit()
     {
-        await _form!.Validate();
-    }
-
-    private async Task OnValidated()
-    {
         if (_busy) return;
 
-        // Basic validations
         if (Vm.Items.Count == 0)
         {
             Snackbar.ShowError("حداقل یک قلم نسخه اضافه کنید یا از «ثبت بدون نسخه» استفاده کنید.");
@@ -236,10 +186,13 @@
 
         try
         {
-            var resp = await Mediator.Send(Vm.Adapt<CreatePrescriptionCommand>());
+            var resp = await Mediator.Send(new CreatePrescriptionCommand()
+            {
+                Body = Vm
+            });
 
             Snackbar.ShowSuccess("نسخه با موفقیت ثبت شد.");
-            MudDialog.Close(DialogResult.Ok(resp)); // return created prescription
+            MudDialog.Close(DialogResult.Ok(resp));
         }
         catch (Exception ex)
         {
@@ -252,14 +205,66 @@
     }
 
     private void SubmitWithoutPrescription()
-    {
-        MudDialog.Close(); // caller interprets as “no prescription”
-    }
+        => MudDialog.Close();
 
     private void Cancel()
+        => MudDialog.Cancel();
+
+    // ---------- helpers ----------
+    private static Guid? TryGetDrugId(DrugAutocompleteItem? d)
+        => d?.Id;
+
+    private static string DefaultText(DrugAutocompleteItem? d)
     {
-        MudDialog.Cancel();
+        if (d is null) return string.Empty;
+
+        var     t       = d.GetType();
+        string? brand   = t.GetProperty("BrandName")?.GetValue(d)?.ToString();
+        string? generic = t.GetProperty("GenericName")?.GetValue(d)?.ToString();
+        string? label   = t.GetProperty("Label")?.GetValue(d)?.ToString();
+        string  main    = label ?? brand ?? generic ?? d.ToString() ?? string.Empty;
+
+        string? strength = t.GetProperty("Strength")?.GetValue(d)?.ToString() ?? $"{t.GetProperty("StrengthValue")?.GetValue(d)} {t.GetProperty("StrengthUnit")?.GetValue(d)}".Trim();
+
+        string? form = t.GetProperty("Form")?.GetValue(d)?.ToString();
+
+        var extra = string.Join(" ",
+            new[]
+            {
+                strength,
+                form
+            }.Where(s => !string.IsNullOrWhiteSpace(s)));
+
+        return string.IsNullOrWhiteSpace(extra) ? main : $"{main} — {extra}";
     }
 
+    private async Task DrugSelected(DrugAutocompleteItem? d)
+    {
+        if (d is null )
+            return;
+
+        _pickedDrug = d;
+
+
+        var drug = await Mediator.Send(new GetDrugByIdQuery()
+        {
+            Id = d!.Id
+        });
+
+        if (drug == null)
+            Snackbar.ShowError("drug not fpund .");
+
+        if (_newItem is { Dosage: "" , DrugName: null , RefillCount: 0 , Duration: "" , Frequency: "" })
+            _newItem = CreatePrescriptionItemRequest.ToPrescriptionItem(
+                drug!,
+                dosage: "500mg",
+                frequency: "هر 8 ساعت",
+                duration: "7 روز",
+                isPrn: false,
+                refillCount: 1
+            );
+
+        StateHasChanged();
+    }
 
 }

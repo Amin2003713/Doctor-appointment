@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using Api.Endpoints.Context;
 using Api.Endpoints.Dtos.Prescriptions;
+using Api.Endpoints.Dtos.Services;
 using Api.Endpoints.Models.Appointments;
 using Api.Endpoints.Models.Prescriptions;
 using Api.Endpoints.Models.Drugs;                // ⬅ add this
@@ -12,10 +13,13 @@ using Microsoft.EntityFrameworkCore;
 namespace Api.Endpoints.Controllers.Prescriptions;
 
 #region MedicalRecordsController
+
 [ApiController]
 [Route("api/medical-records")]
 [Authorize]
-public class MedicalRecordsController(AppDbContext db) : ControllerBase
+public class MedicalRecordsController(
+    AppDbContext db
+) : ControllerBase
 {
     // GET /api/medical-records/{patientUserId}/ehr
     [Authorize(Roles = "Doctor,Secretary,Patient")]
@@ -30,9 +34,9 @@ public class MedicalRecordsController(AppDbContext db) : ControllerBase
             .OrderByDescending(a => a.Date)
             .FirstOrDefaultAsync(ct);
 
-        var fullName = lastAppt?.PatientFullName ?? "Patient";
-        var phone    = lastAppt?.PatientPhone ?? "-";
-        string? address = null;
+        var     fullName = lastAppt?.PatientFullName ?? "Patient";
+        var     phone    = lastAppt?.PatientPhone ?? "-";
+        string? address  = null;
 
         var appts = await db.Appointments.AsNoTracking()
             .Where(a => a.PatientUserId == patientUserId)
@@ -45,7 +49,21 @@ public class MedicalRecordsController(AppDbContext db) : ControllerBase
                 Start = a.Start.ToString("HH:mm"),
                 End   = a.End.ToString("HH:mm"),
                 Status = a.Status,
-                Notes  = a.Notes
+                Notes  = a.Notes,
+                Service = db.MedicalServices.AsNoTracking()
+                              .Select(s => new ServiceResponse()
+                              {
+                                  Id = s.Id,
+                                  Code = s.Code,
+                                  Title = s.Title,
+                                  Description = s.Description,
+                                  PriceAmount = s.Price.Amount,
+                                  PriceCurrency = s.Price.Currency,
+                                  VisitMinutes = s.VisitMinutes,
+                                  IsActive = s.IsActive
+                              })
+                              .SingleOrDefault(w => w.Id == a.ServiceId) ??
+                          null!
             })
             .ToListAsync(ct);
 
@@ -87,34 +105,36 @@ public class MedicalRecordsController(AppDbContext db) : ControllerBase
                 .ToDictionaryAsync(d => d.Id, ct);
 
         var prescriptions = presEntities.Select(p => new PrescriptionResponse
-        {
-            Id                 = p.Id,
-            AppointmentId      = p.AppointmentId,
-            PatientUserId      = p.PatientUserId,
-            PrescribedByUserId = p.PrescribedByUserId,
-            IssuedAtUtc        = p.IssuedAtUtc,
-            Status             = (int)p.Status,
-            IssueMethod        = (int)p.IssueMethod,
-            ErxCode            = p.ErxCode,
-            Notes              = p.Notes,
-            Items = p.Items.Select(i =>
             {
-                drugMap.TryGetValue(i.DrugId ?? Guid.Empty, out var d);
-                return new PrescriptionItemDto
-                {
-                    Id           = i.Id,
-                    DrugId       = i.DrugId,
-                    DrugName     = i.DrugName,
-                    GenericName  = d?.GenericName, // derived from catalog
-                    Dosage       = i.Dosage,
-                    Frequency    = i.Frequency,
-                    Duration     = i.Duration,
-                    Instructions = i.Instructions,
-                    IsPRN        = i.IsPRN,
-                    RefillCount  = i.RefillCount
-                };
-            }).ToList()
-        }).ToList();
+                Id                 = p.Id,
+                AppointmentId      = p.AppointmentId,
+                PatientUserId      = p.PatientUserId,
+                PrescribedByUserId = p.PrescribedByUserId,
+                IssuedAtUtc        = p.IssuedAtUtc,
+                Status             = (int)p.Status,
+                IssueMethod        = (int)p.IssueMethod,
+                ErxCode            = p.ErxCode,
+                Notes              = p.Notes,
+                Items = p.Items.Select(i =>
+                    {
+                        drugMap.TryGetValue(i.DrugId ?? Guid.Empty, out var d);
+                        return new PrescriptionItemDto
+                        {
+                            Id           = i.Id,
+                            DrugId       = i.DrugId,
+                            DrugName     = i.DrugName,
+                            GenericName  = d?.GenericName, // derived from catalog
+                            Dosage       = i.Dosage,
+                            Frequency    = i.Frequency,
+                            Duration     = i.Duration,
+                            Instructions = i.Instructions,
+                            IsPRN        = i.IsPRN,
+                            RefillCount  = i.RefillCount
+                        };
+                    })
+                    .ToList()
+            })
+            .ToList();
 
         var res = new PatientEhrResponse
         {
@@ -200,10 +220,12 @@ public class MedicalRecordsController(AppDbContext db) : ControllerBase
         var role = User.FindFirstValue(ClaimTypes.Role) ??
                    User.FindFirstValue("role") ??
                    User.FindFirstValue("roles") ?? "";
-        var sub  = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
+
+        var   sub = User.FindFirstValue(ClaimTypes.NameIdentifier) ?? User.FindFirstValue("sub");
         long? uid = null;
         if (long.TryParse(sub, out var parsed)) uid = parsed;
         return (uid, role);
     }
 }
+
 #endregion
